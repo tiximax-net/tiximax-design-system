@@ -3,15 +3,15 @@
 > Foundations, components, and UI kits for building TIXIMAX-branded interfaces and assets.
 
 ### Browse the system
-- **Component library** — open `preview/All Components.html` (sidebar browser, 30 cards: brand, colors, type, spacing, and 21 components). Has a **light/dark toggle** (top-right).
+- **Design-system browser** — open **`index.html`** (sidebar + viewer, 30 cards: Brand, Colors, Type, Spacing, 19 Components, Templates). **Multi-language VI / 日本語 / EN** + **light/dark** toggle in the header; **click-to-copy hex** on the Colors pages. Component/specimen pages live in `preview/` and load into the viewer. *(`preview/All Components.html` is the earlier single-language browser.)*
 - **Individual components** — `preview/comp-*.html` (token-driven; each loads `colors_and_type.css`).
 - **UI kits** — `ui_kits/website/index.html` (marketing site) and `ui_kits/portal/index.html` (customer app).
-- **Deck & document pipeline** — `index.html` (showcase), `slides-preview.html`, `documents-preview.html`; PDF export via the group `html-to-pdf` tool + `export.json`.
+- **Deck & document pipeline** — `slides-preview.html`, `documents-preview.html`; PDF export via the group `html-to-pdf` tool + `export.json`.
 
 ### Foundations at a glance
 - **Tokens:** `colors_and_type.css` (standard, component-facing) and `tokens.css` (deck-aware, adds JP/VI font infra for PDF). Keep the two in sync.
 - **Dark mode:** light-first; apply `[data-theme="dark"]` (or `.dark`) on any container. Both foundation files carry the dark layer.
-- **Fonts:** **self-hosted** (offline-safe for Puppeteer PDF) — Inter (body/UI) · Montserrat + Source Sans 3 (display options) · Noto Sans JP (Japanese) · Be Vietnam Pro (Vietnamese docs). No Google Fonts CDN. The heading face is a one-line seam: `--font-display` in `colors_and_type.css`.
+- **Fonts:** **self-hosted** (offline-safe for Puppeteer PDF), no Google Fonts CDN — **Montserrat** (display / headings, Latin-only; cyrillic subset trimmed) · **Inter** (body / UI) · **Noto Sans JP** (Japanese; fallback for CJK glyphs in headings) · **Be Vietnam Pro** (Vietnamese documents) · Source Sans 3 (alternate display / deck content). Heading seam: `--font-display` (components) and `--font-latin` (deck Latin headings).
 
 ---
 

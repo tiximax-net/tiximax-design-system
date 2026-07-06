@@ -1,740 +1,286 @@
-<!-- @dsCard group="Overview" name="Index" subtitle="Tiximax · Navy #264F91 · Gold #F4B931 · Red #EB5635 · 8 components · Deck · Docs" viewport='{"width":1440,"height":900}' -->
 <!DOCTYPE html>
 <html lang="vi" data-theme="light" data-lang-default="vi" data-langs="vi,ja,en">
 <head>
-  <!-- ⚙️ TRANG NÀY DO TOOL 'ds-index' SINH — ĐỪNG sửa trực tiếp index.html.
-       Rebuild:  node .claude/tools/ds-index/index.mjs build tiximax
-       Nguồn (sửa ở đây): ds.manifest.json + sections/*.html + tokens.css (+ ds-index.css)
-       Tool + hướng dẫn: .claude/tools/ds-index/ (README.md) · i18n: i18n.json -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tiximax Design System</title>
-<link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="showcase.css">
-<link rel="stylesheet" href="ds-index.css">
+<title>TIXIMAX Design System</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:var(--font-sans);background:var(--neutral-100);display:flex;color:var(--text-primary)}
+
+  /* ─── Sidebar ─── */
+  .sidebar{width:240px;flex:none;background:var(--surface-card);border-right:1px solid var(--border-default);
+    display:flex;flex-direction:column;height:100vh;overflow-y:auto;overflow-x:hidden}
+  .sidebar::-webkit-scrollbar{width:4px}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--neutral-300);border-radius:4px}
+
+  .logo{padding:16px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-subtle)}
+  .logo-sq{width:30px;height:30px;display:block;flex:none}
+  .logo-sq.dark{display:none}
+  [data-theme="dark"] .logo-sq.light{display:none}
+  [data-theme="dark"] .logo-sq.dark{display:block}
+  .logo-text{font-size:13px;font-weight:700;color:var(--text-primary);letter-spacing:.06em}
+  .logo-sub{font-size:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
+
+  .nav{flex:1;padding:8px 0}
+  .group{margin-bottom:2px}
+  .group-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 16px;border:none;background:none;
+    font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);
+    cursor:pointer;font-family:inherit;text-align:left}
+  .group-btn:hover{color:var(--text-primary)}
+  .group-btn svg{width:12px;height:12px;transition:transform .15s;flex:none}
+  .group-btn.open svg{transform:rotate(90deg)}
+  .group-items{display:none;padding:0 0 4px}
+  .group.open .group-items{display:block}
+
+  .nav-item{display:flex;align-items:center;gap:8px;width:100%;padding:7px 16px 7px 28px;border:none;background:none;
+    font-size:13px;color:var(--text-secondary);cursor:pointer;font-family:inherit;text-align:left;
+    border-left:2px solid transparent;transition:all .12s;font-weight:var(--fw-medium)}
+  .nav-item:hover{background:var(--surface-sunken);color:var(--text-primary)}
+  .nav-item.active{background:var(--gold-50);color:var(--text-brand);border-left-color:var(--brand-gold);font-weight:var(--fw-semibold)}
+
+  .sidebar-footer{padding:12px 16px;border-top:1px solid var(--border-subtle);font-size:11px;color:var(--text-disabled);text-align:center}
+
+  /* ─── Main ─── */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+
+  .topbar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--surface-card);
+    border-bottom:1px solid var(--border-default);flex:none}
+  .topbar-title{font-size:15px;font-weight:700;color:var(--text-primary)}
+  .topbar-sub{font-size:12px;color:var(--text-tertiary);flex:1}
+  .topbar-group{font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;
+    background:var(--surface-sunken);padding:3px 8px;border-radius:4px}
+  .topbar-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border-default);background:var(--surface-card);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-tertiary)}
+  .topbar-btn:hover{background:var(--surface-sunken);color:var(--text-primary)}
+  .topbar-btn svg{width:16px;height:16px}
+
+  .content{flex:1;overflow:hidden;padding:0;min-height:0}
+  .content iframe{width:100%;height:100%;border:none;display:block;background:var(--surface-card)}
+
+  /* ─── Language toggle (trên header) ─── */
+  .ds-langtoggle{display:flex;gap:2px;background:var(--surface-sunken);border-radius:999px;padding:2px}
+  .ds-langbtn{font-size:11px;font-weight:600;letter-spacing:.02em;padding:5px 10px;border:none;border-radius:999px;
+    background:none;color:var(--text-tertiary);cursor:pointer;font-family:inherit;transition:all .12s}
+  .ds-langbtn:hover{color:var(--text-secondary)}
+  .ds-langbtn.active{background:var(--surface-card);color:var(--text-brand);box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.12))}
+
+  /* ─── Polish port từ index ─── */
+  :root{--font-ui:var(--font-sans)}
+  :root[data-lang="vi"]{--font-ui:var(--font-vi)}
+  :root[data-lang="ja"]{--font-ui:var(--font-jp)}
+  .nav-item,.topbar-title{font-family:var(--font-ui)}
+  .sb-num{font-size:9px;font-weight:700;color:var(--text-disabled);margin-right:1px;letter-spacing:.02em;font-variant-numeric:tabular-nums;flex:none}
+  .nav-item.active .sb-num{color:var(--brand-gold)}
+</style>
 </head>
 <body>
 
+<!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar">
-  <div class="sb-brand">
-    <span style="display:inline-flex;height:24px;width:auto;"><img src="assets/tiximax-symbol-square-navy.svg" alt="Tiximax" class="sb-logo-sq"></span>
+  <div class="logo">
+    <img class="logo-sq light" src="assets/tiximax-symbol-square-navy.svg" alt="TIXIMAX">
+    <img class="logo-sq dark" src="assets/tiximax-symbol-square-gold.svg" alt="TIXIMAX">
     <div>
-      <div class="sb-brand-name">Tiximax</div>
+      <div class="logo-text">TIXIMAX</div>
+      <div class="logo-sub">Design System</div>
     </div>
   </div>
-  <div class="sb-group">
-    <div class="sb-group-label"><span data-i18n data-en="Foundations" data-ja="基礎" data-vi="Nền tảng">Foundations</span></div>
-    <nav class="sb-nav">
-      <a href="#brand" class="sb-link active"><span class="sb-num">01</span><span data-i18n data-en="Brand &amp; Logo" data-ja="ブランド・ロゴ" data-vi="Thương hiệu &amp; Logo">Brand &amp; Logo</span></a>
-      <a href="#colors" class="sb-link"><span class="sb-num">02</span><span data-i18n data-en="Colors" data-ja="カラー" data-vi="Màu sắc">Colors</span></a>
-      <a href="#typography" class="sb-link"><span class="sb-num">03</span><span data-i18n data-en="Typography" data-ja="タイポグラフィ" data-vi="Kiểu chữ">Typography</span></a>
-    </nav>
-  </div>
-  <div class="sb-sep"></div>
-  <div class="sb-group">
-    <div class="sb-group-label"><span data-i18n data-en="Components" data-ja="コンポーネント" data-vi="Thành phần">Components</span></div>
-    <nav class="sb-nav">
-      <a href="#buttons" class="sb-link"><span class="sb-num">04</span><span data-i18n data-en="Buttons" data-ja="ボタン" data-vi="Nút">Buttons</span></a>
-      <a href="#cards" class="sb-link"><span class="sb-num">05</span><span data-i18n data-en="Cards" data-ja="カード" data-vi="Thẻ">Cards</span></a>
-      <a href="#badges" class="sb-link"><span class="sb-num">06</span><span data-i18n data-en="Badges &amp; Tags" data-ja="バッジ・タグ" data-vi="Nhãn &amp; Tag">Badges &amp; Tags</span></a>
-      <a href="#stats" class="sb-link"><span class="sb-num">07</span>StatBlock</a>
-      <a href="#nav" class="sb-link"><span class="sb-num">08</span>Heading &amp; Navbar</a>
-    </nav>
-  </div>
-  <div class="sb-sep"></div>
-  <div class="sb-group">
-    <div class="sb-group-label"><span data-i18n data-en="Templates" data-ja="テンプレート" data-vi="Mẫu tài liệu">Templates</span></div>
-    <nav class="sb-nav">
-      <a href="#deck" class="sb-link"><span class="sb-num">09</span><span data-i18n data-en="Slide Deck" data-ja="スライドデッキ" data-vi="Bộ slide">Slide Deck</span></a>
-      <a href="#docs" class="sb-link"><span class="sb-num">10</span>Documents</a>
-    </nav>
-  </div>
-  <div class="sb-foot">
+  <nav class="nav" id="nav"></nav>
+  <div class="sidebar-footer">TIXIMAX Design System · v1.1</div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-group" id="topGroup" data-i18n>—</span>
+    <span class="topbar-title" id="topTitle" data-i18n>Design System</span>
+    <span class="topbar-sub" id="topSub"></span>
     <div class="ds-langtoggle">
       <button class="ds-langbtn" data-lang="vi">VI</button>
       <button class="ds-langbtn" data-lang="ja">日本語</button>
       <button class="ds-langbtn" data-lang="en">EN</button>
     </div>
-    <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span> <span id="theme-label">Dark mode</span></button>
-  </div>
-</aside>
-
-<main class="main">
-  <div class="page-header">
-    <div class="page-super">Design System · Tiximax Group</div>
-    <div class="page-title">Tiximax</div>
-    <div class="page-sub">Navy #264F91 · Gold #F4B931 · Red #EB5635 · 8 components · Deck · Docs · tiximax.net</div>
+    <button class="topbar-btn" onclick="toggleTheme()" title="Toggle light / dark" id="themeBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
+    <button class="topbar-btn" onclick="openInNewTab()" title="Open in new tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </button>
   </div>
 
-  <section class="sec" id="brand">
-    <div class="sec-header">
-      <span class="sec-num">01</span>
-      <span class="sec-title"><span data-i18n data-en="Brand &amp; Logo" data-ja="ブランド・ロゴ" data-vi="Thương hiệu &amp; Logo">Brand &amp; Logo</span></span>
+  <!-- Single card view -->
+  <div class="content" id="singleView">
+    <iframe id="viewer" src="about:blank"></iframe>
+  </div>
+</div>
+
+<script>
+const GROUPS_I18N = {
+  Brand:      { ja: 'ブランド',       vi: 'Thương hiệu' },
+  Colors:     { ja: 'カラー',         vi: 'Màu sắc' },
+  Type:       { ja: 'タイポグラフィ', vi: 'Kiểu chữ' },
+  Spacing:    { ja: 'スペーシング',   vi: 'Khoảng cách' },
+  Components: { ja: 'コンポーネント', vi: 'Thành phần' },
+  Templates:  { ja: 'テンプレート',   vi: 'Mẫu tài liệu' },
+};
+
+const CARDS = [
+  // Brand
+  { group: 'Brand', name: 'Logo', ja: 'ロゴ', vi: 'Logo', sub: 'TIXIMAX · Indonesia · Philippines', file: 'brand-logo.html', h: 720 },
+  { group: 'Brand', name: 'Favicon', ja: 'ファビコン', vi: 'Favicon', sub: 'App icon / favicon', file: 'brand-favicon.html', h: 320 },
+  // Colors
+  { group: 'Colors', name: 'Brand colors', ja: 'ブランドカラー', vi: 'Màu thương hiệu', sub: 'Core + Yellow ramp + Neutral', file: 'colors-brand.html', h: 520 },
+  { group: 'Colors', name: 'Semantic colors', ja: 'セマンティックカラー', vi: 'Màu ngữ nghĩa', sub: 'Success, Warning, Error, Info', file: 'colors-semantic.html', h: 220 },
+  { group: 'Colors', name: 'Text colors', ja: 'テキストカラー', vi: 'Màu chữ', sub: 'Hierarchy, Brand, Status', file: 'colors-text.html', h: 660 },
+  // Type — gộp Montserrat/Inter/Noto thành 1 Typography kiểu index
+  { group: 'Type', name: 'Typography', ja: 'タイポグラフィ', vi: 'Kiểu chữ', sub: 'Type scale · Montserrat / Inter / Noto · đa ngữ', file: 'typography.html', h: 900 },
+  // Spacing
+  { group: 'Spacing', name: 'Spacing scale', ja: 'スペーシング', vi: 'Thang khoảng cách', sub: '4px base scale', file: 'spacing-scale.html', h: 300 },
+  { group: 'Spacing', name: 'Corner radius', ja: '角丸', vi: 'Bo góc', sub: 'xs 4px → pill', file: 'radius.html', h: 160 },
+  { group: 'Spacing', name: 'Shadow & elevation', ja: 'シャドウ・エレベーション', vi: 'Đổ bóng', sub: 'xs → xl + gold glow', file: 'shadow.html', h: 160 },
+  // Components
+  { group: 'Components', name: 'Buttons', ja: 'ボタン', vi: 'Nút', sub: '3 sizes × 6 variants × 3 types', file: 'comp-buttons.html', h: 750 },
+  { group: 'Components', name: 'Input fields', ja: '入力フィールド', vi: 'Ô nhập', sub: 'Text, icon, date, time, select, validation', file: 'comp-inputs.html', h: 440 },
+  { group: 'Components', name: 'Controls', ja: 'コントロール', vi: 'Điều khiển', sub: 'Checkbox, radio, toggle', file: 'comp-controls.html', h: 180 },
+  { group: 'Components', name: 'Badges & chips', ja: 'バッジ・チップ', vi: 'Nhãn & chip', sub: 'Status badges + filter chips', file: 'comp-badges.html', h: 310 },
+  { group: 'Components', name: 'Alerts', ja: 'アラート', vi: 'Cảnh báo', sub: 'Success, warning, error, info', file: 'comp-alerts.html', h: 250 },
+  { group: 'Components', name: 'Card', ja: 'カード', vi: 'Thẻ', sub: 'Service & Order cards', file: 'comp-card.html', h: 400 },
+  { group: 'Components', name: 'Table', ja: 'テーブル', vi: 'Bảng', sub: 'Cell types & row states', file: 'comp-table.html', h: 500 },
+  { group: 'Components', name: 'List', ja: 'リスト', vi: 'Danh sách', sub: 'Order list rows', file: 'comp-list.html', h: 230 },
+  { group: 'Components', name: 'Modal', ja: 'モーダル', vi: 'Hộp thoại', sub: 'Info · Error · Success · Warning', file: 'comp-modal.html', h: 560 },
+  { group: 'Components', name: 'Popup & menu', ja: 'ポップアップ・メニュー', vi: 'Popup & menu', sub: 'Dropdown menu + dialog', file: 'comp-popup.html', h: 260 },
+  { group: 'Components', name: 'Dropdown', ja: 'ドロップダウン', vi: 'Dropdown', sub: 'Placement: Top/Bottom × Left/Right', file: 'comp-dropdown.html', h: 700 },
+  { group: 'Components', name: 'Menu', ja: 'メニュー', vi: 'Menu', sub: 'Horizontal · Vertical · Collapsed', file: 'comp-menu.html', h: 560 },
+  { group: 'Components', name: 'Drawer', ja: 'ドロワー', vi: 'Ngăn kéo', sub: 'Right · Left · Top · Bottom', file: 'comp-drawer.html', h: 500 },
+  { group: 'Components', name: 'Breadcrumb', ja: 'パンくず', vi: 'Breadcrumb', sub: 'Chevron & slash separators', file: 'comp-breadcrumb.html', h: 300 },
+  { group: 'Components', name: 'Anchor', ja: 'アンカー', vi: 'Anchor', sub: 'Vertical + Horizontal', file: 'comp-anchor.html', h: 420 },
+  { group: 'Components', name: 'Avatar', ja: 'アバター', vi: 'Avatar', sub: 'Image + Fallback · 28/32/40px', file: 'comp-avatar.html', h: 420 },
+  { group: 'Components', name: 'Collapse (Accordion)', ja: 'アコーディオン', vi: 'Thu gọn', sub: 'Basic · Borderless · Ghost', file: 'comp-collapse.html', h: 500 },
+  { group: 'Components', name: 'Date picker', ja: '日付ピッカー', vi: 'Chọn ngày', sub: 'Trigger + calendar + range', file: 'comp-datepicker.html', h: 600 },
+  { group: 'Components', name: 'Progress', ja: 'プログレス', vi: 'Tiến trình', sub: 'Basic, Steps, Timeline, Curved, Vertical', file: 'comp-progress.html', h: 400 },
+  // Templates
+  { group: 'Templates', name: 'Slide Deck', ja: 'スライドデッキ', vi: 'Bộ slide', sub: '16:9 · 1920×1080 · Cover / Section', file: 'template-slides.html', h: 620 },
+  { group: 'Templates', name: 'Documents', ja: 'ドキュメント', vi: 'Tài liệu', sub: 'A4 · Letter / Invoice', file: 'template-docs.html', h: 760 },
+];
+
+// ─── Build sidebar nav ───
+const groups = [...new Set(CARDS.map(c => c.group))];
+const navEl = document.getElementById('nav');
+let navHTML = '', navNum = 0;
+groups.forEach(g => {
+  const items = CARDS.filter(c => c.group === g);
+  const gi = GROUPS_I18N[g] || {};
+  navHTML += `<div class="group open" data-group="${g}">
+    <button class="group-btn open" onclick="toggleGroup(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      <span data-i18n data-en="${g}" data-ja="${gi.ja || g}" data-vi="${gi.vi || g}">${g}</span> <span style="opacity:.5;margin-left:auto;font-size:10px;letter-spacing:0">${items.length}</span>
+    </button>
+    <div class="group-items">
+      ${items.map((c) => { const n = String(++navNum).padStart(2, '0'); return `<button class="nav-item" data-file="${c.file}" onclick="selectCard('${c.file}')"><span class="sb-num">${n}</span><span data-i18n data-en="${c.name}" data-ja="${c.ja || c.name}" data-vi="${c.vi || c.name}">${c.name}</span></button>`; }).join('')}
     </div>
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Logo Mark — Backgrounds</div>
-      <div class="g4">
-        <div style="background:white;border:1px solid var(--border-subtle);border-radius:10px;padding:26px 22px;display:flex;align-items:center;justify-content:center;min-height:96px;">
-          <img src="assets/tiximax-logo-navy.svg" alt="Tiximax — navy on light" style="width:160px;height:auto;">
-        </div>
-        <div style="background:#F1F4F8;border:1px solid #E5E8EC;border-radius:10px;padding:26px 22px;display:flex;align-items:center;justify-content:center;min-height:96px;">
-          <img src="assets/tiximax-logo-navy.svg" alt="Tiximax — navy on cream" style="width:160px;height:auto;">
-        </div>
-        <div style="background:var(--color-navy-solid);border-radius:10px;padding:26px 22px;display:flex;align-items:center;justify-content:center;min-height:96px;">
-          <img src="assets/tiximax-logo-white.svg" alt="Tiximax — white on navy" style="width:160px;height:auto;">
-        </div>
-        <div style="background:#0B172E;border-radius:10px;padding:26px 22px;display:flex;align-items:center;justify-content:center;min-height:96px;">
-          <img src="assets/tiximax-logo-gold.svg" alt="Tiximax — gold on dark" style="width:160px;height:auto;">
-        </div>
-      </div>
-      <div class="panel-label" style="margin-top:14px;">Logo Mark — Mono &amp; Variants</div>
-      <div class="g4">
-        <div style="background:white;border:1px solid var(--border-subtle);border-radius:10px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;min-height:96px;">
-          <img src="assets/tiximax-logo-black.svg" alt="Tiximax — mono black" style="width:150px;height:auto;">
-          <span style="font-size:9px;font-family:monospace;color:var(--text-muted);">Mono · Black</span>
-        </div>
-        <div style="background:var(--color-navy-solid);border-radius:10px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;min-height:96px;">
-          <img src="assets/tiximax-logo-mono-white.svg" alt="Tiximax — mono white" style="width:150px;height:auto;">
-          <span style="font-size:9px;font-family:monospace;color:rgba(255,255,255,0.55);">Mono · White</span>
-        </div>
-        <div style="background:white;border:1px solid var(--border-subtle);border-radius:10px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;min-height:96px;">
-          <img src="assets/Lotus Only.svg" alt="Tiximax lotus mark" style="height:52px;width:auto;">
-          <span style="font-size:9px;font-family:monospace;color:var(--text-muted);">Lotus Mark</span>
-        </div>
-        <div style="background:white;border:1px solid var(--border-subtle);border-radius:10px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;min-height:96px;">
-          <img src="assets/tiximax-symbol-square-navy.svg" alt="Tiximax square logo (lotus)" style="height:60px;width:60px;">
-          <span style="font-size:9px;font-family:monospace;color:var(--text-muted);">Square Logo ★</span>
-        </div>
-      </div>
-    </div>
+  </div>`;
+});
+navEl.innerHTML = navHTML;
 
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Nav Lockup · App Bar</div>
-      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;">
-        Logo đặt trong thanh điều hướng (app bar) — wordmark khóa cứng, cao <strong>24px</strong> trong bar 64px. Nền sáng dùng wordmark navy, nền navy dùng wordmark white; màn hình hẹp rút gọn còn symbol vuông.
-      </div>
-      <!-- light app bar -->
-      <div style="display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 24px;border-radius:10px;background:white;border:1px solid var(--border-subtle);margin-bottom:10px;">
-        <img src="assets/tiximax-logo-navy.svg" alt="Tiximax" style="height:24px;width:auto;">
-        <div style="display:flex;align-items:center;gap:24px;font-size:12px;font-weight:500;color:var(--text-secondary);">
-          <span>サービス</span><span>会社概要</span><span>ニュース</span>
-          <span style="background:var(--color-gold);color:var(--color-navy);font-weight:600;border-radius:8px;padding:8px 16px;">お問い合わせ</span>
-        </div>
-      </div>
-      <!-- dark app bar -->
-      <div style="display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 24px;border-radius:10px;background:var(--color-navy-solid);margin-bottom:10px;">
-        <img src="assets/tiximax-logo-white.svg" alt="Tiximax" style="height:24px;width:auto;">
-        <div style="display:flex;align-items:center;gap:24px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.85);">
-          <span>サービス</span><span>会社概要</span><span>ニュース</span>
-          <span style="background:var(--color-gold);color:var(--color-navy);font-weight:600;border-radius:8px;padding:8px 16px;">お問い合わせ</span>
-        </div>
-      </div>
-      <!-- compact -->
-      <div style="display:flex;align-items:center;gap:14px;height:56px;padding:0 18px;border-radius:10px;background:white;border:1px solid var(--border-subtle);max-width:300px;">
-        <img src="assets/tiximax-symbol-square-navy.svg" alt="Tiximax" style="height:34px;width:34px;">
-        <span style="font-size:11px;color:var(--text-muted);">Compact / mobile — chỉ symbol</span>
-      </div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.6;">
-        ⚑ Clear-space tối thiểu quanh wordmark ≥ chiều cao chữ “T”. Không kéo giãn, không đổi khoảng cách lotus–chữ, không đổi màu lotus (luôn gold). Component <code style="font-family:monospace;color:var(--color-navy);">Navbar</code> đã dùng lockup này.
-      </div>
-    </div>
+function toggleGroup(btn) {
+  const group = btn.closest('.group');
+  group.classList.toggle('open');
+  btn.classList.toggle('open');
+}
 
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Symbol — Square / Circle Logo (chuẩn)</div>
-      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;">
-        <strong style="color:var(--color-navy);">Mọi trường hợp cần logo dạng vuông hoặc tròn đều dùng Lotus symbol này</strong> — không dùng monogram "Logo in Circle" cũ.
-        Lotus canh giữa khung vuông 512×512 (chiếm ~72% bề ngang, margin ~14%). Mặc định: <code style="font-family:monospace;color:var(--color-navy);">square-navy</code> cho app icon, <code style="font-family:monospace;color:var(--color-navy);">circle-navy</code> cho avatar.
-      </div>
-      <div class="g4">
-        <div style="background:repeating-conic-gradient(#ECF1F8 0% 25%, #fff 0% 50%) 50% / 18px 18px;border:1px solid var(--border-subtle);border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;">
-          <img src="assets/tiximax-symbol-square.svg" alt="Lotus symbol — transparent" style="width:84px;height:84px;">
-          <span style="font-size:9px;font-family:monospace;color:var(--text-muted);">square · transparent</span>
-        </div>
-        <div style="background:var(--surface-subtle);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;">
-          <img src="assets/tiximax-symbol-square-navy.svg" alt="App icon — navy" style="width:84px;height:84px;">
-          <span style="font-size:9px;font-family:monospace;color:var(--text-muted);">square · navy</span>
-        </div>
-        <div style="background:var(--surface-subtle);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;">
-          <img src="assets/tiximax-symbol-square-gold.svg" alt="App icon — gold" style="width:84px;height:84px;">
-          <span style="font-size:9px;font-family:monospace;color:var(--text-muted);">square · gold</span>
-        </div>
-        <div style="background:var(--surface-subtle);border:1px solid var(--border-subtle);border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:10px;justify-content:center;">
-          <img src="assets/tiximax-symbol-circle-navy.svg" alt="Avatar — navy" style="width:84px;height:84px;">
-          <span style="font-size:9px;font-family:monospace;color:var(--text-muted);">circle · navy</span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:18px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border-subtle);">
-        <span style="font-size:10px;font-family:monospace;color:var(--text-muted);margin-right:4px;">Cỡ nhỏ →</span>
-        <img src="assets/tiximax-symbol-circle-navy.svg" alt="" style="width:64px;height:64px;"><span style="font-size:9px;font-family:monospace;color:var(--text-muted);align-self:center;">64</span>
-        <img src="assets/tiximax-symbol-square-navy.svg" alt="" style="width:32px;height:32px;"><span style="font-size:9px;font-family:monospace;color:var(--text-muted);align-self:center;">32</span>
-        <img src="assets/tiximax-symbol-square-navy.svg" alt="" style="width:16px;height:16px;"><span style="font-size:9px;font-family:monospace;color:var(--text-muted);align-self:center;">16</span>
-      </div>
-    </div>
+// ─── Select card ───
+let currentFile = null;
+function selectCard(file) {
+  currentFile = file;
+  const card = CARDS.find(c => c.file === file);
+  if (!card) return;
 
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Usage — Favicon · App Icon · SNS Avatar</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+  // Update sidebar active
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.file === file);
+  });
 
-        <!-- FAVICON -->
-        <div style="border:1px solid var(--border-subtle);border-radius:10px;padding:16px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <img src="assets/tiximax-symbol-square-navy.svg" alt="" style="width:32px;height:32px;">
-            <strong style="font-size:13px;color:var(--color-navy);"><span data-i18n data-en="Favicon" data-ja="ファビコン" data-vi="Favicon">Favicon</span></strong>
-          </div>
-          <div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">
-            File: <code style="font-family:monospace;color:var(--color-navy);">symbol-square-navy.svg</code> + fallback PNG/ICO.<br>
-            Cỡ: <strong>16 · 32 · 48px</strong> (ICO), 180px (apple-touch).<br>
-            Nền navy đặc → đọc rõ ở 16px trên tab sáng/tối.
-          </div>
-          <pre style="margin:10px 0 0;padding:10px;background:var(--surface-subtle);border-radius:7px;font-size:10px;line-height:1.6;color:var(--text-secondary);overflow:auto;"><code>&lt;link rel="icon" href="/favicon.svg"
-      type="image/svg+xml"&gt;
-&lt;link rel="icon" href="/favicon.ico"
-      sizes="48x48"&gt;
-&lt;link rel="apple-touch-icon"
-      href="/apple-touch-icon.png"&gt;</code></pre>
-        </div>
+  // Update topbar (đa ngôn ngữ: set data-en/ja/vi rồi applyLang localize theo lang hiện tại)
+  const gi = GROUPS_I18N[card.group] || {};
+  const gEl = document.getElementById('topGroup'), tEl = document.getElementById('topTitle');
+  gEl.dataset.en = card.group; gEl.dataset.ja = gi.ja || card.group; gEl.dataset.vi = gi.vi || card.group;
+  tEl.dataset.en = card.name;  tEl.dataset.ja = card.ja || card.name; tEl.dataset.vi = card.vi || card.name;
+  document.getElementById('topSub').textContent = card.sub;
+  applyLang(lang);
 
-        <!-- APP ICON -->
-        <div style="border:1px solid var(--border-subtle);border-radius:10px;padding:16px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <img src="assets/tiximax-symbol-square-full-navy.svg" alt="" style="width:32px;height:32px;border-radius:7px;">
-            <strong style="font-size:13px;color:var(--color-navy);">App Icon</strong>
-          </div>
-          <div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">
-            <strong style="color:var(--color-navy);">iOS / App Store:</strong> <code style="font-family:monospace;color:var(--color-navy);">symbol-square-full-navy.svg</code> → PNG <strong>1024×1024</strong>, vuông đầy, <strong>không bo góc, không alpha</strong> (iOS tự bo mặt nạ).<br><br>
-            <strong style="color:var(--color-navy);">Android adaptive:</strong> foreground = <code style="font-family:monospace;color:var(--color-navy);">symbol-square.svg</code> (lotus trong suốt), background = navy <code style="font-family:monospace;color:var(--color-navy);">#264F91</code>, canvas 432×432, lotus trong vùng an toàn giữa.
-          </div>
-        </div>
+  // Load iframe (fills entire content area)
+  const viewer = document.getElementById('viewer');
+  viewer.src = 'preview/' + file;
+}
 
-        <!-- SNS AVATAR -->
-        <div style="border:1px solid var(--border-subtle);border-radius:10px;padding:16px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <img src="assets/tiximax-symbol-circle-navy.svg" alt="" style="width:32px;height:32px;">
-            <strong style="font-size:13px;color:var(--color-navy);">SNS Avatar</strong>
-          </div>
-          <div style="font-size:11px;color:var(--text-secondary);line-height:1.65;">
-            Đa số nền tảng (X, Facebook, LinkedIn, Instagram, Zalo) <strong>tự crop tròn</strong> → upload bản vuông <code style="font-family:monospace;color:var(--color-navy);">symbol-square-full-navy.svg</code>; lotus nằm gọn trong vùng tròn an toàn.<br><br>
-            Cỡ: <strong>512×512</strong> (tối thiểu 400×400).<br>
-            Dùng nền <strong>navy hoặc gold đặc</strong> — không dùng bản trong suốt cho avatar.
-          </div>
-        </div>
+function openInNewTab() {
+  if (currentFile) window.open('preview/' + currentFile, '_blank');
+}
 
-      </div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:12px;line-height:1.6;">
-        ⚑ SVG là master vector — xuất PNG theo cỡ cần dùng (favicon 16/32/48, apple-touch 180, app store 1024, avatar 512). Luôn dùng <strong>Lotus symbol</strong>, không dùng monogram "Logo in Circle" cũ.
-      </div>
-    </div>
+// ─── Dark / light theme (localStorage key ds-theme, shared with the deck/showcase) ───
+let theme = localStorage.getItem('ds-theme') || 'light';
+function setThemeOn(root, t) {
+  // colors_and_type.css uses `.dark, [data-theme="dark"]`; some components use `.dark` internally.
+  // Set BOTH so foundation + component-local dark rules all fire.
+  root.setAttribute('data-theme', t);
+  root.classList.toggle('dark', t === 'dark');
+}
+function applyTheme(t) {
+  theme = t;
+  setThemeOn(document.documentElement, t);                         // parent shell (sidebar/topbar)
+  localStorage.setItem('ds-theme', t);
+  const ic = document.getElementById('theme-icon'), lb = document.getElementById('theme-label');
+  if (ic) ic.textContent = t === 'dark' ? '☀️' : '🌙';
+  if (lb) lb.textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+  applyThemeToIframe();
+}
+function applyThemeToIframe() {
+  // Component pages render in an iframe with their own document → theme THAT root.
+  try {
+    const doc = document.getElementById('viewer').contentDocument;
+    if (doc && doc.documentElement) setThemeOn(doc.documentElement, theme);
+  } catch (e) { /* cross-origin guard — same-origin in practice */ }
+}
+function toggleTheme() { applyTheme(theme === 'dark' ? 'light' : 'dark'); }
 
-    <div class="g2" style="gap:10px;">
-      <div class="panel">
-        <div class="panel-label"><span data-i18n data-en="Brand Colors" data-ja="ブランドカラー" data-vi="Màu thương hiệu">Brand Colors</span></div>
-        <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
-          <div style="text-align:center;">
-            <div style="width:56px;height:56px;border-radius:10px;background:#F4B931;margin-bottom:5px;"></div>
-            <div style="font-family:monospace;font-size:10px;color:#A87B15;font-weight:700;">#F4B931</div>
-            <div style="font-size:9px;color:var(--text-muted);">Gold</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="width:56px;height:56px;border-radius:10px;background:#264F91;margin-bottom:5px;"></div>
-            <div style="font-family:monospace;font-size:10px;color:var(--color-navy);font-weight:700;">#264F91</div>
-            <div style="font-size:9px;color:var(--text-muted);">Navy</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="width:56px;height:56px;border-radius:10px;background:#EB5635;margin-bottom:5px;"></div>
-            <div style="font-family:monospace;font-size:10px;color:#AE2F0F;font-weight:700;">#EB5635</div>
-            <div style="font-size:9px;color:var(--text-muted);">Red</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="width:56px;height:56px;border-radius:10px;background:#F7B82D;margin-bottom:5px;"></div>
-            <div style="font-family:monospace;font-size:10px;color:#A87B15;font-weight:700;">#F7B82D</div>
-            <div style="font-size:9px;color:var(--text-muted);">Spark</div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
-          Wordmark = ô vuông bo góc (gold) cạnh chữ <strong style="color:var(--color-navy);">Tiximax</strong>.
-          Navy là màu nền chủ đạo, gold cho accent/CTA, red cho điểm nhấn năng lượng.
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-label"><span data-i18n data-en="Logo Sizes" data-ja="ロゴサイズ" data-vi="Kích thước logo">Logo Sizes</span></div>
-        <div class="col" style="gap:20px;">
-          <div style="display:flex;align-items:center;gap:14px;">
-            <img src="assets/tiximax-logo-navy.svg" alt="Tiximax" style="height:48px;width:auto;">
-            <span style="font-size:10px;font-family:monospace;color:var(--text-muted);">48px · Cover / Hero</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:14px;">
-            <img src="assets/tiximax-logo-navy.svg" alt="Tiximax" style="height:32px;width:auto;">
-            <span style="font-size:10px;font-family:monospace;color:var(--text-muted);">32px · Header</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:14px;">
-            <img src="assets/tiximax-logo-navy.svg" alt="Tiximax" style="height:22px;width:auto;">
-            <span style="font-size:10px;font-family:monospace;color:var(--text-muted);">22px · Footer / Compact</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:14px;border-top:1px solid var(--border-subtle);padding-top:14px;">
-            <img src="assets/Lotus Only.svg" alt="Tiximax mark" style="height:30px;width:auto;">
-            <span style="font-size:10px;font-family:monospace;color:var(--text-muted);">Mark · Favicon / App icon</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+// ─── Language (localStorage ds-lang; port từ showcase.js) ───
+const LANGS = (document.documentElement.getAttribute('data-langs') || 'en').split(',');
+const LANG_DEFAULT = document.documentElement.getAttribute('data-lang-default') || LANGS[0] || 'en';
+let lang = (() => { try { return localStorage.getItem('ds-lang') || LANG_DEFAULT; } catch { return LANG_DEFAULT; } })();
+function applyLang(l) {
+  if (!LANGS.includes(l)) l = LANGS[0];
+  lang = l;
+  document.documentElement.setAttribute('data-lang', l);
+  try { localStorage.setItem('ds-lang', l); } catch {}
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const t = el.dataset[l] ?? el.dataset.en ?? el.textContent;
+    if (t != null) el.textContent = t;
+  });
+  document.querySelectorAll('.ds-langbtn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  applyLangToIframe();
+}
+function setLang(l) { applyLang(l); }
+function applyLangToIframe() {
+  // Đưa ngôn ngữ vào iframe: set data-lang + gọi applyLang của specimen (nếu include showcase.js)
+  try {
+    const f = document.getElementById('viewer');
+    if (f.contentDocument?.documentElement) f.contentDocument.documentElement.setAttribute('data-lang', lang);
+    if (typeof f.contentWindow?.applyLang === 'function') f.contentWindow.applyLang(lang);
+  } catch (e) { /* cross-origin guard */ }
+}
+document.querySelectorAll('.ds-langbtn').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
-  <section class="sec" id="colors">
-    <div class="sec-header">
-      <span class="sec-num">02</span>
-      <span class="sec-title"><span data-i18n data-en="Colors" data-ja="カラー" data-vi="Màu sắc">Colors</span></span>
-    </div>
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Gold · Accent — tint/shade ramp</div>
-      <div class="swatch-row">
-        <div class="swatch"><div class="swatch-color" style="background:#FEF9EA;border-color:#FBE19B;"></div><div class="swatch-info"><div class="swatch-token">50</div><button type="button" class="swatch-copy" data-hex="#FEF9EA" aria-label="Copy #FEF9EA" title="Copy"><span class="swatch-hex">#FEF9EA</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#FDF1CE;"></div><div class="swatch-info"><div class="swatch-token">100</div><button type="button" class="swatch-copy" data-hex="#FDF1CE" aria-label="Copy #FDF1CE" title="Copy"><span class="swatch-hex">#FDF1CE</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#FBE19B;"></div><div class="swatch-info"><div class="swatch-token">200</div><button type="button" class="swatch-copy" data-hex="#FBE19B" aria-label="Copy #FBE19B" title="Copy"><span class="swatch-hex">#FBE19B</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#F9D168;"></div><div class="swatch-info"><div class="swatch-token">300</div><button type="button" class="swatch-copy" data-hex="#F9D168" aria-label="Copy #F9D168" title="Copy"><span class="swatch-hex">#F9D168</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#F6C54C;"></div><div class="swatch-info"><div class="swatch-token">400</div><button type="button" class="swatch-copy" data-hex="#F6C54C" aria-label="Copy #F6C54C" title="Copy"><span class="swatch-hex">#F6C54C</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#F4B931;"></div><div class="swatch-info"><div class="swatch-token">500 ★</div><button type="button" class="swatch-copy" data-hex="#F4B931" aria-label="Copy #F4B931" title="Copy"><span class="swatch-hex">#F4B931</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#D8A01B;"></div><div class="swatch-info"><div class="swatch-token">600</div><button type="button" class="swatch-copy" data-hex="#D8A01B" aria-label="Copy #D8A01B" title="Copy"><span class="swatch-hex">#D8A01B</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#A87B15;"></div><div class="swatch-info"><div class="swatch-token">700</div><button type="button" class="swatch-copy" data-hex="#A87B15" aria-label="Copy #A87B15" title="Copy"><span class="swatch-hex">#A87B15</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#78580F;"></div><div class="swatch-info"><div class="swatch-token">800</div><button type="button" class="swatch-copy" data-hex="#78580F" aria-label="Copy #78580F" title="Copy"><span class="swatch-hex">#78580F</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#4B370A;"></div><div class="swatch-info"><div class="swatch-token">900</div><button type="button" class="swatch-copy" data-hex="#4B370A" aria-label="Copy #4B370A" title="Copy"><span class="swatch-hex">#4B370A</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-      </div>
+// Re-apply theme + lang whenever a new component loads into the iframe
+document.getElementById('viewer').addEventListener('load', () => { applyThemeToIframe(); applyLangToIframe(); });
 
-      <div class="panel-label" style="margin-top:8px;">Navy · Primary — tint/shade ramp</div>
-      <div class="swatch-row">
-        <div class="swatch"><div class="swatch-color" style="background:#ECF1F8;border-color:#D2DDEE;"></div><div class="swatch-info"><div class="swatch-token">50</div><button type="button" class="swatch-copy" data-hex="#ECF1F8" aria-label="Copy #ECF1F8" title="Copy"><span class="swatch-hex">#ECF1F8</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#D2DDEE;"></div><div class="swatch-info"><div class="swatch-token">100</div><button type="button" class="swatch-copy" data-hex="#D2DDEE" aria-label="Copy #D2DDEE" title="Copy"><span class="swatch-hex">#D2DDEE</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#A3B9DA;"></div><div class="swatch-info"><div class="swatch-token">200</div><button type="button" class="swatch-copy" data-hex="#A3B9DA" aria-label="Copy #A3B9DA" title="Copy"><span class="swatch-hex">#A3B9DA</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#7596C5;"></div><div class="swatch-info"><div class="swatch-token">300</div><button type="button" class="swatch-copy" data-hex="#7596C5" aria-label="Copy #7596C5" title="Copy"><span class="swatch-hex">#7596C5</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#4D72AB;"></div><div class="swatch-info"><div class="swatch-token">400</div><button type="button" class="swatch-copy" data-hex="#4D72AB" aria-label="Copy #4D72AB" title="Copy"><span class="swatch-hex">#4D72AB</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#264F91;"></div><div class="swatch-info"><div class="swatch-token">500</div><button type="button" class="swatch-copy" data-hex="#264F91" aria-label="Copy #264F91" title="Copy"><span class="swatch-hex">#264F91</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#1F427A;"></div><div class="swatch-info"><div class="swatch-token">600</div><button type="button" class="swatch-copy" data-hex="#1F427A" aria-label="Copy #1F427A" title="Copy"><span class="swatch-hex">#1F427A</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#183360;"></div><div class="swatch-info"><div class="swatch-token">700</div><button type="button" class="swatch-copy" data-hex="#183360" aria-label="Copy #183360" title="Copy"><span class="swatch-hex">#183360</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#264F91;"></div><div class="swatch-info"><div class="swatch-token">800 ★</div><button type="button" class="swatch-copy" data-hex="#264F91" aria-label="Copy #264F91" title="Copy"><span class="swatch-hex">#264F91</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#0B172E;"></div><div class="swatch-info"><div class="swatch-token">900</div><button type="button" class="swatch-copy" data-hex="#0B172E" aria-label="Copy #0B172E" title="Copy"><span class="swatch-hex">#0B172E</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-      </div>
-
-      <div class="panel-label" style="margin-top:8px;">Red · Energy — tint/shade ramp</div>
-      <div class="swatch-row">
-        <div class="swatch"><div class="swatch-color" style="background:#FDF0EC;border-color:#F9D8CD;"></div><div class="swatch-info"><div class="swatch-token">50</div><button type="button" class="swatch-copy" data-hex="#FDF0EC" aria-label="Copy #FDF0EC" title="Copy"><span class="swatch-hex">#FDF0EC</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#F9D8CD;"></div><div class="swatch-info"><div class="swatch-token">100</div><button type="button" class="swatch-copy" data-hex="#F9D8CD" aria-label="Copy #F9D8CD" title="Copy"><span class="swatch-hex">#F9D8CD</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#F3B099;"></div><div class="swatch-info"><div class="swatch-token">200</div><button type="button" class="swatch-copy" data-hex="#F3B099" aria-label="Copy #F3B099" title="Copy"><span class="swatch-hex">#F3B099</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#ED8866;"></div><div class="swatch-info"><div class="swatch-token">300</div><button type="button" class="swatch-copy" data-hex="#ED8866" aria-label="Copy #ED8866" title="Copy"><span class="swatch-hex">#ED8866</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#EC6F4D;"></div><div class="swatch-info"><div class="swatch-token">400</div><button type="button" class="swatch-copy" data-hex="#EC6F4D" aria-label="Copy #EC6F4D" title="Copy"><span class="swatch-hex">#EC6F4D</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#EB5635;"></div><div class="swatch-info"><div class="swatch-token">500 ★</div><button type="button" class="swatch-copy" data-hex="#EB5635" aria-label="Copy #EB5635" title="Copy"><span class="swatch-hex">#EB5635</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#CA4325;"></div><div class="swatch-info"><div class="swatch-token">600</div><button type="button" class="swatch-copy" data-hex="#CA4325" aria-label="Copy #CA4325" title="Copy"><span class="swatch-hex">#CA4325</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#9D341C;"></div><div class="swatch-info"><div class="swatch-token">700</div><button type="button" class="swatch-copy" data-hex="#9D341C" aria-label="Copy #9D341C" title="Copy"><span class="swatch-hex">#9D341C</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#712514;"></div><div class="swatch-info"><div class="swatch-token">800</div><button type="button" class="swatch-copy" data-hex="#712514" aria-label="Copy #712514" title="Copy"><span class="swatch-hex">#712514</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#46170C;"></div><div class="swatch-info"><div class="swatch-token">900</div><button type="button" class="swatch-copy" data-hex="#46170C" aria-label="Copy #46170C" title="Copy"><span class="swatch-hex">#46170C</span><svg class="swatch-copy-ic" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-label">Semantic — Text &amp; Surface tokens</div>
-      <table class="token-table">
-        <thead><tr><th><span data-i18n data-en="Token" data-ja="トークン" data-vi="Token">Token</span></th><th>Hex</th><th>Use</th></tr></thead>
-        <tbody>
-          <tr><td>--text-primary</td><td><span class="t-dot" style="background:#0C1A31;"></span>#0C1A31</td><td>Tiêu đề, nội dung chính</td></tr>
-          <tr><td>--text-secondary</td><td><span class="t-dot" style="background:#515C6D;"></span>#515C6D</td><td>Body, mô tả</td></tr>
-          <tr><td>--text-tertiary</td><td><span class="t-dot" style="background:#8B95A5;"></span>#8B95A5</td><td>Caption, metadata</td></tr>
-          <tr><td>--text-brand</td><td><span class="t-dot" style="background:#C28E1F;"></span>#C28E1F</td><td>Gold readable trên nền sáng</td></tr>
-          <tr><td>--surface-page</td><td><span class="t-dot" style="background:#F5F7FA;"></span>#F5F7FA</td><td>Nền trang</td></tr>
-          <tr><td>--surface-card</td><td><span class="t-dot" style="background:#FFFFFF;"></span>#FFFFFF</td><td>Nền card</td></tr>
-          <tr><td>--border-default</td><td><span class="t-dot" style="background:#DDE2EA;"></span>#DDE2EA</td><td>Đường viền chuẩn</td></tr>
-          <tr><td>--success</td><td><span class="t-dot" style="background:#008148;"></span>#008148</td><td>Trạng thái thành công</td></tr>
-          <tr><td>--warning</td><td><span class="t-dot" style="background:#F4B931;"></span>#F4B931</td><td>Cảnh báo (dùng chung gold)</td></tr>
-          <tr><td>--error</td><td><span class="t-dot" style="background:#EB5635;"></span>#EB5635</td><td>Lỗi (dùng chung red)</td></tr>
-          <tr><td>--info</td><td><span class="t-dot" style="background:#006FBB;"></span>#006FBB</td><td>Thông tin</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="sec" id="typography">
-    <div class="sec-header">
-      <span class="sec-num">03</span>
-      <span class="sec-title"><span data-i18n data-en="Typography" data-ja="タイポグラフィ" data-vi="Kiểu chữ">Typography</span></span>
-    </div>
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Type scale — Source Sans 3 (primary)</div>
-      <div class="type-row"><div class="type-meta">--fs-display<br>56px · 900</div><div class="type-sample" style="font-family:var(--font-display);font-size:56px;font-weight:900;letter-spacing:-0.02em;color:var(--color-navy);">Tiximax</div></div>
-      <div class="type-row"><div class="type-meta">--fs-h1<br>40px · 700</div><div class="type-sample" style="font-family:var(--font-display);font-size:40px;font-weight:700;letter-spacing:-0.02em;color:var(--color-navy);">物流の未来を、今</div></div>
-      <div class="type-row"><div class="type-meta">--fs-h2<br>32px · 700</div><div class="type-sample" style="font-family:var(--font-display);font-size:32px;font-weight:700;letter-spacing:-0.02em;">Cross-Border Logistics</div></div>
-      <div class="type-row"><div class="type-meta">--fs-h3<br>26px · 600</div><div class="type-sample" style="font-family:var(--font-display);font-size:26px;font-weight:600;">5ヶ国・50拠点ネットワーク</div></div>
-      <div class="type-row"><div class="type-meta">--fs-h4<br>21px · 600</div><div class="type-sample" style="font-family:var(--font-display);font-size:21px;font-weight:600;">3PL Fulfillment Services</div></div>
-      <div class="type-row"><div class="type-meta">--fs-title<br>18px · 600</div><div class="type-sample" style="font-family:var(--font-display);font-size:18px;font-weight:600;">Chuyển phát quốc tế · Hỗ trợ hải quan</div></div>
-      <div class="type-row"><div class="type-meta">--fs-body<br>16px · 400</div><div class="type-sample" style="font-size:16px;color:var(--text-secondary);line-height:1.6;">Vận tải hàng không &amp; đường biển, tối ưu tuyến, tracking toàn hành trình, hỗ trợ DDP/DDU.</div></div>
-      <div class="type-row"><div class="type-meta">--fs-body-sm<br>14px · 400</div><div class="type-sample" style="font-size:14px;color:var(--text-muted);">Phân loại HS code, soạn chứng từ, khai báo xuất nhập khẩu, kiểm tra hàng hạn chế.</div></div>
-      <div class="type-row"><div class="type-meta">--fs-caption<br>13px · 400</div><div class="type-sample" style="font-size:13px;color:var(--text-muted);">Cập nhật: 2026年6月 · tiximax.net</div></div>
-      <div class="type-row"><div class="type-meta">--fs-overline<br>12px · 700 wide</div><div class="type-sample" style="font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-gold);">Logistics Network</div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-label">Multilingual — VI · JP — font families</div>
-      <div class="g2" style="gap:20px;">
-        <div>
-          <div class="sub-label">Vietnamese — Be Vietnam Pro (--font-vi)</div>
-          <div style="font-size:24px;font-weight:700;color:var(--color-navy);margin-bottom:8px;">Logistics &amp; Kiều hối Nhật → Việt</div>
-          <div style="font-size:14px;color:var(--text-secondary);line-height:1.7;">Tiximax kết nối thương mại xuyên biên giới trên hành lang Nhật Bản – Việt Nam, với mạng lưới 5 quốc gia châu Á.</div>
-        </div>
-        <div>
-          <div class="sub-label">Japanese — Noto Sans JP (--font-jp)</div>
-          <div style="font-family:var(--font-ja);font-size:24px;font-weight:700;color:var(--color-navy);margin-bottom:8px;">国際物流のパートナー</div>
-          <div style="font-family:var(--font-ja);font-size:14px;color:var(--text-secondary);line-height:1.9;">航空・海上輸送、ルート最適化、フルトラッキング対応で、DDP/DDUにも柔軟に対応いたします。</div>
-        </div>
-      </div>
-      <table class="token-table" style="margin-top:18px;">
-        <thead><tr><th><span data-i18n data-en="Token" data-ja="トークン" data-vi="Token">Token</span></th><th>Stack</th><th>Use</th></tr></thead>
-        <tbody>
-          <tr><td>--font-jp</td><td>Source Sans 3, Noto Sans JP</td><td>日本語・メイン UI</td></tr>
-          <tr><td>--font-vi</td><td>Be Vietnam Pro, Noto Sans JP, Source Sans 3</td><td>Tài liệu tiếng Việt</td></tr>
-          <tr><td>--font-display</td><td>Source Sans 3</td><td>Display heading</td></tr>
-          <tr><td>--font-mono</td><td>ui-monospace, SFMono, Consolas</td><td>Code · số liệu</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="sec" id="buttons">
-    <div class="sec-header">
-      <span class="sec-num">04</span>
-      <span class="sec-title"><span data-i18n data-en="Buttons" data-ja="ボタン" data-vi="Nút">Buttons</span></span>
-    </div>
-    <div class="g2" style="gap:10px;">
-      <div class="panel">
-        <div class="sub-label"><span data-i18n data-en="Variants" data-ja="バリエーション" data-vi="Biến thể">Variants</span></div>
-        <div class="row row-center" style="margin-bottom:16px;gap:12px;">
-          <button class="btn btn-primary btn-md"><span data-i18n data-en="Primary" data-ja="プライマリ" data-vi="Chính">Primary</span></button>
-          <button class="btn btn-secondary btn-md"><span data-i18n data-en="Secondary" data-ja="セカンダリ" data-vi="Phụ">Secondary</span></button>
-          <button class="btn btn-outline btn-md"><span data-i18n data-en="Outline" data-ja="アウトライン" data-vi="Viền">Outline</span></button>
-          <button class="btn btn-ghost btn-md"><span data-i18n data-en="Ghost" data-ja="ゴースト" data-vi="Ghost">Ghost</span></button>
-        </div>
-        <div class="sub-label">Sizes — Primary</div>
-        <div class="row row-center" style="margin-bottom:16px;gap:12px;">
-          <button class="btn btn-primary btn-sm"><span data-i18n data-en="Small" data-ja="小" data-vi="Nhỏ">Small</span></button>
-          <button class="btn btn-primary btn-md"><span data-i18n data-en="Medium" data-ja="中" data-vi="Vừa">Medium</span></button>
-          <button class="btn btn-primary btn-lg"><span data-i18n data-en="Large" data-ja="大" data-vi="Lớn">Large</span></button>
-        </div>
-        <div class="sub-label">Sizes — Secondary</div>
-        <div class="row row-center" style="gap:12px;">
-          <button class="btn btn-secondary btn-sm"><span data-i18n data-en="Small" data-ja="小" data-vi="Nhỏ">Small</span></button>
-          <button class="btn btn-secondary btn-md"><span data-i18n data-en="Medium" data-ja="中" data-vi="Vừa">Medium</span></button>
-          <button class="btn btn-secondary btn-lg"><span data-i18n data-en="Large" data-ja="大" data-vi="Lớn">Large</span></button>
-        </div>
-      </div>
-      <div class="panel panel-navy">
-        <div class="sub-label" style="color:rgba(255,255,255,0.35);">On navy surface</div>
-        <div class="row row-center" style="margin-bottom:16px;gap:12px;">
-          <button class="btn btn-primary btn-md"><span data-i18n data-en="Primary" data-ja="プライマリ" data-vi="Chính">Primary</span></button>
-          <button class="btn btn-md" style="background:transparent;color:white;border:2px solid rgba(255,255,255,0.35);">Outline White</button>
-          <button class="btn btn-md" style="background:transparent;color:rgba(255,255,255,0.6);border-color:transparent;"><span data-i18n data-en="Ghost" data-ja="ゴースト" data-vi="Ghost">Ghost</span></button>
-          <button class="btn btn-primary btn-md" disabled><span data-i18n data-en="Disabled" data-ja="無効" data-vi="Vô hiệu">Disabled</span></button>
-        </div>
-        <div class="sub-label" style="color:rgba(255,255,255,0.35);margin-top:8px;">Usage guide</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.9;">
-          <div>• <strong style="color:var(--color-gold);">Primary (Gold)</strong> — CTA chính, 1 mỗi view</div>
-          <div>• <strong style="color:white;">Secondary (Navy)</strong> — hành động phụ</div>
-          <div>• Outline — thay thế, trên nền sáng</div>
-          <div>• Ghost — tertiary, hủy</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="cards">
-    <div class="sec-header">
-      <span class="sec-num">05</span>
-      <span class="sec-title"><span data-i18n data-en="Cards" data-ja="カード" data-vi="Thẻ">Cards</span></span>
-    </div>
-    <div class="panel-label">Card — Default · Navy · Gold</div>
-    <div class="g3" style="margin-bottom:18px;">
-      <div class="card card-default">
-        <div class="card-icon">📦</div>
-        <div class="card-title"><span data-i18n data-en="Default Card" data-ja="標準カード" data-vi="Thẻ mặc định">Default Card</span></div>
-        <div class="card-body">White background với border và shadow vừa. Container chuẩn cho nội dung.</div>
-      </div>
-      <div class="card card-navy">
-        <div class="card-icon">🌏</div>
-        <div class="card-title">Navy Card</div>
-        <div class="card-body">Nền navy thương hiệu cho khu vực tương phản cao và nội dung nổi bật.</div>
-      </div>
-      <div class="card card-gold">
-        <div class="card-icon">⭐</div>
-        <div class="card-title">Gold Card</div>
-        <div class="card-body">Nền gold cho CTA, điểm nhấn và nội dung cao cấp.</div>
-      </div>
-    </div>
-
-    <div class="panel-label">ServiceCard — 4 dịch vụ cốt lõi</div>
-    <div class="g4">
-      <div class="service-card service-card-default">
-        <div class="service-num">01</div>
-        <div>
-          <div class="service-title">国際輸送</div>
-          <div class="service-desc">航空・海上輸送、ルート最適化、フルトラッキング対応、DDP/DDU対応</div>
-        </div>
-      </div>
-      <div class="service-card service-card-highlight">
-        <div class="service-num">02</div>
-        <div>
-          <div class="service-title">通関サポート</div>
-          <div class="service-desc">HSコード分類、書類作成、輸出入申告、制限品目確認</div>
-        </div>
-      </div>
-      <div class="service-card service-card-default">
-        <div class="service-num">03</div>
-        <div>
-          <div class="service-title">3PLフルフィルメント</div>
-          <div class="service-desc">倉庫保管、ピッキング、梱包、ラストマイル配送</div>
-        </div>
-      </div>
-      <div class="service-card service-card-default">
-        <div class="service-num">04</div>
-        <div>
-          <div class="service-title">購入代行 B2C</div>
-          <div class="service-desc">日本・韓国商品の購入代理・国際転送サービス</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="badges">
-    <div class="sec-header">
-      <span class="sec-num">06</span>
-      <span class="sec-title"><span data-i18n data-en="Badges &amp; Tags" data-ja="バッジ・タグ" data-vi="Nhãn &amp; Tag">Badges &amp; Tags</span></span>
-    </div>
-    <div class="g2" style="gap:10px;">
-      <div class="panel">
-        <div class="panel-label">Badge — Variants</div>
-        <div class="row row-center" style="margin-bottom:16px;gap:8px;">
-          <span class="badge badge-gold">Gold</span>
-          <span class="badge badge-navy">Navy</span>
-          <span class="badge badge-success"><span data-i18n data-en="Success" data-ja="成功" data-vi="Thành công">Success</span></span>
-          <span class="badge badge-warning">Warning</span>
-          <span class="badge badge-error"><span data-i18n data-en="Error" data-ja="エラー" data-vi="Lỗi">Error</span></span>
-          <span class="badge badge-neutral">Neutral</span>
-        </div>
-        <div class="panel-label">In context</div>
-        <div class="row row-center" style="gap:8px;">
-          <span class="badge badge-gold">配送中</span>
-          <span class="badge badge-success">完了</span>
-          <span class="badge badge-error">要確認</span>
-          <span class="badge badge-navy">B2B</span>
-          <span class="badge badge-warning">保留</span>
-          <span class="badge badge-neutral">下書き</span>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-label">Tag — Colors</div>
-        <div class="row row-center" style="margin-bottom:16px;gap:8px;">
-          <span class="tag tag-gold">Gold</span>
-          <span class="tag tag-navy">Navy</span>
-          <span class="tag tag-red">Red</span>
-          <span class="tag tag-neutral">Neutral</span>
-        </div>
-        <div class="panel-label">In context</div>
-        <div class="row row-center" style="gap:8px;">
-          <span class="tag tag-gold">Logistics</span>
-          <span class="tag tag-navy">Japan</span>
-          <span class="tag tag-navy">Vietnam</span>
-          <span class="tag tag-red">Express</span>
-          <span class="tag tag-neutral">B2C</span>
-          <span class="tag tag-neutral">3PL</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="stats">
-    <div class="sec-header">
-      <span class="sec-num">07</span>
-      <span class="sec-title">StatBlock</span>
-    </div>
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Gold accent — key metrics</div>
-      <div class="g4">
-        <div class="stat-block stat-gold"><div class="stat-value-wrap"><span class="stat-value">5</span><span class="stat-unit">ヶ国</span></div><div class="stat-label">展開国数</div></div>
-        <div class="stat-block stat-gold"><div class="stat-value-wrap"><span class="stat-value">50</span><span class="stat-unit">+</span></div><div class="stat-label">倉庫・拠点</div></div>
-        <div class="stat-block stat-gold"><div class="stat-value-wrap"><span class="stat-value">2030</span></div><div class="stat-label">20ヶ国目標年</div></div>
-        <div class="stat-block stat-gold"><div class="stat-value-wrap"><span class="stat-value">24</span><span class="stat-unit">h</span></div><div class="stat-label">サポート対応</div></div>
-      </div>
-    </div>
-    <div class="panel panel-navy">
-      <div class="panel-label" style="color:rgba(255,255,255,0.3);">On navy background</div>
-      <div class="g4">
-        <div class="stat-block stat-gold"><div class="stat-value-wrap"><span class="stat-value">5</span><span class="stat-unit">ヶ国</span></div><div class="stat-label" style="color:rgba(255,255,255,0.45);">展開国数</div></div>
-        <div class="stat-block stat-gold"><div class="stat-value-wrap"><span class="stat-value">50</span><span class="stat-unit">+</span></div><div class="stat-label" style="color:rgba(255,255,255,0.45);">倉庫・拠点</div></div>
-        <div class="stat-block" style="text-align:center;"><div class="stat-value-wrap"><span class="stat-value" style="color:white;">2026</span></div><div class="stat-label" style="color:rgba(255,255,255,0.45);">設立年</div></div>
-        <div class="stat-block stat-gold"><div class="stat-value-wrap"><span class="stat-value">24</span><span class="stat-unit">h</span></div><div class="stat-label" style="color:rgba(255,255,255,0.45);">サポート対応</div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="nav">
-    <div class="sec-header">
-      <span class="sec-num">08</span>
-      <span class="sec-title">Heading &amp; Navbar</span>
-    </div>
-    <div class="panel" style="margin-bottom:10px;">
-      <div class="panel-label">Heading — levels &amp; color variants</div>
-      <div class="g2" style="gap:24px;">
-        <div class="col" style="gap:16px;">
-          <div><div class="sub-label">H1 — 40px bold</div><div style="font-size:40px;font-weight:700;letter-spacing:-0.02em;">国際物流のパートナー</div></div>
-          <div><div class="sub-label">H2 — 32px bold</div><div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;">Cross-Border Logistics</div></div>
-          <div><div class="sub-label">H3 — 26px semibold</div><div style="font-size:26px;font-weight:600;">5ヶ国ネットワーク</div></div>
-          <div><div class="sub-label">H4 — 21px semibold</div><div style="font-size:21px;font-weight:600;">3PL Fulfillment Services</div></div>
-        </div>
-        <div class="col" style="gap:12px;">
-          <div class="sub-label">Color variants</div>
-          <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;color:var(--text-primary);">Primary (default)</div>
-          <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;color:var(--color-navy);">Navy</div>
-          <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;color:#C28E1F;">Gold (--text-brand)</div>
-          <div style="font-size:32px;font-weight:700;letter-spacing:-0.02em;color:var(--color-red);">Red (energy)</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="sub-label" style="margin-bottom:8px;">Navbar — Light</div>
-    <div style="border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden;margin-bottom:10px;">
-      <nav class="navbar navbar-light">
-        <span class="navbar-brand">Tiximax</span>
-        <ul class="navbar-links">
-          <li><a class="navbar-link" href="#">サービス</a></li>
-          <li><a class="navbar-link" href="#">会社概要</a></li>
-          <li><a class="navbar-link" href="#">ニュース</a></li>
-          <li><button class="navbar-cta">お問い合わせ</button></li>
-        </ul>
-      </nav>
-    </div>
-
-    <div class="sub-label" style="margin-bottom:8px;">Navbar — Dark</div>
-    <div style="border-radius:var(--radius-md);overflow:hidden;">
-      <nav class="navbar navbar-dark">
-        <span class="navbar-brand">Tiximax</span>
-        <ul class="navbar-links">
-          <li><a class="navbar-link" href="#">サービス</a></li>
-          <li><a class="navbar-link" href="#">会社概要</a></li>
-          <li><a class="navbar-link" href="#">ニュース</a></li>
-          <li><button class="navbar-cta">お問い合わせ</button></li>
-        </ul>
-      </nav>
-    </div>
-  </section>
-
-  <section class="sec" id="deck">
-    <div class="sec-header">
-      <span class="sec-num">09</span>
-      <span class="sec-title"><span data-i18n data-en="Slide Deck" data-ja="スライドデッキ" data-vi="Bộ slide">Slide Deck</span></span>
-    </div>
-    <div class="panel">
-      <div class="panel-label">16:9 · 1920 × 1080px master · &lt;deck-stage&gt; · layouts tiêu biểu</div>
-      <div class="preview-grid-2">
-
-        <!-- Cover -->
-        <div>
-          <div class="preview-item-label">Cover / 表紙</div>
-          <div class="slide-scaler-idx">
-            <div class="slide" style="background:#264F91;color:white;">
-              <div style="position:absolute;top:0;left:0;right:0;height:14px;background:linear-gradient(90deg,#F4B931,#F7B82D);"></div>
-              <div style="position:absolute;right:-260px;top:-260px;width:1100px;height:1100px;border-radius:50%;border:120px solid rgba(244,185,49,0.07);"></div>
-              <div style="position:absolute;inset:0;padding:140px 150px;display:flex;flex-direction:column;justify-content:space-between;">
-                <div style="display:flex;align-items:center;gap:28px;">
-                  <div style="width:80px;height:80px;border-radius:18px;background:#F4B931;"></div>
-                  <div style="font-size:48px;font-weight:800;letter-spacing:-0.01em;color:white;">Tiximax</div>
-                </div>
-                <div>
-                  <div style="font-size:30px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#F4B931;margin-bottom:30px;">Cross-Border Logistics</div>
-                  <div style="font-size:128px;font-weight:900;line-height:1.05;letter-spacing:-0.03em;color:white;">物流の未来を、<br><span style="color:#F4B931;">今</span></div>
-                </div>
-                <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.12);padding-top:36px;font-size:30px;color:rgba(255,255,255,0.45);">
-                  <span>Take Hitonari (武仁誠) · CEO</span><span>tiximax.net · 2026</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section divider -->
-        <div>
-          <div class="preview-item-label">Section Divider / 章扉</div>
-          <div class="slide-scaler-idx">
-            <div class="slide" style="background:#0B172E;color:white;">
-              <div style="position:absolute;left:-200px;bottom:-300px;width:900px;height:900px;border-radius:50%;border:120px solid rgba(244,185,49,0.10);"></div>
-              <div style="position:absolute;left:120px;bottom:80px;font-size:300px;font-weight:900;color:rgba(244,185,49,0.14);line-height:1;letter-spacing:-0.05em;">01</div>
-              <div style="position:absolute;inset:0;padding:0 150px;display:flex;flex-direction:column;justify-content:center;">
-                <div style="font-size:30px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#F4B931;margin-bottom:24px;">Section 01</div>
-                <div style="font-size:120px;font-weight:900;line-height:1.1;color:white;">サービス<br><span style="color:#F4B931;">概要</span></div>
-                <div style="font-size:34px;color:rgba(255,255,255,0.5);margin-top:32px;">4つのコアサービス</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /preview-grid-2 -->
-      <a href="slides-preview.html" target="_blank" class="open-link">全レイアウトをフルサイズで開く — slides-preview.html ↗</a>
-    </div>
-  </section>
-
-  <section class="sec" id="docs">
-    <div class="sec-header">
-      <span class="sec-num">10</span>
-      <span class="sec-title">Documents</span>
-    </div>
-    <div class="panel">
-      <div class="panel-label">A4 · 794 × 1123px · báo cáo · hồ sơ · biểu mẫu — layouts tiêu biểu</div>
-      <div class="preview-grid-2">
-
-        <!-- Letter / Cover -->
-        <div>
-          <div class="preview-item-label">Business Letter / レター</div>
-          <div class="page-scaler-idx">
-            <div class="page" style="background:white;">
-              <div style="position:absolute;top:0;left:0;bottom:0;width:10px;background:linear-gradient(180deg,#F4B931,#F7B82D);"></div>
-              <div style="position:absolute;inset:0;padding:72px 72px 56px 90px;display:flex;flex-direction:column;">
-                <div style="display:flex;align-items:center;gap:16px;margin-bottom:60px;">
-                  <div style="width:46px;height:46px;border-radius:11px;background:#F4B931;"></div>
-                  <div><div style="font-size:26px;font-weight:800;color:#0C1A31;">Tiximax</div><div style="font-size:13px;color:#8B95A5;">株式会社 Tiximax · tiximax.jp</div></div>
-                </div>
-                <div style="font-size:14px;color:#515C6D;text-align:right;margin-bottom:36px;">2026年6月24日</div>
-                <div style="font-size:18px;font-weight:700;color:#0C1A31;margin-bottom:8px;">株式会社○○○○ 御中</div>
-                <div style="font-size:24px;font-weight:700;color:#0C1A31;margin:32px 0 24px;border-bottom:2px solid #F4B931;padding-bottom:10px;display:inline-block;">サービスご案内の件</div>
-                <div style="font-size:15px;color:#515C6D;line-height:2.0;">拝啓　時下ますますご清栄のこととお慶び申し上げます。<br>平素は格別のご高配を賜り、厚く御礼申し上げます。<br>さて、弊社の国際物流サービスにつきまして、ご案内申し上げます。</div>
-                <div style="margin-top:auto;font-size:13px;color:#8B95A5;border-top:1px solid #E5E8EC;padding-top:18px;">〒104-0045 東京都中央区築地4-3-12-1007 · info@tiximax.jp</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Invoice -->
-        <div>
-          <div class="preview-item-label">Invoice / 請求書</div>
-          <div class="page-scaler-idx">
-            <div class="page" style="background:white;">
-              <div style="position:absolute;inset:0;padding:64px 64px 56px;display:flex;flex-direction:column;">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;">
-                  <div style="display:flex;align-items:center;gap:14px;"><div style="width:42px;height:42px;border-radius:10px;background:#F4B931;"></div><div style="font-size:24px;font-weight:800;color:#0C1A31;">Tiximax</div></div>
-                  <div style="font-size:40px;font-weight:900;color:#0C1A31;letter-spacing:0.06em;">請求書</div>
-                </div>
-                <div style="background:#264F91;color:white;border-radius:8px;padding:18px 24px;display:flex;justify-content:space-between;margin-bottom:28px;">
-                  <div><div style="font-size:12px;color:rgba(255,255,255,0.5);">請求金額（税込）</div><div style="font-size:34px;font-weight:900;color:#F4B931;">¥1,284,000</div></div>
-                  <div style="text-align:right;font-size:13px;color:rgba(255,255,255,0.6);line-height:1.9;">請求番号 INV-2026-0612<br>支払期限 2026年7月末日</div>
-                </div>
-                <div style="border-top:2px solid #264F91;border-bottom:1px solid #DDE2EA;display:flex;font-size:13px;font-weight:700;color:#0C1A31;padding:12px 0;">
-                  <span style="flex:1;">品目</span><span style="width:80px;text-align:right;">数量</span><span style="width:120px;text-align:right;">金額</span>
-                </div>
-                <div style="display:flex;font-size:13px;color:#515C6D;padding:12px 0;border-bottom:1px solid #E5E8EC;"><span style="flex:1;">国際輸送（航空便）</span><span style="width:80px;text-align:right;">12</span><span style="width:120px;text-align:right;">¥860,000</span></div>
-                <div style="display:flex;font-size:13px;color:#515C6D;padding:12px 0;border-bottom:1px solid #E5E8EC;"><span style="flex:1;">通関サポート</span><span style="width:80px;text-align:right;">1</span><span style="width:120px;text-align:right;">¥260,000</span></div>
-                <div style="margin-top:auto;font-size:12px;color:#8B95A5;border-top:1px solid #E5E8EC;padding-top:16px;">株式会社 Tiximax · tiximax.jp · info@tiximax.jp</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /preview-grid-2 -->
-      <a href="documents-preview.html" target="_blank" class="open-link">全レイアウトをフルサイズで開く — documents-preview.html ↗</a>
-    </div>
-  </section>
-
-</main>
-
-<script src="showcase.js"></script>
+// ─── Init: theme + lang + first card ───
+applyTheme(theme);
+applyLang(lang);
+selectCard(CARDS[0].file);
+</script>
 </body>
 </html>
