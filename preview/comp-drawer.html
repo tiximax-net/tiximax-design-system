@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Drawer" subtitle="Right · Left · Top · Bottom — overlay panel with header, body & footer slots" viewport="1000x500" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px;display:flex;flex-direction:column;gap:28px}
+  .lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+  /* ===== Drawer preview frame ===== */
+  .frame{position:relative;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-default);box-shadow:var(--shadow-xs)}
+  .frame.hz{height:320px}
+  .frame.vt{height:240px}
+
+  /* Backdrop */
+  .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+
+  /* Drawer panel */
+  .drawer{position:absolute;background:var(--surface-card);display:flex;flex-direction:column;box-shadow:var(--shadow-xl)}
+
+  /* Placements */
+  .drawer.right{top:0;right:0;bottom:0;width:78%}
+  .drawer.left{top:0;left:0;bottom:0;width:78%}
+  .drawer.top{top:0;left:0;right:0;height:58%}
+  .drawer.bottom{bottom:0;left:0;right:0;height:58%}
+
+  /* Header */
+  .drawer-header{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border-default);flex:none}
+  .drawer-close{width:24px;height:24px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);cursor:pointer;flex:none;border:none;background:transparent}
+  .drawer-close:hover{background:var(--surface-sunken);color:var(--text-primary)}
+  .drawer-close svg{width:15px;height:15px}
+  .drawer-title{flex:1;min-width:0;font-size:14px;font-weight:var(--fw-bold);color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .drawer-actions{display:flex;gap:6px;flex:none}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:var(--radius-sm);font-size:11px;font-weight:var(--fw-semibold);font-family:inherit;cursor:pointer;border:none;white-space:nowrap}
+  .btn-outline{background:var(--surface-card);color:var(--text-primary);border:1px solid var(--border-default);box-shadow:var(--shadow-xs)}
+  .btn-primary{background:var(--brand-navy);color:#fff}
+
+  /* Body */
+  .drawer-body{flex:1;padding:16px;overflow:auto}
+  .slot{border:2px dashed var(--border-default);border-radius:var(--radius-md);background:var(--surface-sunken);display:flex;align-items:center;justify-content:center;color:var(--text-disabled);font-size:13px;font-weight:var(--fw-medium);height:100%;min-height:80px}
+
+  /* Footer */
+  .drawer-footer{padding:12px 16px;border-top:1px solid var(--border-default);flex:none}
+  .slot-footer{border:2px dashed var(--border-default);border-radius:var(--radius-sm);background:var(--surface-sunken);display:flex;align-items:center;justify-content:center;color:var(--text-disabled);font-size:12px;font-weight:var(--fw-medium);padding:10px}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+    <div class="lbl">Horizontal placement</div>
+    <div class="pair">
+      <!-- Right -->
+      <div>
+        <div class="lbl" style="font-size:10px;color:var(--text-disabled)">Right</div>
+        <div class="frame hz">
+          <div class="backdrop"></div>
+          <div class="drawer right">
+            <div class="drawer-header">
+              <span class="drawer-close"><i data-lucide="x"></i></span>
+              <span class="drawer-title">Chi tiết đơn hàng</span>
+              <div class="drawer-actions">
+                <button class="btn btn-outline">Hủy</button>
+                <button class="btn btn-primary">Lưu</button>
+              </div>
+            </div>
+            <div class="drawer-body"><div class="slot">Nội dung drawer</div></div>
+            <div class="drawer-footer"><div class="slot-footer">Footer slot</div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Left -->
+      <div>
+        <div class="lbl" style="font-size:10px;color:var(--text-disabled)">Left</div>
+        <div class="frame hz">
+          <div class="backdrop"></div>
+          <div class="drawer left">
+            <div class="drawer-header">
+              <span class="drawer-close"><i data-lucide="x"></i></span>
+              <span class="drawer-title">Bộ lọc nâng cao</span>
+              <div class="drawer-actions">
+                <button class="btn btn-outline">Đặt lại</button>
+                <button class="btn btn-primary">Áp dụng</button>
+              </div>
+            </div>
+            <div class="drawer-body"><div class="slot">Nội dung drawer</div></div>
+            <div class="drawer-footer"><div class="slot-footer">Footer slot</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lbl">Vertical placement</div>
+    <div class="pair">
+      <!-- Top -->
+      <div>
+        <div class="lbl" style="font-size:10px;color:var(--text-disabled)">Top</div>
+        <div class="frame vt">
+          <div class="backdrop"></div>
+          <div class="drawer top">
+            <div class="drawer-header">
+              <span class="drawer-close"><i data-lucide="x"></i></span>
+              <span class="drawer-title">Thông báo hệ thống</span>
+              <div class="drawer-actions">
+                <button class="btn btn-outline">Bỏ qua</button>
+                <button class="btn btn-primary">Xác nhận</button>
+              </div>
+            </div>
+            <div class="drawer-body"><div class="slot">Nội dung drawer</div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom -->
+      <div>
+        <div class="lbl" style="font-size:10px;color:var(--text-disabled)">Bottom</div>
+        <div class="frame vt">
+          <div class="backdrop"></div>
+          <div class="drawer bottom">
+            <div class="drawer-header">
+              <span class="drawer-close"><i data-lucide="x"></i></span>
+              <span class="drawer-title">Chọn tuyến đường</span>
+              <div class="drawer-actions">
+                <button class="btn btn-outline">Hủy</button>
+                <button class="btn btn-primary">Chọn</button>
+              </div>
+            </div>
+            <div class="drawer-body"><div class="slot">Nội dung drawer</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+ <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+ <script>
+  document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+  lucide.createIcons();
+ </script>
+</body>
+</html>

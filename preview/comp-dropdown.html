@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Dropdown" subtitle="Placement: Top/Bottom × Left/Right" viewport="1000x700" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;overflow:auto}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px}
+  .lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin:0 0 12px}
+  .row{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:8px}
+
+  .cell{position:relative;height:230px;border:1px dashed var(--border-default);border-radius:var(--radius-md);display:flex;justify-content:center;align-items:center}
+  .cell.b{align-items:flex-start;padding-top:22px}
+  .cell.t{align-items:flex-end;padding-bottom:22px}
+  .cell .cap{position:absolute;top:8px;left:10px;font-size:11px;font-weight:var(--fw-semibold);color:var(--text-tertiary)}
+
+  .wrap{position:relative;display:inline-block}
+  .trigger{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-xs);padding:9px 13px;font-size:14px;font-weight:var(--fw-semibold);color:var(--text-primary);font-family:inherit;cursor:pointer}
+  .trigger svg{width:16px;height:16px;color:var(--text-tertiary)}
+
+  .dd{position:absolute;z-index:5;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:5px;width:184px}
+  .mi{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);font-size:14px;color:var(--text-primary);font-weight:var(--fw-medium)}
+  .mi svg{width:16px;height:16px;color:var(--text-tertiary)}
+  .mi.hl{background:var(--gold-50);color:var(--text-brand)}
+  .mi.hl svg{color:var(--gold-700)}
+
+  /* placement */
+  .bl{top:100%;left:0;margin-top:8px}
+  .bc{top:100%;left:50%;transform:translateX(-50%);margin-top:8px}
+  .br{top:100%;right:0;margin-top:8px}
+  .tl{bottom:100%;left:0;margin-bottom:8px}
+  .tc{bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:8px}
+  .tr{bottom:100%;right:0;margin-bottom:8px}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+    <div class="lbl">Bottom placements</div>
+    <div class="row">
+      <div class="cell b"><span class="cap">Bottom Left</span>
+        <div class="wrap">
+          <button class="trigger">Thao tác<i data-lucide="chevron-down"></i></button>
+          <div class="dd bl"><div class="mi hl"><i data-lucide="eye"></i>Xem chi tiết</div><div class="mi"><i data-lucide="copy"></i>Sao chép mã</div><div class="mi"><i data-lucide="download"></i>Tải hóa đơn</div></div>
+        </div>
+      </div>
+      <div class="cell b"><span class="cap">Bottom Right</span>
+        <div class="wrap">
+          <button class="trigger">Thao tác<i data-lucide="chevron-down"></i></button>
+          <div class="dd br"><div class="mi hl"><i data-lucide="eye"></i>Xem chi tiết</div><div class="mi"><i data-lucide="copy"></i>Sao chép mã</div><div class="mi"><i data-lucide="download"></i>Tải hóa đơn</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lbl" style="margin-top:18px">Top placements</div>
+    <div class="row">
+      <div class="cell t"><span class="cap">Top Left</span>
+        <div class="wrap">
+          <div class="dd tl"><div class="mi hl"><i data-lucide="eye"></i>Xem chi tiết</div><div class="mi"><i data-lucide="copy"></i>Sao chép mã</div><div class="mi"><i data-lucide="download"></i>Tải hóa đơn</div></div>
+          <button class="trigger">Thao tác<i data-lucide="chevron-up"></i></button>
+        </div>
+      </div>
+      <div class="cell t"><span class="cap">Top Right</span>
+        <div class="wrap">
+          <div class="dd tr"><div class="mi hl"><i data-lucide="eye"></i>Xem chi tiết</div><div class="mi"><i data-lucide="copy"></i>Sao chép mã</div><div class="mi"><i data-lucide="download"></i>Tải hóa đơn</div></div>
+          <button class="trigger">Thao tác<i data-lucide="chevron-up"></i></button>
+        </div>
+      </div>
+    </div>
+
+
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+    lucide.createIcons();
+  </script>
+</body>
+</html>

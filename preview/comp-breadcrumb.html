@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Breadcrumb" subtitle="Link items (Default) + Current page · chevron & slash separators" viewport="760x300" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px;display:flex;flex-direction:column;gap:22px}
+  .lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px}
+
+  .crumbs{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:14px}
+  .crumb{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--text-secondary);font-weight:var(--fw-medium);text-decoration:none;border-radius:var(--radius-sm)}
+  .crumb svg{width:15px;height:15px;color:var(--text-tertiary)}
+  .crumb.home svg{color:var(--text-secondary)}
+  .crumb.current{color:var(--text-primary);font-weight:var(--fw-semibold);pointer-events:none}
+  .sep{color:var(--text-disabled);display:inline-flex;align-items:center}
+  .sep svg{width:15px;height:15px}
+  .sep.slash{font-size:14px;color:var(--text-disabled)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+    <div>
+      <div class="lbl">Chevron separator</div>
+      <nav class="crumbs">
+        <a class="crumb home" href="#"><i data-lucide="home"></i>Trang chủ</a>
+        <span class="sep"><i data-lucide="chevron-right"></i></span>
+        <a class="crumb" href="#">Đơn hàng</a>
+        <span class="sep"><i data-lucide="chevron-right"></i></span>
+        <a class="crumb" href="#">Quốc tế</a>
+        <span class="sep"><i data-lucide="chevron-right"></i></span>
+        <span class="crumb current">TX-48210</span>
+      </nav>
+    </div>
+
+    <div>
+      <div class="lbl">Slash separator</div>
+      <nav class="crumbs">
+        <a class="crumb" href="#">Trang chủ</a>
+        <span class="sep slash">/</span>
+        <a class="crumb" href="#">Tuyến đường</a>
+        <span class="sep slash">/</span>
+        <a class="crumb" href="#">Nhật Bản</a>
+        <span class="sep slash">/</span>
+        <span class="crumb current">Tokyo → Hà Nội</span>
+      </nav>
+    </div>
+
+    <div>
+      <div class="lbl">With icon · collapsed</div>
+      <nav class="crumbs">
+        <a class="crumb home" href="#"><i data-lucide="home"></i></a>
+        <span class="sep"><i data-lucide="chevron-right"></i></span>
+        <a class="crumb" href="#"><i data-lucide="more-horizontal"></i></a>
+        <span class="sep"><i data-lucide="chevron-right"></i></span>
+        <a class="crumb" href="#">Kho Jakarta</a>
+        <span class="sep"><i data-lucide="chevron-right"></i></span>
+        <span class="crumb current">Chi tiết lô hàng</span>
+      </nav>
+    </div>
+
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Menu" subtitle="Horizontal · Inline · Vertical · Collapsed · None" viewport="900x560" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px}
+  .lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin:0 0 10px}
+  .cols{display:flex;gap:20px;align-items:flex-start;margin-top:22px;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column}
+
+  /* ---------- Horizontal ---------- */
+  .menu-h{display:flex;gap:4px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:6px}
+  .mh{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:var(--radius-sm);font-size:14px;font-weight:var(--fw-medium);color:var(--text-secondary)}
+  .mh svg{width:16px;height:16px}
+  .mh.active{background:var(--gold-50);color:var(--text-brand);font-weight:var(--fw-semibold)}
+
+  /* ---------- shared vertical panel ---------- */
+  .panel{width:228px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:6px}
+  .grp{font-size:11px;font-weight:var(--fw-bold);letter-spacing:.04em;text-transform:uppercase;color:var(--text-tertiary);padding:10px 12px 6px}
+  .mi{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-sm);font-size:14px;color:var(--text-primary);font-weight:var(--fw-medium)}
+  .mi svg{width:17px;height:17px;color:var(--text-tertiary);flex:none}
+  .mi .chev{margin-left:auto;width:15px;height:15px;color:var(--text-tertiary)}
+  .mi.active{background:var(--gold-50);color:var(--text-brand);font-weight:var(--fw-semibold)}
+  .mi.active svg{color:var(--gold-700)}
+  .mi.sub{padding-left:40px;color:var(--text-secondary)}
+
+  /* ---------- Collapsed rail ---------- */
+  .rail{width:60px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);padding:8px;display:flex;flex-direction:column;gap:4px;align-items:center}
+  .ri{width:44px;height:44px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary)}
+  .ri svg{width:20px;height:20px}
+  .ri.active{background:var(--gold-50);color:var(--gold-700)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+    <div class="lbl">Horizontal</div>
+    <nav class="menu-h">
+      <span class="mh active"><i data-lucide="layout-dashboard"></i>Tổng quan</span>
+      <span class="mh"><i data-lucide="package"></i>Đơn hàng</span>
+      <span class="mh"><i data-lucide="route"></i>Tuyến đường</span>
+      <span class="mh"><i data-lucide="wallet"></i>Thanh toán</span>
+      <span class="mh"><i data-lucide="settings"></i>Cài đặt</span>
+    </nav>
+
+    <div class="cols">
+
+      <div class="col">
+        <div class="lbl">Inline (submenu mở)</div>
+        <nav class="panel">
+          <div class="mi"><i data-lucide="layout-dashboard"></i>Tổng quan</div>
+          <div class="mi"><i data-lucide="package"></i>Đơn hàng<i data-lucide="chevron-down" class="chev"></i></div>
+          <div class="mi sub active">Quốc tế</div>
+          <div class="mi sub">Nội địa</div>
+          <div class="mi sub">Lưu kho</div>
+          <div class="mi"><i data-lucide="route"></i>Tuyến đường<i data-lucide="chevron-right" class="chev"></i></div>
+        </nav>
+      </div>
+
+      <div class="col">
+        <div class="lbl">Vertical</div>
+        <nav class="panel">
+          <div class="grp">Quản lý</div>
+          <div class="mi active"><i data-lucide="package"></i>Đơn hàng</div>
+          <div class="mi"><i data-lucide="route"></i>Tuyến đường</div>
+          <div class="mi"><i data-lucide="warehouse"></i>Kho bãi<i data-lucide="chevron-right" class="chev"></i></div>
+          <div class="mi"><i data-lucide="wallet"></i>Thanh toán</div>
+        </nav>
+      </div>
+
+      <div class="col">
+        <div class="lbl">Collapsed</div>
+        <nav class="rail">
+          <span class="ri active"><i data-lucide="layout-dashboard"></i></span>
+          <span class="ri"><i data-lucide="package"></i></span>
+          <span class="ri"><i data-lucide="route"></i></span>
+          <span class="ri"><i data-lucide="wallet"></i></span>
+          <span class="ri"><i data-lucide="settings"></i></span>
+        </nav>
+      </div>
+
+      <div class="col">
+        <div class="lbl">None (không chọn)</div>
+        <nav class="panel">
+          <div class="mi"><i data-lucide="layout-dashboard"></i>Tổng quan</div>
+          <div class="mi"><i data-lucide="package"></i>Đơn hàng</div>
+          <div class="mi"><i data-lucide="route"></i>Tuyến đường</div>
+          <div class="mi"><i data-lucide="wallet"></i>Thanh toán</div>
+        </nav>
+      </div>
+
+    </div>
+
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+    lucide.createIcons();
+  </script>
+</body>
+</html>

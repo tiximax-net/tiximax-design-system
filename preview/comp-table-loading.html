@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Table — Loading" subtitle="Skeleton shimmer · Row loading · Overlay spinner · Light/Dark" viewport="1000x500" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px;display:flex;flex-direction:column;gap:30px}
+  .section-lbl{font-size:13px;font-weight:var(--fw-bold);color:var(--text-primary);padding:9px 14px;background:var(--surface-sunken);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);letter-spacing:var(--ls-wide);text-transform:uppercase;margin-bottom:14px}
+  .sub-lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin:0 0 8px}
+
+  /* Table shell */
+  table{border-collapse:separate;border-spacing:0;width:100%;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-xs)}
+  thead th{background:var(--surface-sunken);text-align:left;font-size:12px;font-weight:var(--fw-bold);color:var(--text-secondary);letter-spacing:var(--ls-wide);text-transform:uppercase;padding:11px 16px;border-bottom:1px solid var(--border-default);white-space:nowrap}
+  tbody td{padding:12px 16px;font-size:13px;color:var(--text-primary);border-bottom:1px solid var(--border-subtle);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+
+  /* Skeleton shimmer */
+  @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+  .skel{border-radius:var(--radius-xs);background:linear-gradient(90deg,var(--surface-sunken) 25%,var(--border-subtle) 37%,var(--surface-sunken) 63%);background-size:800px 100%;animation:shimmer 1.6s ease-in-out infinite;display:block}
+  .skel-text{height:12px;width:80%}
+  .skel-text-sm{height:10px;width:55%;margin-top:6px}
+  .skel-badge{height:22px;width:72px;border-radius:var(--radius-pill)}
+  .skel-action{height:28px;width:28px;border-radius:var(--radius-sm);display:inline-block}
+  .skel-cb{height:18px;width:18px;border-radius:var(--radius-xs)}
+  .skel-actions{display:flex;gap:4px}
+
+  /* Overlay spinner */
+  .table-wrap{position:relative}
+  .table-overlay{position:absolute;inset:0;background:var(--surface-overlay);backdrop-filter:blur(1px);display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);z-index:2}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{width:32px;height:32px;border:3px solid var(--border-default);border-top-color:var(--brand-gold);border-radius:50%;animation:spin .7s linear infinite}
+
+  /* Inline row loader */
+  .row-loading td{position:relative}
+  @keyframes rowPulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .row-loading td{animation:rowPulse 1.4s ease-in-out infinite}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:var(--fw-semibold);padding:3px 10px;border-radius:var(--radius-pill);border:1px solid transparent}
+  .badge .dot{width:6px;height:6px;border-radius:50%}
+  .badge.success{background:var(--success-bg);color:var(--text-success);border-color:var(--success-border)}
+  .badge.success .dot{background:var(--success)}
+  .badge.warning{background:var(--warning-bg);color:var(--text-warning);border-color:var(--warning-border)}
+  .badge.warning .dot{background:var(--warning)}
+  .mono{font-variant-numeric:tabular-nums;font-weight:var(--fw-semibold)}
+  .muted{color:var(--text-tertiary)}
+
+  .actions{display:flex;gap:4px}
+  .act{width:30px;height:30px;border-radius:var(--radius-sm);display:inline-flex;align-items:center;justify-content:center;color:var(--text-tertiary);border:1px solid transparent}
+  .act svg{width:16px;height:16px}
+</style>
+</head>
+<body>
+<div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface" id="lightBody"></div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+</div>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+function build(){
+  let h='';
+
+  const headers=`<thead><tr><th style="width:44px"></th><th>Mã đơn</th><th>Tuyến đường</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th></tr></thead>`;
+
+  /* ===== 1. Skeleton loading (initial load) ===== */
+  h+=`<div><div class="section-lbl">Skeleton Loading — Lần tải đầu</div>`;
+  h+=`<div class="sub-lbl">Shimmer skeleton thay thế nội dung khi chưa có dữ liệu</div>`;
+  h+=`<table>${headers}<tbody>`;
+  for(let i=0;i<4;i++){
+    h+=`<tr>
+      <td style="text-align:center"><span class="skel skel-cb"></span></td>
+      <td><span class="skel skel-text" style="width:${65+Math.random()*25}%"></span><span class="skel skel-text-sm" style="width:${40+Math.random()*20}%"></span></td>
+      <td><span class="skel skel-text" style="width:${50+Math.random()*30}%"></span></td>
+      <td><span class="skel skel-badge"></span></td>
+      <td><span class="skel skel-text" style="width:${55+Math.random()*20}%"></span></td>
+      <td><div class="skel-actions"><span class="skel skel-action"></span><span class="skel skel-action"></span><span class="skel skel-action"></span></div></td>
+    </tr>`;
+  }
+  h+=`</tbody></table></div>`;
+
+  /* ===== 2. Overlay loading (refresh / filter) ===== */
+  h+=`<div><div class="section-lbl">Overlay Loading — Tải lại dữ liệu</div>`;
+  h+=`<div class="sub-lbl">Spinner + overlay phủ lên bảng đang có dữ liệu</div>`;
+  h+=`<div class="table-wrap"><div class="table-overlay"><div class="spinner"></div></div>`;
+  h+=`<table>${headers}<tbody>`;
+  const rows=[
+    {id:'TX-48210',route:'Tokyo → Hà Nội',status:'success',statusTxt:'Đã giao',date:'15/06/2026'},
+    {id:'TX-48198',route:'Osaka → TP.HCM',status:'warning',statusTxt:'Đang bay',date:'14/06/2026'},
+    {id:'TX-48155',route:'Nagoya → Đà Nẵng',status:'warning',statusTxt:'Tại kho',date:'12/06/2026'},
+  ];
+  rows.forEach(r=>{
+    h+=`<tr>
+      <td style="text-align:center"><span style="width:18px;height:18px;border:1.5px solid var(--border-strong);border-radius:var(--radius-xs);display:inline-block"></span></td>
+      <td><div class="mono">${r.id}</div><div class="muted" style="font-size:11px">${r.route}</div></td>
+      <td><span class="muted">${r.route}</span></td>
+      <td><span class="badge ${r.status}"><span class="dot"></span>${r.statusTxt}</span></td>
+      <td><span class="muted">${r.date}</span></td>
+      <td><div class="actions"><span class="act"><i data-lucide="eye"></i></span><span class="act"><i data-lucide="pencil"></i></span><span class="act"><i data-lucide="trash-2"></i></span></div></td>
+    </tr>`;
+  });
+  h+=`</tbody></table></div></div>`;
+
+  /* ===== 3. Inline row loading ===== */
+  h+=`<div><div class="section-lbl">Inline Row Loading — Hàng đang cập nhật</div>`;
+  h+=`<div class="sub-lbl">Pulse animation trên hàng đang xử lý</div>`;
+  h+=`<table>${headers}<tbody>`;
+  h+=`<tr>
+    <td style="text-align:center"><span style="width:18px;height:18px;border:1.5px solid var(--border-strong);border-radius:var(--radius-xs);display:inline-block"></span></td>
+    <td><div class="mono">TX-48210</div><div class="muted" style="font-size:11px">Tokyo → Hà Nội</div></td>
+    <td><span class="muted">Tokyo → Hà Nội</span></td>
+    <td><span class="badge success"><span class="dot"></span>Đã giao</span></td>
+    <td><span class="muted">15/06/2026</span></td>
+    <td><div class="actions"><span class="act"><i data-lucide="eye"></i></span><span class="act"><i data-lucide="pencil"></i></span><span class="act"><i data-lucide="trash-2"></i></span></div></td>
+  </tr>`;
+  h+=`<tr class="row-loading" style="background:var(--warning-bg)">
+    <td style="text-align:center"><span style="width:18px;height:18px;border:1.5px solid var(--border-strong);border-radius:var(--radius-xs);display:inline-block"></span></td>
+    <td><div class="mono">TX-48198</div><div class="muted" style="font-size:11px">Osaka → TP.HCM</div></td>
+    <td><span class="muted">Osaka → TP.HCM</span></td>
+    <td><span style="font-size:12px;color:var(--text-warning);font-weight:var(--fw-semibold);display:inline-flex;align-items:center;gap:6px"><span class="spinner" style="width:14px;height:14px;border-width:2px"></span>Đang cập nhật…</span></td>
+    <td><span class="muted">14/06/2026</span></td>
+    <td><div class="actions"><span class="act" style="opacity:.4"><i data-lucide="eye"></i></span><span class="act" style="opacity:.4"><i data-lucide="pencil"></i></span><span class="act" style="opacity:.4"><i data-lucide="trash-2"></i></span></div></td>
+  </tr>`;
+  h+=`<tr>
+    <td style="text-align:center"><span style="width:18px;height:18px;border:1.5px solid var(--border-strong);border-radius:var(--radius-xs);display:inline-block"></span></td>
+    <td><div class="mono">TX-48155</div><div class="muted" style="font-size:11px">Nagoya → Đà Nẵng</div></td>
+    <td><span class="muted">Nagoya → Đà Nẵng</span></td>
+    <td><span class="badge warning"><span class="dot"></span>Tại kho</span></td>
+    <td><span class="muted">12/06/2026</span></td>
+    <td><div class="actions"><span class="act"><i data-lucide="eye"></i></span><span class="act"><i data-lucide="pencil"></i></span><span class="act"><i data-lucide="trash-2"></i></span></div></td>
+  </tr>`;
+  h+=`</tbody></table></div>`;
+
+  return h;
+}
+
+const html=build();
+document.getElementById('lightBody').innerHTML=html;
+document.getElementById('darkBody').innerHTML=html;
+lucide.createIcons();
+</script>
+</body>
+</html>

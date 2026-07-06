@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Table — Empty State" subtitle="Chưa có dữ liệu · Icon + message + action · Light/Dark" viewport="1000x500" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px;display:flex;flex-direction:column;gap:30px}
+  .section-lbl{font-size:13px;font-weight:var(--fw-bold);color:var(--text-primary);padding:9px 14px;background:var(--surface-sunken);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);letter-spacing:var(--ls-wide);text-transform:uppercase;margin-bottom:14px}
+
+  /* Table shell */
+  table{border-collapse:separate;border-spacing:0;width:100%;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-xs)}
+  thead th{background:var(--surface-sunken);text-align:left;font-size:12px;font-weight:var(--fw-bold);color:var(--text-secondary);letter-spacing:var(--ls-wide);text-transform:uppercase;padding:11px 16px;border-bottom:1px solid var(--border-default);white-space:nowrap}
+
+  /* Empty state */
+  .empty-state{padding:48px 24px;text-align:center}
+  .empty-icon{width:56px;height:56px;border-radius:var(--radius-lg);background:var(--surface-sunken);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .empty-icon svg{width:28px;height:28px;color:var(--text-tertiary)}
+  .empty-title{font-size:15px;font-weight:var(--fw-semibold);color:var(--text-primary);margin:0 0 6px}
+  .empty-desc{font-size:13px;color:var(--text-tertiary);margin:0 0 20px;line-height:1.5}
+  .empty-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-sans);font-size:13px;font-weight:var(--fw-semibold);color:var(--navy-900);background:var(--brand-gold);border:none;padding:9px 18px;border-radius:var(--radius-md);cursor:pointer}
+  .empty-btn svg{width:15px;height:15px}
+
+  /* Variant: minimal */
+  .empty-minimal{padding:36px 24px}
+  .empty-minimal .empty-icon{width:44px;height:44px;border-radius:var(--radius-md);margin-bottom:12px}
+  .empty-minimal .empty-icon svg{width:22px;height:22px}
+  .empty-minimal .empty-title{font-size:14px;margin-bottom:4px}
+  .empty-minimal .empty-desc{font-size:12px;margin-bottom:0}
+
+  /* Variant: with search */
+  .empty-search .empty-icon{background:var(--warning-bg)}
+  .empty-search .empty-icon svg{color:var(--brand-gold)}
+
+  .sub-lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin:0 0 8px}
+  .group{display:flex;flex-direction:column;gap:20px}
+</style>
+</head>
+<body>
+<div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface" id="lightBody"></div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+</div>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+function build(){
+  let h='';
+
+  /* ===== Default empty ===== */
+  h+=`<div><div class="section-lbl">Empty State — Default</div>`;
+  h+=`<div class="sub-lbl">Bảng chưa có dữ liệu · CTA thêm mới</div>`;
+  h+=`<table><thead><tr>
+    <th>Mã đơn</th><th>Tuyến đường</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th>
+  </tr></thead><tbody><tr><td colspan="5">
+    <div class="empty-state">
+      <div class="empty-icon"><i data-lucide="inbox"></i></div>
+      <div class="empty-title">Chưa có dữ liệu</div>
+      <div class="empty-desc">Hiện tại chưa có đơn hàng nào. Tạo đơn mới để bắt đầu.</div>
+      <button class="empty-btn"><i data-lucide="plus"></i>Tạo đơn hàng</button>
+    </div>
+  </td></tr></tbody></table></div>`;
+
+  /* ===== Search empty ===== */
+  h+=`<div><div class="section-lbl">Empty State — Không tìm thấy</div>`;
+  h+=`<div class="sub-lbl">Kết quả tìm kiếm / bộ lọc trống</div>`;
+  h+=`<table><thead><tr>
+    <th>Mã đơn</th><th>Tuyến đường</th><th>Trạng thái</th><th>Ngày tạo</th><th>Thao tác</th>
+  </tr></thead><tbody><tr><td colspan="5">
+    <div class="empty-state empty-search">
+      <div class="empty-icon"><i data-lucide="search-x"></i></div>
+      <div class="empty-title">Không tìm thấy kết quả</div>
+      <div class="empty-desc">Không có đơn hàng nào phù hợp với bộ lọc hiện tại.<br>Hãy thử thay đổi từ khóa hoặc xóa bộ lọc.</div>
+      <button class="empty-btn" style="background:var(--surface-sunken);color:var(--text-primary);border:1px solid var(--border-default)"><i data-lucide="filter-x"></i>Xóa bộ lọc</button>
+    </div>
+  </td></tr></tbody></table></div>`;
+
+  /* ===== Minimal empty ===== */
+  h+=`<div><div class="section-lbl">Empty State — Minimal</div>`;
+  h+=`<div class="sub-lbl">Bảng nhỏ / widget, không có CTA</div>`;
+  h+=`<table><thead><tr>
+    <th>Sản phẩm</th><th>Số lượng</th><th>Giá</th>
+  </tr></thead><tbody><tr><td colspan="3">
+    <div class="empty-state empty-minimal">
+      <div class="empty-icon"><i data-lucide="package-open"></i></div>
+      <div class="empty-title">Chưa có sản phẩm</div>
+      <div class="empty-desc">Danh sách sản phẩm đang trống</div>
+    </div>
+  </td></tr></tbody></table></div>`;
+
+  return h;
+}
+
+const html=build();
+document.getElementById('lightBody').innerHTML=html;
+document.getElementById('darkBody').innerHTML=html;
+lucide.createIcons();
+</script>
+</body>
+</html>

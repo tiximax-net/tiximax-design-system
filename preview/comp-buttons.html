@@ -1,0 +1,160 @@
+<!-- @dsCard group="Components" name="Buttons" subtitle="3 sizes × 6 variants × 3 types (text, text+icon, icon-only)" viewport="1100x750" -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:36px 40px;display:flex;flex-direction:column;gap:36px}
+  .sec{display:flex;flex-direction:column;gap:14px}
+  .stitle{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary)}
+  .grid{display:grid;grid-template-columns:80px repeat(6,1fr);gap:14px 16px;align-items:center}
+  .rlbl{font-size:13px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em}
+  .clbl{font-size:12px;font-weight:700;color:var(--text-tertiary);text-align:center;letter-spacing:.04em}
+  .cc{display:flex;justify-content:center;align-items:center}
+  /* button base */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;font-weight:var(--fw-semibold);
+       border:none;border-radius:8px;cursor:pointer;line-height:1;white-space:nowrap;box-sizing:border-box}
+  .btn svg{flex:none;display:block}
+  /* variants */
+  .v-primary{background:var(--brand-gold);color:var(--navy-900)}
+  .v-secondary{background:var(--brand-navy);color:#fff}
+  .v-outline{background:#fff;color:var(--text-primary);border:1.5px solid var(--border-strong)}
+  .v-noline{background:transparent;color:var(--text-primary)}
+  .v-disabled{background:var(--neutral-200);color:var(--text-disabled);box-shadow:none;cursor:not-allowed;pointer-events:none}
+  .v-more{background:transparent;color:var(--text-brand)}
+  /* sizes */
+  .sz-sm{height:36px;padding:0 16px;font-size:14px;gap:4px}
+  .sz-md{height:44px;padding:0 24px;font-size:16px;gap:8px}
+  .sz-lg{height:52px;padding:0 32px;font-size:16px;gap:8px}
+  .sz-sm svg{width:16px;height:16px}
+  .sz-md svg{width:20px;height:20px}
+  .sz-lg svg{width:24px;height:24px}
+  /* icon-only */
+  .io{border-radius:8px;display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-sizing:border-box}
+  .io svg{display:block}
+  .io.sz-sm{width:36px;height:36px;padding:0}.io.sz-md{width:44px;height:44px;padding:0}.io.sz-lg{width:52px;height:52px;padding:0}
+  /* dark-mode tweaks for hardcoded fills */
+  .dark .v-outline{background:var(--surface-raised);color:var(--text-primary);border-color:var(--border-strong)}
+  .dark .v-disabled{background:var(--neutral-800);color:var(--text-disabled)}
+  .dark .v-secondary{background:var(--navy-600)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+  <!-- SMALL -->
+  <div class="sec">
+    <div class="stitle">Small</div>
+    <div class="grid">
+      <div></div>
+      <div class="clbl">Chính</div><div class="clbl">Phụ</div><div class="clbl">Outline</div>
+      <div class="clbl">No line</div><div class="clbl">Disabled</div><div class="clbl">Xem thêm</div>
+
+      <div class="rlbl">Text</div>
+      <div class="cc"><button class="btn v-primary sz-sm">Tạo đơn</button></div>
+      <div class="cc"><button class="btn v-secondary sz-sm">Đăng nhập</button></div>
+      <div class="cc"><button class="btn v-outline sz-sm">Hủy</button></div>
+      <div class="cc"><button class="btn v-noline sz-sm">Chi tiết</button></div>
+      <div class="cc"><button class="btn v-disabled sz-sm">Disabled</button></div>
+      <div class="cc"><button class="btn v-more sz-sm">Xem thêm<i data-lucide="arrow-right"></i></button></div>
+
+      <div class="rlbl">Text+Icon</div>
+      <div class="cc"><button class="btn v-primary sz-sm"><i data-lucide="plus"></i>Tạo đơn</button></div>
+      <div class="cc"><button class="btn v-secondary sz-sm"><i data-lucide="log-in"></i>Đăng nhập</button></div>
+      <div class="cc"><button class="btn v-outline sz-sm"><i data-lucide="download"></i>Tải về</button></div>
+      <div class="cc"><button class="btn v-noline sz-sm"><i data-lucide="eye"></i>Chi tiết</button></div>
+      <div class="cc"><button class="btn v-disabled sz-sm"><i data-lucide="plus"></i>Disabled</button></div>
+      <div class="cc"><button class="btn v-more sz-sm"><i data-lucide="chevrons-right"></i>Xem thêm</button></div>
+
+      <div class="rlbl">Icon</div>
+      <div class="cc"><button class="io v-primary sz-sm"><i data-lucide="plus"></i></button></div>
+      <div class="cc"><button class="io v-secondary sz-sm"><i data-lucide="search"></i></button></div>
+      <div class="cc"><button class="io v-outline sz-sm"><i data-lucide="download"></i></button></div>
+      <div class="cc"><button class="io v-noline sz-sm"><i data-lucide="settings"></i></button></div>
+      <div class="cc"><button class="io v-disabled sz-sm"><i data-lucide="plus"></i></button></div>
+      <div class="cc"><button class="io v-more sz-sm"><i data-lucide="arrow-right"></i></button></div>
+    </div>
+  </div>
+
+  <!-- MEDIUM -->
+  <div class="sec">
+    <div class="stitle">Medium</div>
+    <div class="grid">
+      <div></div>
+      <div class="clbl">Chính</div><div class="clbl">Phụ</div><div class="clbl">Outline</div>
+      <div class="clbl">No line</div><div class="clbl">Disabled</div><div class="clbl">Xem thêm</div>
+
+      <div class="rlbl">Text</div>
+      <div class="cc"><button class="btn v-primary sz-md">Tạo đơn</button></div>
+      <div class="cc"><button class="btn v-secondary sz-md">Đăng nhập</button></div>
+      <div class="cc"><button class="btn v-outline sz-md">Hủy</button></div>
+      <div class="cc"><button class="btn v-noline sz-md">Chi tiết</button></div>
+      <div class="cc"><button class="btn v-disabled sz-md">Disabled</button></div>
+      <div class="cc"><button class="btn v-more sz-md">Xem thêm<i data-lucide="arrow-right"></i></button></div>
+
+      <div class="rlbl">Text+Icon</div>
+      <div class="cc"><button class="btn v-primary sz-md"><i data-lucide="plus"></i>Tạo đơn</button></div>
+      <div class="cc"><button class="btn v-secondary sz-md"><i data-lucide="log-in"></i>Đăng nhập</button></div>
+      <div class="cc"><button class="btn v-outline sz-md"><i data-lucide="download"></i>Tải về</button></div>
+      <div class="cc"><button class="btn v-noline sz-md"><i data-lucide="eye"></i>Chi tiết</button></div>
+      <div class="cc"><button class="btn v-disabled sz-md"><i data-lucide="plus"></i>Disabled</button></div>
+      <div class="cc"><button class="btn v-more sz-md"><i data-lucide="chevrons-right"></i>Xem thêm</button></div>
+
+      <div class="rlbl">Icon</div>
+      <div class="cc"><button class="io v-primary sz-md"><i data-lucide="plus"></i></button></div>
+      <div class="cc"><button class="io v-secondary sz-md"><i data-lucide="search"></i></button></div>
+      <div class="cc"><button class="io v-outline sz-md"><i data-lucide="download"></i></button></div>
+      <div class="cc"><button class="io v-noline sz-md"><i data-lucide="settings"></i></button></div>
+      <div class="cc"><button class="io v-disabled sz-md"><i data-lucide="plus"></i></button></div>
+      <div class="cc"><button class="io v-more sz-md"><i data-lucide="arrow-right"></i></button></div>
+    </div>
+  </div>
+
+  <!-- LARGE -->
+  <div class="sec">
+    <div class="stitle">Large</div>
+    <div class="grid">
+      <div></div>
+      <div class="clbl">Chính</div><div class="clbl">Phụ</div><div class="clbl">Outline</div>
+      <div class="clbl">No line</div><div class="clbl">Disabled</div><div class="clbl">Xem thêm</div>
+
+      <div class="rlbl">Text</div>
+      <div class="cc"><button class="btn v-primary sz-lg">Tạo đơn</button></div>
+      <div class="cc"><button class="btn v-secondary sz-lg">Đăng nhập</button></div>
+      <div class="cc"><button class="btn v-outline sz-lg">Hủy</button></div>
+      <div class="cc"><button class="btn v-noline sz-lg">Chi tiết</button></div>
+      <div class="cc"><button class="btn v-disabled sz-lg">Disabled</button></div>
+      <div class="cc"><button class="btn v-more sz-lg">Xem thêm<i data-lucide="arrow-right"></i></button></div>
+
+      <div class="rlbl">Text+Icon</div>
+      <div class="cc"><button class="btn v-primary sz-lg"><i data-lucide="plus"></i>Tạo đơn</button></div>
+      <div class="cc"><button class="btn v-secondary sz-lg"><i data-lucide="log-in"></i>Đăng nhập</button></div>
+      <div class="cc"><button class="btn v-outline sz-lg"><i data-lucide="download"></i>Tải về</button></div>
+      <div class="cc"><button class="btn v-noline sz-lg"><i data-lucide="eye"></i>Chi tiết</button></div>
+      <div class="cc"><button class="btn v-disabled sz-lg"><i data-lucide="plus"></i>Disabled</button></div>
+      <div class="cc"><button class="btn v-more sz-lg"><i data-lucide="chevrons-right"></i>Xem thêm</button></div>
+
+      <div class="rlbl">Icon</div>
+      <div class="cc"><button class="io v-primary sz-lg"><i data-lucide="plus"></i></button></div>
+      <div class="cc"><button class="io v-secondary sz-lg"><i data-lucide="search"></i></button></div>
+      <div class="cc"><button class="io v-outline sz-lg"><i data-lucide="download"></i></button></div>
+      <div class="cc"><button class="io v-noline sz-lg"><i data-lucide="settings"></i></button></div>
+      <div class="cc"><button class="io v-disabled sz-lg"><i data-lucide="plus"></i></button></div>
+      <div class="cc"><button class="io v-more sz-lg"><i data-lucide="arrow-right"></i></button></div>
+    </div>
+  </div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+    lucide.createIcons();
+  </script>
+</body>
+</html>

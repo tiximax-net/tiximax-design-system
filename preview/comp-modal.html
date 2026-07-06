@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Modal" subtitle="Info · Error · Success · Warning — confirm dialog with icon" viewport="860x560" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px;align-items:start}
+  .cell{display:flex;flex-direction:column;gap:8px}
+
+  .lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary)}
+
+  /* ===== Modal card ===== */
+  .modal{width:100%;box-sizing:border-box;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:16px}
+
+  .modal-head{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+  .modal-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+  .modal-icon svg{width:20px;height:20px;color:#fff}
+
+  .modal-icon.info{background:var(--info)}
+  .modal-icon.error{background:var(--error)}
+  .modal-icon.success{background:var(--success)}
+  .modal-icon.warning{background:var(--warning)}
+
+  .modal-title{font-size:17px;font-weight:var(--fw-bold);color:var(--text-primary);line-height:1.2}
+  .modal-body{font-size:14px;color:var(--text-secondary);line-height:var(--lh-normal);margin-bottom:12px;padding-left:50px}
+
+  .modal-footer{display:flex;justify-content:flex-end;gap:10px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:9px 22px;border-radius:var(--radius-md);font-size:14px;font-weight:var(--fw-semibold);font-family:inherit;cursor:pointer;border:none;transition:background .15s,box-shadow .15s}
+  .btn-cancel{background:var(--surface-card);color:var(--text-primary);border:1px solid var(--border-default);box-shadow:var(--shadow-xs)}
+  .btn-ok{color:#fff}
+  .btn-ok.info{background:var(--info)}
+  .btn-ok.error{background:var(--error)}
+  .btn-ok.success{background:var(--success)}
+  .btn-ok.warning{background:var(--warning)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+    <div class="cell">
+    <div class="lbl">Info</div>
+    <div class="modal">
+      <div class="modal-head">
+        <span class="modal-icon info"><i data-lucide="info"></i></span>
+        <span class="modal-title">Thông tin xác nhận</span>
+      </div>
+      <div class="modal-body">Đơn hàng TX-48210 đã được tiếp nhận và đang chờ xử lý vận chuyển.</div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel">Cancel</button>
+        <button class="btn btn-ok info">OK</button>
+      </div>
+    </div>
+    </div>
+
+    <div class="cell">
+    <div class="lbl">Error</div>
+    <div class="modal">
+      <div class="modal-head">
+        <span class="modal-icon error"><i data-lucide="x"></i></span>
+        <span class="modal-title">Lỗi xử lý đơn hàng</span>
+      </div>
+      <div class="modal-body">Không thể tạo đơn hàng. Vui lòng kiểm tra lại thông tin và thử lại.</div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel">Cancel</button>
+        <button class="btn btn-ok error">OK</button>
+      </div>
+    </div>
+    </div>
+
+    <div class="cell">
+    <div class="lbl">Success</div>
+    <div class="modal">
+      <div class="modal-head">
+        <span class="modal-icon success"><i data-lucide="check"></i></span>
+        <span class="modal-title">Giao hàng thành công</span>
+      </div>
+      <div class="modal-body">Đơn hàng đã được giao thành công đến địa chỉ nhận. Cảm ơn bạn đã sử dụng dịch vụ.</div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel">Cancel</button>
+        <button class="btn btn-ok success">OK</button>
+      </div>
+    </div>
+    </div>
+
+    <div class="cell">
+    <div class="lbl">Warning</div>
+    <div class="modal">
+      <div class="modal-head">
+        <span class="modal-icon warning"><i data-lucide="alert-triangle"></i></span>
+        <span class="modal-title">Cảnh báo trễ hàng</span>
+      </div>
+      <div class="modal-body">Lô hàng có thể bị chậm trễ do điều kiện thời tiết. Bạn có muốn tiếp tục không?</div>
+      <div class="modal-footer">
+        <button class="btn btn-cancel">Cancel</button>
+        <button class="btn btn-ok warning">OK</button>
+      </div>
+    </div>
+    </div>
+
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+ <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+ <script>
+  document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+  lucide.createIcons();
+ </script>
+</body>
+</html>

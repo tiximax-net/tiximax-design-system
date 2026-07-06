@@ -1,0 +1,103 @@
+<!-- @dsCard group="Brand" name="Favicon" subtitle="App icon / favicon — spark mark, light & dark mode" viewport="720x320" -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card);padding:20px 24px;
+       display:flex;flex-direction:column;gap:20px}
+  .mode-row{display:flex;align-items:center;gap:28px}
+  .mode-label{writing-mode:vertical-lr;text-orientation:mixed;transform:rotate(180deg);
+    font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);
+    text-transform:uppercase;color:var(--text-tertiary);flex:none;user-select:none}
+  .sizes{display:flex;align-items:flex-end;gap:16px;flex:none}
+  .it{display:flex;flex-direction:column;align-items:center;gap:7px}
+  .it img{display:block;border-radius:22%}
+  .px{font-size:11px;color:var(--text-tertiary);font-weight:var(--fw-semibold)}
+  .divider{width:1px;align-self:stretch;background:var(--border-subtle)}
+
+  /* browser tab mock — light */
+  .tabwrap{flex:1;min-width:0}
+  .tabbar{display:flex;align-items:flex-end;gap:5px}
+  .tab{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border-default);
+       border-bottom:none;border-radius:9px 9px 0 0;padding:8px 12px;box-shadow:var(--shadow-xs);max-width:200px}
+  .tab img{width:16px;height:16px;border-radius:4px;flex:none}
+  .tab span{font-size:12px;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tab.inactive{background:var(--surface-sunken);opacity:.7}
+  .urlbar{height:30px;background:#fff;border:1px solid var(--border-default);border-radius:0 7px 7px 7px;
+          display:flex;align-items:center;gap:8px;padding:0 12px;margin-top:-1px}
+  .urlbar img{width:16px;height:16px}
+  .urlbar .u{font-size:12px;color:var(--text-secondary)}
+
+  /* browser tab mock — dark */
+  .dark-mock .tabbar{gap:5px}
+  .dark-mock .tab{background:#2A2D32;border-color:#3E4147;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .dark-mock .tab span{color:#E8EAED}
+  .dark-mock .tab.inactive{background:#1E2024;border-color:#3E4147;opacity:.65}
+  .dark-mock .urlbar{background:#2A2D32;border-color:#3E4147}
+  .dark-mock .urlbar .u{color:#9AA0A6}
+
+  /* app icon */
+  .home{display:flex;flex-direction:column;align-items:center;gap:7px;flex:none}
+  .home img{width:54px;height:54px;border-radius:26%;box-shadow:var(--shadow-md)}
+  .home .nm{font-size:11px;color:var(--text-secondary);font-weight:var(--fw-semibold)}
+
+  /* dark row background */
+  .dark-row{background:var(--neutral-900);border-radius:var(--radius-lg);padding:16px 20px;margin:-4px -4px}
+  .dark-row .mode-label{color:var(--neutral-400)}
+  .dark-row .px{color:var(--neutral-500)}
+  .dark-row .divider{background:var(--neutral-700)}
+  .dark-row .home .nm{color:var(--neutral-400)}
+  .dark-row .home img{box-shadow:0 4px 10px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.25)}
+  /* light outline for light-bg favicon on dark surface */
+  .dark-row .it img.light-icon{box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+</style>
+</head>
+<body>
+
+  <!-- ===== LIGHT MODE ===== -->
+  <div class="mode-row">
+    <span class="mode-label">Light</span>
+    <div class="sizes">
+      <div class="it"><img src="../assets/favicon.svg" width="56" height="56"><span class="px">64</span></div>
+      <div class="it"><img src="../assets/favicon.svg" width="42" height="42"><span class="px">48</span></div>
+      <div class="it"><img src="../assets/favicon.svg" width="28" height="28"><span class="px">32</span></div>
+      <div class="it"><img src="../assets/favicon.svg" width="16" height="16"><span class="px">16</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="tabwrap">
+      <div class="tabbar">
+        <div class="tab"><img src="../assets/favicon.svg"><span>TIXIMAX — Mua hộ &amp; vận chuyển</span></div>
+        <div class="tab inactive"><img src="../assets/favicon.svg"><span>Tra cứu đơn</span></div>
+      </div>
+      <div class="urlbar"><img src="../assets/favicon.svg"><span class="u">tiximax.com</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="home"><img src="../assets/favicon.svg"><span class="nm">TIXIMAX</span></div>
+  </div>
+
+  <!-- ===== DARK MODE ===== -->
+  <div class="mode-row dark-row">
+    <span class="mode-label">Dark</span>
+    <div class="sizes">
+      <div class="it"><img src="../assets/favicon-light.svg" class="light-icon" width="56" height="56"><span class="px">64</span></div>
+      <div class="it"><img src="../assets/favicon-light.svg" class="light-icon" width="42" height="42"><span class="px">48</span></div>
+      <div class="it"><img src="../assets/favicon-light.svg" class="light-icon" width="28" height="28"><span class="px">32</span></div>
+      <div class="it"><img src="../assets/favicon-light.svg" class="light-icon" width="16" height="16"><span class="px">16</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="tabwrap dark-mock">
+      <div class="tabbar">
+        <div class="tab"><img src="../assets/favicon-light.svg"><span>TIXIMAX — Mua hộ &amp; vận chuyển</span></div>
+        <div class="tab inactive"><img src="../assets/favicon-light.svg"><span>Tra cứu đơn</span></div>
+      </div>
+      <div class="urlbar"><img src="../assets/favicon-light.svg"><span class="u">tiximax.com</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="home"><img src="../assets/favicon-light.svg"><span class="nm">TIXIMAX</span></div>
+  </div>
+
+</body>
+</html>

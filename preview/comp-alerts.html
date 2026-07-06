@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Alerts" subtitle="Success, warning, error, info" viewport="700x250" -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:22px 24px;display:flex;flex-direction:column;gap:12px}
+  .alert{display:flex;gap:12px;padding:13px 15px;border-radius:var(--radius-md);border:1px solid}
+  .alert svg{width:20px;height:20px;flex:none;margin-top:1px}
+  .at{font-size:14px;font-weight:var(--fw-bold);color:var(--text-primary)}
+  .ad{font-size:13px;color:var(--text-secondary);margin-top:1px;line-height:1.45}
+  .a-success{background:var(--success-bg);border-color:var(--success-border)}
+  .a-success svg{color:var(--success)}
+  .a-warning{background:var(--warning-bg);border-color:var(--warning-border)}
+  .a-warning svg{color:var(--gold-700)}
+  .a-error{background:var(--error-bg);border-color:var(--error-border)}
+  .a-error svg{color:var(--error)}
+  .a-info{background:var(--info-bg);border-color:var(--info-border)}
+  .a-info svg{color:var(--info)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+  <div class="alert a-success"><i data-lucide="check-circle-2"></i><div><div class="at">Thanh toán thành công</div><div class="ad">Đơn TX-48210 đã được xác nhận và chuyển sang xử lý.</div></div></div>
+  <div class="alert a-warning"><i data-lucide="alert-triangle"></i><div><div class="at">Tỷ giá vừa cập nhật</div><div class="ad">Báo giá có thể thay đổi nhẹ theo tỷ giá ngoại tệ trong ngày.</div></div></div>
+  <div class="alert a-error"><i data-lucide="x-circle"></i><div><div class="at">Không thể tạo đơn</div><div class="ad">Vui lòng kiểm tra lại đường link sản phẩm và thử lại.</div></div></div>
+  <div class="alert a-info"><i data-lucide="info"></i><div><div class="at">Mẹo</div><div class="ad">Gom nhiều sản phẩm vào một đơn để tiết kiệm phí vận chuyển.</div></div></div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+    lucide.createIcons();
+  </script>
+</body>
+</html>

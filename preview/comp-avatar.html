@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Avatar" subtitle="AvatarImage + AvatarFallback · 28/32/40px · Badge indicator" viewport="920x420" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:28px 36px;display:flex;flex-direction:column;gap:28px}
+  .sec{display:flex;flex-direction:column;gap:14px}
+  .stitle{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary)}
+
+  /* Grid layout */
+  .grid{display:grid;grid-template-columns:90px repeat(3,1fr) 18px repeat(3,1fr);gap:16px 20px;align-items:center}
+  .rlbl{font-size:12px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.06em}
+  .clbl{font-size:11px;font-weight:700;color:var(--text-tertiary);text-align:center;letter-spacing:.04em}
+  .cc{display:flex;justify-content:center;align-items:center}
+  .sep{width:1px;background:var(--border-default);align-self:stretch;justify-self:center}
+
+  /* ── Avatar base ── */
+  .avatar{position:relative;display:inline-flex;align-items:center;justify-content:center;
+          border-radius:50%;overflow:visible;flex-shrink:0;box-sizing:border-box}
+
+  /* Sizes */
+  .av-sm{width:28px;height:28px}
+  .av-md{width:32px;height:32px}
+  .av-lg{width:40px;height:40px}
+
+  /* AvatarImage */
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%;clip-path:circle(50%)}
+
+  /* AvatarFallback — initials */
+  .av-fallback{background:var(--gold-100);color:var(--gold-700);font-weight:var(--fw-bold);text-transform:uppercase;line-height:1}
+  .av-sm.av-fallback{font-size:11px}
+  .av-md.av-fallback{font-size:12px}
+  .av-lg.av-fallback{font-size:14px}
+
+  /* Fallback — icon (user silhouette) */
+  .av-fallback-icon{background:var(--neutral-200);color:var(--neutral-500)}
+  .av-sm.av-fallback-icon svg{width:16px;height:16px}
+  .av-md.av-fallback-icon svg{width:18px;height:18px}
+  .av-lg.av-fallback-icon svg{width:22px;height:22px}
+
+  /* Ring / outline */
+  .av-ring{box-shadow:0 0 0 2px var(--surface-card),0 0 0 3.5px var(--brand-gold)}
+
+  /* ── Badge (red dot) ── */
+  .avatar .badge-dot{position:absolute;border-radius:50%;background:var(--brand-red);
+                     box-shadow:0 0 0 2px var(--surface-card);z-index:2}
+  .av-sm .badge-dot{width:8px;height:8px;bottom:-1px;right:-1px}
+  .av-md .badge-dot{width:9px;height:9px;bottom:-1px;right:-1px}
+  .av-lg .badge-dot{width:10px;height:10px;bottom:0px;right:0px}
+
+  /* Dark tweaks */
+  .dark .av-fallback{background:var(--gold-900);color:var(--gold-400)}
+  .dark .av-fallback-icon{background:var(--neutral-700);color:var(--neutral-400)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+  <!-- AvatarImage -->
+  <div class="sec">
+    <div class="stitle">AvatarImage</div>
+    <div class="grid">
+      <div></div>
+      <div class="clbl">28px</div><div class="clbl">32px</div><div class="clbl">40px</div>
+      <div></div>
+      <div class="clbl">28 + Badge</div><div class="clbl">32 + Badge</div><div class="clbl">40 + Badge</div>
+
+      <div class="rlbl">Default</div>
+      <div class="cc"><div class="avatar av-sm"><img src="https://i.pravatar.cc/80?img=12" alt=""></div></div>
+      <div class="cc"><div class="avatar av-md"><img src="https://i.pravatar.cc/80?img=12" alt=""></div></div>
+      <div class="cc"><div class="avatar av-lg"><img src="https://i.pravatar.cc/80?img=12" alt=""></div></div>
+      <div class="sep"></div>
+      <div class="cc"><div class="avatar av-sm"><img src="https://i.pravatar.cc/80?img=12" alt=""><span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-md"><img src="https://i.pravatar.cc/80?img=12" alt=""><span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-lg"><img src="https://i.pravatar.cc/80?img=12" alt=""><span class="badge-dot"></span></div></div>
+
+      <div class="rlbl">Ring</div>
+      <div class="cc"><div class="avatar av-sm av-ring"><img src="https://i.pravatar.cc/80?img=32" alt=""></div></div>
+      <div class="cc"><div class="avatar av-md av-ring"><img src="https://i.pravatar.cc/80?img=32" alt=""></div></div>
+      <div class="cc"><div class="avatar av-lg av-ring"><img src="https://i.pravatar.cc/80?img=32" alt=""></div></div>
+      <div class="sep"></div>
+      <div class="cc"><div class="avatar av-sm av-ring"><img src="https://i.pravatar.cc/80?img=32" alt=""><span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-md av-ring"><img src="https://i.pravatar.cc/80?img=32" alt=""><span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-lg av-ring"><img src="https://i.pravatar.cc/80?img=32" alt=""><span class="badge-dot"></span></div></div>
+    </div>
+  </div>
+
+  <!-- AvatarFallback -->
+  <div class="sec">
+    <div class="stitle">AvatarFallback</div>
+    <div class="grid">
+      <div></div>
+      <div class="clbl">28px</div><div class="clbl">32px</div><div class="clbl">40px</div>
+      <div></div>
+      <div class="clbl">28 + Badge</div><div class="clbl">32 + Badge</div><div class="clbl">40 + Badge</div>
+
+      <div class="rlbl">Initials</div>
+      <div class="cc"><div class="avatar av-sm av-fallback">NT</div></div>
+      <div class="cc"><div class="avatar av-md av-fallback">NT</div></div>
+      <div class="cc"><div class="avatar av-lg av-fallback">NT</div></div>
+      <div class="sep"></div>
+      <div class="cc"><div class="avatar av-sm av-fallback">NT<span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-md av-fallback">NT<span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-lg av-fallback">NT<span class="badge-dot"></span></div></div>
+
+      <div class="rlbl">Icon</div>
+      <div class="cc"><div class="avatar av-sm av-fallback-icon"><i data-lucide="user"></i></div></div>
+      <div class="cc"><div class="avatar av-md av-fallback-icon"><i data-lucide="user"></i></div></div>
+      <div class="cc"><div class="avatar av-lg av-fallback-icon"><i data-lucide="user"></i></div></div>
+      <div class="sep"></div>
+      <div class="cc"><div class="avatar av-sm av-fallback-icon"><i data-lucide="user"></i><span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-md av-fallback-icon"><i data-lucide="user"></i><span class="badge-dot"></span></div></div>
+      <div class="cc"><div class="avatar av-lg av-fallback-icon"><i data-lucide="user"></i><span class="badge-dot"></span></div></div>
+    </div>
+  </div>
+
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+    lucide.createIcons();
+  </script>
+</body>
+</html>

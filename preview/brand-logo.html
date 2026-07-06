@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Brand" name="Logo" subtitle="TIXIMAX · Indonesia · Philippines — color, black & white" viewport="1040x720" -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-body);background:var(--surface-page);color:var(--brand-black)}
+  .surface{padding:40px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .col-head{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-bottom:-12px}
+  .col-head span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--neutral-500);text-align:center}
+  .cell{border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;padding:26px;min-height:128px;border:1px solid var(--border-default)}
+  .cell.color{background:var(--brand-white)}
+  .cell.black{background:var(--brand-white)}
+  .cell.white{background:var(--brand-black);border-color:var(--brand-black)}
+  .cell img{width:200px;height:auto;display:block}
+  .row-label{grid-column:1/-1;display:flex;align-items:center;gap:12px;margin-top:8px}
+  .row-label b{font-size:15px;font-weight:600}
+  .row-label i{flex:1;height:1px;background:var(--border-default);font-style:normal}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+  <div class="grid">
+    <div class="col-head"><span>Color</span><span>Black</span><span>White</span></div>
+
+    <div class="row-label"><b>TIXIMAX</b><i></i></div>
+    <div class="cell color"><img src="../assets/logo-txm.png" alt="TIXIMAX color"></div>
+    <div class="cell black"><img src="../assets/logo-txm-black.png" alt="TIXIMAX black"></div>
+    <div class="cell white"><img src="../assets/logo-txm-white.png" alt="TIXIMAX white"></div>
+
+    <div class="row-label"><b>TIXIMAX Indonesia</b><i></i></div>
+    <div class="cell color"><img src="../assets/logo-indo.png" alt="Indonesia color"></div>
+    <div class="cell black"><img src="../assets/logo-indo-black.png" alt="Indonesia black"></div>
+    <div class="cell white"><img src="../assets/logo-indo-white.png" alt="Indonesia white"></div>
+
+    <div class="row-label"><b>TIXIMAX Philippines</b><i></i></div>
+    <div class="cell color"><img src="../assets/logo-phil.png" alt="Philippines color"></div>
+    <div class="cell black"><img src="../assets/logo-phil-black.png" alt="Philippines black"></div>
+    <div class="cell white"><img src="../assets/logo-phil-white.png" alt="Philippines white"></div>
+  </div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script>document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;</script>
+</body>
+</html>

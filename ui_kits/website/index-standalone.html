@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIXIMAX — Website</title>
+<meta name="ext-resource-dependency" content="../../assets/tiximax-logo-white.svg" data-resource-id="logoWhite" />
+<meta name="ext-resource-dependency" content="../../assets/tiximax-logo-navy.svg" data-resource-id="logoNavy" />
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  html, body { margin: 0; background: var(--surface-page); }
+  * { box-sizing: border-box; }
+  a:hover { color: var(--text-primary) !important; }
+</style>
+<template id="__bundler_thumbnail" data-bg-color="#0C1A31">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0C1A31"/>
+    <g transform="translate(600 380)" fill="#DFA930">
+      <path d="M-150 -40 l40 70 -36 64 h28 q4 0 6 -4 l30 -52 -38 -66 q-2 -4 -6 -4 z"/>
+      <path d="M-30 -40 l-40 70 36 64 h-28 q-4 0 -6 -4 l-30 -52 38 -66 q2 -4 6 -4 z"/>
+      <circle cx="100" cy="0" r="46"/>
+    </g>
+    <text x="600" y="520" font-family="Inter, sans-serif" font-size="84" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="6">TIXIMAX</text>
+  </svg>
+</template>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="ui-standalone.jsx"></script>
+  <script type="text/babel" src="sections.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>

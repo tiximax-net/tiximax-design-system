@@ -1,0 +1,445 @@
+/* ============================================================
+   TIXIMAX DESIGN SYSTEM — Foundations
+   Colors + Typography tokens (CSS custom properties)
+   Brand: gold #F4B931 · red #EB5635 · navy #264F91
+          blue #006FBB · green #008148
+   Typeface: Inter
+   ============================================================ */
+
+/* ---------- Fonts ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* ============================================================
+     COLOR — BRAND
+     ============================================================ */
+  /* --- Core brand (logo) — the three official TIXIMAX colors --- */
+  --brand-black:  #000000;  /* primary black */
+  --brand-white:  #FFFCF8;  /* warm off-white */
+  --brand-yellow: #F7B82D;  /* signature gold-yellow */
+
+  --brand-gold:        #F4B931;  /* primary brand — yellow gold */
+  --brand-gold-bright: #F9CB5A;  /* lighter gold / highlights */
+  --brand-red:         #EB5635;  /* accent / energy */
+  --brand-navy:        #264F91;  /* deep brand blue */
+  --brand-blue:        #006FBB;  /* medium blue */
+  --brand-green:       #008148;  /* green */
+
+  /* Yellow tint/shade ramp (#F7B82D) */
+  --yellow-50:   #FEF8E9;
+  --yellow-100:  #FDEEC4;
+  --yellow-200:  #FBDD8C;
+  --yellow-300:  #F9CB54;
+  --yellow-400:  #F8C03D;
+  --yellow-500:  #F7B82D;  /* base */
+  --yellow-600:  #E0A114;
+  --yellow-700:  #AE7D10;
+  --yellow-800:  #7C590B;
+  --yellow-900:  #4A3507;
+
+  /* Gold tint/shade ramp (#F4B931) */
+  --gold-50:   #FEF9EA;
+  --gold-100:  #FDF1CE;
+  --gold-200:  #FBE19B;
+  --gold-300:  #F9D168;
+  --gold-400:  #F6C54C;
+  --gold-500:  #F4B931;  /* base */
+  --gold-600:  #D8A01B;
+  --gold-700:  #A87B15;
+  --gold-800:  #78580F;
+  --gold-900:  #4B370A;
+
+  /* Red tint/shade ramp (#EB5635) */
+  --red-50:    #FDF0EC;
+  --red-100:   #F9D8CD;
+  --red-200:   #F3B099;
+  --red-300:   #ED8866;
+  --red-400:   #EC6F4D;
+  --red-500:   #EB5635;  /* base */
+  --red-600:   #CA4325;
+  --red-700:   #9D341C;
+  --red-800:   #712514;
+  --red-900:   #46170C;
+
+  /* Navy tint/shade ramp (#264F91) */
+  --navy-50:   #ECF1F8;
+  --navy-100:  #D2DDEE;
+  --navy-200:  #A3B9DA;
+  --navy-300:  #7596C5;
+  --navy-400:  #4D72AB;
+  --navy-500:  #264F91;  /* base */
+  --navy-600:  #1F427A;
+  --navy-700:  #183360;
+  --navy-800:  #112547;
+  --navy-900:  #0B172E;
+
+  /* Blue tint/shade ramp (#006FBB) */
+  --blue-50:   #E8F4FC;
+  --blue-100:  #C4E3F7;
+  --blue-200:  #87C7EF;
+  --blue-300:  #4AABE6;
+  --blue-400:  #1F8DD1;
+  --blue-500:  #006FBB;  /* base */
+  --blue-600:  #005E9E;
+  --blue-700:  #004A7C;
+  --blue-800:  #00365A;
+  --blue-900:  #00223A;
+
+  /* Green tint/shade ramp (#008148) */
+  --green-50:  #E8F5EE;
+  --green-100: #C2E6D6;
+  --green-200: #85CDAC;
+  --green-300: #47B483;
+  --green-400: #219A65;
+  --green-500: #008148;  /* base */
+  --green-600: #006D3D;
+  --green-700: #005530;
+  --green-800: #003E23;
+  --green-900: #002716;
+
+  /* ============================================================
+     COLOR — NEUTRAL (cool gray, faint navy cast)
+     ============================================================ */
+  --neutral-0:   #FFFFFF;
+  --neutral-25:  #FBFCFD;
+  --neutral-50:  #F5F7FA;
+  --neutral-100: #EDF0F4;
+  --neutral-200: #DDE2EA;
+  --neutral-300: #C3CBD7;
+  --neutral-400: #9AA5B5;
+  --neutral-500: #707C8E;
+  --neutral-600: #515C6D;
+  --neutral-700: #3A4452;
+  --neutral-800: #252D38;
+  --neutral-900: #141A22;
+  --neutral-950: #0B0F15;
+
+  /* ============================================================
+     COLOR — SEMANTIC
+     ============================================================ */
+  --success:        #008148;  /* brand green */
+  --success-bg:     #E8F5EE;
+  --success-border: #85CDAC;
+  --warning:        #F4B931;  /* brand gold */
+  --warning-bg:     #FEF9EA;
+  --warning-border: #FBE19B;
+  --error:          #EB5635;  /* brand red */
+  --error-bg:       #FDF0EC;
+  --error-border:   #F3B099;
+  --info:           #006FBB;  /* brand blue */
+  --info-bg:        #E8F4FC;
+  --info-border:    #87C7EF;
+
+  /* ============================================================
+     COLOR — TEXT
+     ============================================================ */
+  --text-primary:   #0C1A31;  /* navy */
+  --text-secondary: #6B7685;
+  --text-tertiary:  #8B95A5;
+  --text-disabled:  #BFBFBF;
+  --text-inverse:   #FFFFFF;
+  --text-brand:     #C28E1F;  /* gold-600 — readable on light */
+  --text-link:      #2563C9;
+  --text-subtitle:  #B6BECB;  /* light — subtitles, less important text */
+  --text-muted:     #6B7685;  /* muted — auxiliary/secondary info */
+  --text-error:     #AE2F0F;
+  --text-warning:   #FFBB00;  /* warning / caution */
+  --text-success:   #197A43;
+  --text-info:      #1A6FB5;  /* informational / notice */
+
+  /* ============================================================
+     COLOR — SURFACE / BORDER
+     ============================================================ */
+  --surface-page:    #F5F7FA;
+  --surface-card:    #FFFFFF;
+  --surface-sunken:  #EDF0F4;
+  --surface-navy:    #264F91;
+  --surface-overlay: rgba(38, 79, 145, 0.55);
+  --border-subtle:   #EDF0F4;
+  --border-default:  #DDE2EA;
+  --border-strong:   #C3CBD7;
+  --border-focus:    #F4B931;
+
+  /* ============================================================
+     TYPOGRAPHY — family + base tokens
+     ============================================================ */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;  /* body text */
+
+  --fw-extralight: 200; /* @kind font */
+  --fw-light:      300; /* @kind font */
+  --fw-regular:    400; /* @kind font */
+  --fw-medium:     500; /* @kind font */
+  --fw-semibold:   600; /* @kind font */
+  --fw-bold:       700; /* @kind font */
+  --fw-black:      900; /* @kind font */
+
+  /* Type scale (1.250 major-third-ish, tuned) */
+  --fs-display:  56px;
+  --fs-h1:       40px;
+  --fs-h2:       32px;
+  --fs-h3:       26px;
+  --fs-h4:       21px;
+  --fs-title:    18px;
+  --fs-body-lg:  18px;
+  --fs-body:     16px;
+  --fs-body-sm:  14px;
+  --fs-caption:  13px;
+  --fs-overline: 12px;
+
+  --lh-tight:   1.1; /* @kind font */
+  --lh-snug:    1.25; /* @kind font */
+  --lh-normal:  1.5; /* @kind font */
+  --lh-relaxed: 1.65; /* @kind font */
+
+  --ls-tight:   -0.02em; /* @kind font */
+  --ls-normal:  0; /* @kind font */
+  --ls-wide:    0.04em; /* @kind font */
+  --ls-overline: 0.12em; /* @kind font */
+
+  /* ============================================================
+     RADIUS
+     ============================================================ */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-2xl:  28px;
+  --radius-pill: 999px;
+
+  /* ============================================================
+     SPACING SCALE (4px base)
+     ============================================================ */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ============================================================
+     SHADOW / ELEVATION
+     ============================================================ */
+  --shadow-xs:  0 1px 2px rgba(38, 79, 145, 0.06);
+  --shadow-sm:  0 1px 3px rgba(38, 79, 145, 0.08), 0 1px 2px rgba(38, 79, 145, 0.06);
+  --shadow-md:  0 4px 10px rgba(38, 79, 145, 0.08), 0 2px 4px rgba(38, 79, 145, 0.06);
+  --shadow-lg:  0 12px 24px rgba(38, 79, 145, 0.10), 0 4px 8px rgba(38, 79, 145, 0.06);
+  --shadow-xl:  0 24px 48px rgba(38, 79, 145, 0.14), 0 8px 16px rgba(38, 79, 145, 0.08);
+  --shadow-gold: 0 8px 20px rgba(244, 185, 49, 0.32);
+  --shadow-focus: 0 0 0 3px rgba(244, 185, 49, 0.35);
+}
+
+/* ============================================================
+   SEMANTIC TYPE CLASSES
+   ============================================================ */
+.ds-display {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--text-primary);
+}
+.ds-h1 {
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--text-primary);
+}
+.ds-h2 {
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  color: var(--text-primary);
+}
+.ds-h3 {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-snug);
+  color: var(--text-primary);
+}
+.ds-h4 {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-snug);
+  color: var(--text-primary);
+}
+.ds-title {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-title);
+  line-height: var(--lh-snug);
+  color: var(--text-primary);
+}
+.ds-body-lg {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+.ds-body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+.ds-body-sm {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+.ds-caption {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--text-tertiary);
+}
+.ds-overline {
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-overline);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-overline);
+  text-transform: uppercase;
+  color: var(--text-brand);
+}
+
+* { font-feature-settings: "kern" 1; }
+
+/* ============================================================
+   RESPONSIVE TYPOGRAPHY
+   Font-size tokens auto-adjust at tablet & mobile breakpoints.
+   Breakpoints: Tablet 768–1024px · Mobile ≤767px
+   ============================================================ */
+@media (max-width: 1024px) {
+  :root {
+    --fs-display:  48px;
+    --fs-h1:       36px;
+    --fs-h2:       28px;
+    --fs-h3:       22px;
+    --fs-h4:       19px;
+    --fs-title:    17px;
+    --fs-body-lg:  17px;
+    /* --fs-body:  16px — unchanged */
+    /* --fs-body-sm: 14px — unchanged */
+    /* --fs-caption: 13px — unchanged */
+    /* --fs-overline: 12px — unchanged */
+  }
+}
+@media (max-width: 767px) {
+  :root {
+    --fs-display:  36px;
+    --fs-h1:       28px;
+    --fs-h2:       24px;
+    --fs-h3:       20px;
+    --fs-h4:       18px;
+    --fs-title:    16px;
+    --fs-body-lg:  16px;
+    --fs-body:     15px;
+    /* --fs-body-sm: 14px — unchanged */
+    --fs-caption:  12px;
+    --fs-overline: 11px;
+  }
+}
+
+/* ============================================================
+   DARK THEME — token overrides
+   Apply class .dark (or [data-theme="dark"]) on any container to
+   flip every token-driven surface, text, border, semantic and
+   shadow value to its dark-mode equivalent.
+   ============================================================ */
+.dark, [data-theme="dark"] {
+  /* Surfaces (page darker than card, raised lighter) */
+  --surface-page:    #0B0F15;
+  --surface-card:    #161D27;
+  --surface-sunken:  #0E141C;
+  --surface-raised:  #1E2632;
+  --surface-navy:    #1A2942;
+  --surface-overlay: rgba(0, 0, 0, 0.62);
+
+  /* Borders */
+  --border-subtle:   #232C38;
+  --border-default:  #2E3845;
+  --border-strong:   #3D4856;
+  --border-focus:    #F4B931;
+
+  /* Text */
+  --text-primary:    #ECF0F5;
+  --text-secondary:  #AEB7C4;
+  --text-tertiary:   #7E8898;
+  --text-disabled:   #586275;
+  --text-inverse:    #0C1A31;
+  --text-brand:      #F6C54C;  /* gold-400 — readable on dark */
+  --text-link:       #6FA4F0;
+  --text-subtitle:   #6B7585;
+  --text-muted:      #98A2B0;
+  --text-error:      #F19E83;
+  --text-warning:    #F9D168;
+  --text-success:    #5FC295;
+  --text-info:       #5FB0EC;
+
+  /* Semantic — translucent fills + brighter foregrounds */
+  --success:        #5FC295;
+  --success-bg:     rgba(0, 129, 72, 0.18);
+  --success-border: rgba(133, 205, 172, 0.32);
+  --warning:        #F9D168;
+  --warning-bg:     rgba(244, 185, 49, 0.16);
+  --warning-border: rgba(251, 225, 155, 0.30);
+  --error:          #F08763;
+  --error-bg:       rgba(235, 86, 53, 0.18);
+  --error-border:   rgba(243, 176, 153, 0.32);
+  --info:           #5FB0EC;
+  --info-bg:        rgba(0, 111, 187, 0.22);
+  --info-border:    rgba(135, 199, 239, 0.32);
+
+  /* Shadows — black-based on dark */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md:  0 4px 10px rgba(0, 0, 0, 0.50), 0 2px 4px rgba(0, 0, 0, 0.35);
+  --shadow-lg:  0 12px 24px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.40);
+  --shadow-xl:  0 24px 48px rgba(0, 0, 0, 0.60), 0 8px 16px rgba(0, 0, 0, 0.45);
+  --shadow-gold: 0 8px 20px rgba(244, 185, 49, 0.30);
+  --shadow-focus: 0 0 0 3px rgba(244, 185, 49, 0.40);
+}
+
+/* ============================================================
+   DARK-MODE PREVIEW SCAFFOLD
+   Shared Light/Dark split used by the design-system preview cards.
+   ============================================================ */
+.ds-modes { display: flex; flex-direction: column; }
+.ds-mode {
+  position: relative;
+  background: var(--surface-card);
+  color: var(--text-primary);
+}
+.ds-mode__tag {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 5;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-overline);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+}

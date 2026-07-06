@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIXIMAX Design System — All Components</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:var(--font-sans);background:var(--neutral-100);display:flex;color:var(--text-primary)}
+
+  /* ─── Sidebar ─── */
+  .sidebar{width:240px;flex:none;background:var(--surface-card);border-right:1px solid var(--border-default);
+    display:flex;flex-direction:column;height:100vh;overflow-y:auto;overflow-x:hidden}
+  .sidebar::-webkit-scrollbar{width:4px}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--neutral-300);border-radius:4px}
+
+  .logo{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-subtle)}
+  .logo-mark{width:28px;height:28px;background:var(--brand-gold);border-radius:6px;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;color:var(--navy-900);letter-spacing:-.02em}
+  .logo-text{font-size:13px;font-weight:700;color:var(--text-primary);letter-spacing:.04em}
+  .logo-sub{font-size:10px;color:var(--text-tertiary);font-weight:500;margin-top:1px}
+
+  .nav{flex:1;padding:8px 0}
+  .group{margin-bottom:2px}
+  .group-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 16px;border:none;background:none;
+    font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);
+    cursor:pointer;font-family:inherit;text-align:left}
+  .group-btn:hover{color:var(--text-primary)}
+  .group-btn svg{width:12px;height:12px;transition:transform .15s;flex:none}
+  .group-btn.open svg{transform:rotate(90deg)}
+  .group-items{display:none;padding:0 0 4px}
+  .group.open .group-items{display:block}
+
+  .nav-item{display:flex;align-items:center;gap:8px;width:100%;padding:7px 16px 7px 28px;border:none;background:none;
+    font-size:13px;color:var(--text-secondary);cursor:pointer;font-family:inherit;text-align:left;
+    border-left:2px solid transparent;transition:all .12s;font-weight:var(--fw-medium)}
+  .nav-item:hover{background:var(--surface-sunken);color:var(--text-primary)}
+  .nav-item.active{background:var(--gold-50);color:var(--text-brand);border-left-color:var(--brand-gold);font-weight:var(--fw-semibold)}
+
+  .sidebar-footer{padding:12px 16px;border-top:1px solid var(--border-subtle);font-size:11px;color:var(--text-disabled);text-align:center}
+
+  /* ─── Main ─── */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+
+  .topbar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--surface-card);
+    border-bottom:1px solid var(--border-default);flex:none}
+  .topbar-title{font-size:15px;font-weight:700;color:var(--text-primary)}
+  .topbar-sub{font-size:12px;color:var(--text-tertiary);flex:1}
+  .topbar-group{font-size:11px;font-weight:600;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;
+    background:var(--surface-sunken);padding:3px 8px;border-radius:4px}
+  .topbar-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border-default);background:var(--surface-card);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-tertiary)}
+  .topbar-btn:hover{background:var(--surface-sunken);color:var(--text-primary)}
+  .topbar-btn svg{width:16px;height:16px}
+
+  .content{flex:1;overflow:hidden;padding:0;min-height:0}
+  .content iframe{width:100%;height:100%;border:none;display:block;background:#fff}
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">TX</div>
+    <div>
+      <div class="logo-text">TIXIMAX</div>
+      <div class="logo-sub">Design System</div>
+    </div>
+  </div>
+  <nav class="nav" id="nav"></nav>
+  <div class="sidebar-footer">30 components · v1.0</div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-group" id="topGroup">—</span>
+    <span class="topbar-title" id="topTitle">All Components</span>
+    <span class="topbar-sub" id="topSub"></span>
+    <button class="topbar-btn" onclick="openInNewTab()" title="Open in new tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </button>
+  </div>
+
+  <!-- Single card view -->
+  <div class="content" id="singleView">
+    <iframe id="viewer" src="about:blank"></iframe>
+  </div>
+</div>
+
+<script>
+const CARDS = [
+  // Brand
+  { group: 'Brand', name: 'Logo', sub: 'TIXIMAX · Indonesia · Philippines', file: 'brand-logo.html', h: 720 },
+  { group: 'Brand', name: 'Favicon', sub: 'App icon / favicon', file: 'brand-favicon.html', h: 320 },
+  // Colors
+  { group: 'Colors', name: 'Brand colors', sub: 'Core + Yellow ramp + Neutral', file: 'colors-brand.html', h: 520 },
+  { group: 'Colors', name: 'Semantic colors', sub: 'Success, Warning, Error, Info', file: 'colors-semantic.html', h: 220 },
+  { group: 'Colors', name: 'Text colors', sub: 'Hierarchy, Brand, Status', file: 'colors-text.html', h: 660 },
+  // Type
+  { group: 'Type', name: 'Montserrat', sub: 'Headings, Title, Subtitle, Body, Caption, Label', file: 'type-montserrat.html', h: 600 },
+  { group: 'Type', name: 'Inter — Body', sub: 'Body font · sizes × weights', file: 'type-inter.html', h: 640 },
+  { group: 'Type', name: 'Noto Sans JP', sub: 'Japanese font', file: 'type-noto-sans-jp.html', h: 500 },
+  // Spacing
+  { group: 'Spacing', name: 'Spacing scale', sub: '4px base scale', file: 'spacing-scale.html', h: 300 },
+  { group: 'Spacing', name: 'Corner radius', sub: 'xs 4px → pill', file: 'radius.html', h: 160 },
+  { group: 'Spacing', name: 'Shadow & elevation', sub: 'xs → xl + gold glow', file: 'shadow.html', h: 160 },
+  // Components
+  { group: 'Components', name: 'Buttons', sub: '3 sizes × 6 variants × 3 types', file: 'comp-buttons.html', h: 750 },
+  { group: 'Components', name: 'Input fields', sub: 'Text, icon, date, time, select, validation', file: 'comp-inputs.html', h: 440 },
+  { group: 'Components', name: 'Controls', sub: 'Checkbox, radio, toggle', file: 'comp-controls.html', h: 180 },
+  { group: 'Components', name: 'Badges & chips', sub: 'Status badges + filter chips', file: 'comp-badges.html', h: 310 },
+  { group: 'Components', name: 'Alerts', sub: 'Success, warning, error, info', file: 'comp-alerts.html', h: 250 },
+  { group: 'Components', name: 'Card', sub: 'Service & Order cards', file: 'comp-card.html', h: 400 },
+  { group: 'Components', name: 'Table', sub: 'Cell types & row states', file: 'comp-table.html', h: 500 },
+  { group: 'Components', name: 'List', sub: 'Order list rows', file: 'comp-list.html', h: 230 },
+  { group: 'Components', name: 'Modal', sub: 'Info · Error · Success · Warning', file: 'comp-modal.html', h: 560 },
+  { group: 'Components', name: 'Popup & menu', sub: 'Dropdown menu + dialog', file: 'comp-popup.html', h: 260 },
+  { group: 'Components', name: 'Dropdown', sub: 'Placement: Top/Bottom × Left/Right', file: 'comp-dropdown.html', h: 700 },
+  { group: 'Components', name: 'Menu', sub: 'Horizontal · Vertical · Collapsed', file: 'comp-menu.html', h: 560 },
+  { group: 'Components', name: 'Drawer', sub: 'Right · Left · Top · Bottom', file: 'comp-drawer.html', h: 500 },
+  { group: 'Components', name: 'Breadcrumb', sub: 'Chevron & slash separators', file: 'comp-breadcrumb.html', h: 300 },
+  { group: 'Components', name: 'Anchor', sub: 'Vertical + Horizontal', file: 'comp-anchor.html', h: 420 },
+  { group: 'Components', name: 'Avatar', sub: 'Image + Fallback · 28/32/40px', file: 'comp-avatar.html', h: 420 },
+  { group: 'Components', name: 'Collapse (Accordion)', sub: 'Basic · Borderless · Ghost', file: 'comp-collapse.html', h: 500 },
+  { group: 'Components', name: 'Date picker', sub: 'Trigger + calendar + range', file: 'comp-datepicker.html', h: 600 },
+  { group: 'Components', name: 'Progress', sub: 'Basic, Steps, Timeline, Curved, Vertical', file: 'comp-progress.html', h: 400 },
+];
+
+// ─── Build sidebar nav ───
+const groups = [...new Set(CARDS.map(c => c.group))];
+const navEl = document.getElementById('nav');
+let navHTML = '';
+groups.forEach(g => {
+  const items = CARDS.filter(c => c.group === g);
+  navHTML += `<div class="group open" data-group="${g}">
+    <button class="group-btn open" onclick="toggleGroup(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      ${g} <span style="opacity:.5;margin-left:auto;font-size:10px;letter-spacing:0">${items.length}</span>
+    </button>
+    <div class="group-items">
+      ${items.map((c, i) => `<button class="nav-item" data-file="${c.file}" onclick="selectCard('${c.file}')">${c.name}</button>`).join('')}
+    </div>
+  </div>`;
+});
+navEl.innerHTML = navHTML;
+
+function toggleGroup(btn) {
+  const group = btn.closest('.group');
+  group.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+// ─── Select card ───
+let currentFile = null;
+function selectCard(file) {
+  currentFile = file;
+  const card = CARDS.find(c => c.file === file);
+  if (!card) return;
+
+  // Update sidebar active
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.file === file);
+  });
+
+  // Update topbar
+  document.getElementById('topGroup').textContent = card.group;
+  document.getElementById('topTitle').textContent = card.name;
+  document.getElementById('topSub').textContent = card.sub;
+
+  // Load iframe (fills entire content area)
+  const viewer = document.getElementById('viewer');
+  viewer.src = file;
+}
+
+function openInNewTab() {
+  if (currentFile) window.open(currentFile, '_blank');
+}
+
+// ─── Init: select first card ───
+selectCard(CARDS[0].file);
+</script>
+</body>
+</html>

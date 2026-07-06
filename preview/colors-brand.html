@@ -1,0 +1,74 @@
+<!-- @dsCard group="Colors" name="Brand colors" subtitle="Core (Black/White/Yellow) + Yellow ramp + Neutral" viewport="1000x520" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-page)}
+  .surface{padding:36px 40px;display:flex;flex-direction:column;gap:36px}
+  .sec{display:flex;flex-direction:column;gap:14px}
+  .stitle{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary)}
+  .brand-row{display:flex;gap:16px}
+  .sw{flex:1;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border-subtle)}
+  .chip{height:110px}
+  .meta{padding:14px 16px}
+  .nm{font-weight:var(--fw-bold);font-size:18px;color:var(--text-primary)}
+  .hex{font-size:14px;color:var(--text-tertiary);letter-spacing:.02em;margin-top:3px}
+  .ramp{display:flex;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border-subtle)}
+  .cell{flex:1;height:100px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px}
+  .cell .l{font-size:14px;font-weight:var(--fw-semibold)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+  <div class="sec">
+    <div class="stitle">Core — Brand</div>
+    <div class="brand-row">
+      <div class="sw"><div class="chip" style="background:var(--brand-black)"></div><div class="meta"><div class="nm">Black</div><div class="hex">#000000</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--brand-white);box-shadow:inset 0 0 0 1px var(--border-default)"></div><div class="meta"><div class="nm">White</div><div class="hex">#FFFCF8</div></div></div>
+      <div class="sw"><div class="chip" style="background:var(--brand-yellow)"></div><div class="meta"><div class="nm">Yellow</div><div class="hex">#F7B82D</div></div></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Yellow · #F7B82D</div>
+    <div class="ramp">
+      <div class="cell" style="background:var(--yellow-50)"><span class="l">50</span></div>
+      <div class="cell" style="background:var(--yellow-100)"><span class="l">100</span></div>
+      <div class="cell" style="background:var(--yellow-200)"><span class="l">200</span></div>
+      <div class="cell" style="background:var(--yellow-300)"><span class="l">300</span></div>
+      <div class="cell" style="background:var(--yellow-400)"><span class="l">400</span></div>
+      <div class="cell" style="background:var(--yellow-500)"><span class="l">500</span></div>
+      <div class="cell" style="background:var(--yellow-600)"><span class="l">600</span></div>
+      <div class="cell" style="background:var(--yellow-700);color:#fff"><span class="l">700</span></div>
+      <div class="cell" style="background:var(--yellow-800);color:#fff"><span class="l">800</span></div>
+      <div class="cell" style="background:var(--yellow-900);color:#fff"><span class="l">900</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Neutral</div>
+    <div class="ramp">
+      <div class="cell" style="background:var(--neutral-0)"><span class="l">0</span></div>
+      <div class="cell" style="background:var(--neutral-50)"><span class="l">50</span></div>
+      <div class="cell" style="background:var(--neutral-100)"><span class="l">100</span></div>
+      <div class="cell" style="background:var(--neutral-200)"><span class="l">200</span></div>
+      <div class="cell" style="background:var(--neutral-300)"><span class="l">300</span></div>
+      <div class="cell" style="background:var(--neutral-400)"><span class="l">400</span></div>
+      <div class="cell" style="background:var(--neutral-500);color:#fff"><span class="l">500</span></div>
+      <div class="cell" style="background:var(--neutral-600);color:#fff"><span class="l">600</span></div>
+      <div class="cell" style="background:var(--neutral-700);color:#fff"><span class="l">700</span></div>
+      <div class="cell" style="background:var(--neutral-800);color:#fff"><span class="l">800</span></div>
+      <div class="cell" style="background:var(--neutral-900);color:#fff"><span class="l">900</span></div>
+      <div class="cell" style="background:var(--neutral-950);color:#fff"><span class="l">950</span></div>
+    </div>
+  </div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script>document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Spacing" name="Spacing scale" subtitle="4px base scale" viewport="700x300" -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-page)}
+  .surface{padding:20px 24px}
+  .rows{display:flex;flex-direction:column;gap:7px}
+  .r{display:flex;align-items:center;gap:14px}
+  .nm{font-size:12px;font-weight:var(--fw-semibold);color:var(--text-primary);width:64px;flex:none}
+  .px{font-size:12px;color:var(--text-tertiary);width:42px;flex:none;text-align:right}
+  .bar{height:16px;background:var(--gold-300);border-radius:3px}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+  <div class="rows">
+    <div class="r"><span class="nm">space-1</span><span class="px">4</span><span class="bar" style="width:4px"></span></div>
+    <div class="r"><span class="nm">space-2</span><span class="px">8</span><span class="bar" style="width:8px"></span></div>
+    <div class="r"><span class="nm">space-3</span><span class="px">12</span><span class="bar" style="width:12px"></span></div>
+    <div class="r"><span class="nm">space-4</span><span class="px">16</span><span class="bar" style="width:16px"></span></div>
+    <div class="r"><span class="nm">space-6</span><span class="px">24</span><span class="bar" style="width:24px"></span></div>
+    <div class="r"><span class="nm">space-8</span><span class="px">32</span><span class="bar" style="width:32px"></span></div>
+    <div class="r"><span class="nm">space-12</span><span class="px">48</span><span class="bar" style="width:48px"></span></div>
+    <div class="r"><span class="nm">space-16</span><span class="px">64</span><span class="bar" style="width:64px"></span></div>
+    <div class="r"><span class="nm">space-24</span><span class="px">96</span><span class="bar" style="width:96px"></span></div>
+  </div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script>document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;</script>
+</body>
+</html>

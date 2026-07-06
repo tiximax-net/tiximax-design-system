@@ -1,0 +1,78 @@
+<!-- @dsCard group="Type · Inter" name="Inter — Mobile" subtitle="Mobile scale · Body text font · sizes × weights (Light 300 → ExtraBold 800)" viewport="1200x800" -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-body);background:var(--surface-page);width:100%;box-sizing:border-box}
+  .surface{padding:24px;display:flex;flex-direction:column;gap:34px}
+  .dark .stitle,.dark .sample{color:var(--text-primary)}
+  .sec{display:flex;flex-direction:column;gap:8px}
+  .stitle{font-size:14px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-black);margin-bottom:8px}
+  .bp{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-navy);background:var(--surface-sunken);border:1px solid var(--border-default);padding:6px 12px;border-radius:999px;align-self:flex-start;margin-bottom:6px}
+  table{border-collapse:collapse;width:100%}
+  th{text-align:left;font-size:12px;font-weight:700;color:var(--text-tertiary);letter-spacing:.06em;text-transform:uppercase;padding:8px 0;border-bottom:2px solid var(--border-default)}
+  td{padding:12px 0;border-bottom:1px solid var(--border-subtle);vertical-align:baseline}
+  .style-name{font-size:13px;font-weight:600;color:var(--text-secondary);width:96px;white-space:nowrap}
+  .size-col{font-size:13px;color:var(--text-tertiary);width:54px;text-align:right;padding-right:14px}
+  .weight-col{font-size:12px;color:var(--text-tertiary);width:104px}
+  .lh-col{font-size:12px;color:var(--text-tertiary);width:44px}
+  .sample{color:var(--brand-black)}
+  .sub{color:var(--text-secondary)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+  <div class="bp">Mobile · ≤480px</div>
+  <div class="sec">
+    <div class="stitle">Inter — Weights</div>
+    <table>
+      <thead><tr><th>Weight</th><th>Value</th><th>Sample</th></tr></thead>
+      <tbody>
+        <tr><td class="style-name">Light</td><td class="weight-col">300</td><td class="sample" style="font-size:18px;font-weight:300">Giao hàng toàn cầu nhanh chóng</td></tr>
+        <tr><td class="style-name">Regular</td><td class="weight-col">400</td><td class="sample" style="font-size:18px;font-weight:400">Giao hàng toàn cầu nhanh chóng</td></tr>
+        <tr><td class="style-name">Medium</td><td class="weight-col">500</td><td class="sample" style="font-size:18px;font-weight:500">Giao hàng toàn cầu nhanh chóng</td></tr>
+        <tr><td class="style-name">SemiBold</td><td class="weight-col">600</td><td class="sample" style="font-size:18px;font-weight:600">Giao hàng toàn cầu nhanh chóng</td></tr>
+        <tr><td class="style-name">Bold</td><td class="weight-col">700</td><td class="sample" style="font-size:18px;font-weight:700">Giao hàng toàn cầu nhanh chóng</td></tr>
+        <tr><td class="style-name">ExtraBold</td><td class="weight-col">800</td><td class="sample" style="font-size:18px;font-weight:800">Giao hàng toàn cầu nhanh chóng</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Body scale</div>
+    <table>
+      <thead><tr><th>Style</th><th style="text-align:right;padding-right:16px">Size</th><th>Weight</th><th>LH</th><th>Sample</th></tr></thead>
+      <tbody>
+        <tr><td class="style-name">Body Large</td><td class="size-col">16px</td><td class="weight-col">Regular 400</td><td class="lh-col">1.6</td><td class="sample sub" style="font-size:16px;font-weight:400;line-height:1.6">Đặt mua, thanh toán và vận chuyển hộ từ nước ngoài về Việt Nam.</td></tr>
+        <tr><td class="style-name">Body</td><td class="size-col">15px</td><td class="weight-col">Regular 400</td><td class="lh-col">1.5</td><td class="sample sub" style="font-size:15px;font-weight:400;line-height:1.5">Đặt mua, thanh toán và vận chuyển hộ từ nước ngoài về Việt Nam.</td></tr>
+        <tr><td class="style-name">Body Small</td><td class="size-col">14px</td><td class="weight-col">Regular 400</td><td class="lh-col">1.5</td><td class="sample sub" style="font-size:14px;font-weight:400;line-height:1.5">Đặt mua, thanh toán và vận chuyển hộ từ nước ngoài về Việt Nam.</td></tr>
+        <tr><td class="style-name">Body Tiny</td><td class="size-col">10px</td><td class="weight-col">Regular 400</td><td class="lh-col">1.5</td><td class="sample sub" style="font-size:10px;font-weight:400;line-height:1.5">Đặt mua, thanh toán và vận chuyển hộ từ nước ngoài về Việt Nam.</td></tr>
+        <tr><td class="style-name">Caption</td><td class="size-col">12px</td><td class="weight-col">Regular 400</td><td class="lh-col">1.5</td><td class="sample sub" style="font-size:12px;font-weight:400;line-height:1.5">Cập nhật 2 phút trước · Đơn #TXM-10482</td></tr>
+        <tr><td class="style-name">Overline</td><td class="size-col">11px</td><td class="weight-col">Bold 700</td><td class="lh-col">1.5</td><td class="sample" style="font-size:11px;font-weight:700;line-height:1.5;letter-spacing:.12em;text-transform:uppercase">Trạng thái đơn hàng</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Body × weight</div>
+    <table>
+      <thead><tr><th>Size</th><th>Regular 400</th><th>Medium 500</th><th>SemiBold 600</th><th>Bold 700</th></tr></thead>
+      <tbody>
+        <tr><td class="size-col">16px</td><td class="sample sub" style="font-size:16px;font-weight:400">Mua hộ quốc tế</td><td class="sample sub" style="font-size:16px;font-weight:500">Mua hộ quốc tế</td><td class="sample sub" style="font-size:16px;font-weight:600">Mua hộ quốc tế</td><td class="sample sub" style="font-size:16px;font-weight:700">Mua hộ quốc tế</td></tr>
+        <tr><td class="size-col">15px</td><td class="sample sub" style="font-size:15px;font-weight:400">Mua hộ quốc tế</td><td class="sample sub" style="font-size:15px;font-weight:500">Mua hộ quốc tế</td><td class="sample sub" style="font-size:15px;font-weight:600">Mua hộ quốc tế</td><td class="sample sub" style="font-size:15px;font-weight:700">Mua hộ quốc tế</td></tr>
+        <tr><td class="size-col">14px</td><td class="sample sub" style="font-size:14px;font-weight:400">Mua hộ quốc tế</td><td class="sample sub" style="font-size:14px;font-weight:500">Mua hộ quốc tế</td><td class="sample sub" style="font-size:14px;font-weight:600">Mua hộ quốc tế</td><td class="sample sub" style="font-size:14px;font-weight:700">Mua hộ quốc tế</td></tr>
+        <tr><td class="size-col">10px</td><td class="sample sub" style="font-size:10px;font-weight:400">Mua hộ quốc tế</td><td class="sample sub" style="font-size:10px;font-weight:500">Mua hộ quốc tế</td><td class="sample sub" style="font-size:10px;font-weight:600">Mua hộ quốc tế</td><td class="sample sub" style="font-size:10px;font-weight:700">Mua hộ quốc tế</td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script>document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;</script>
+</body>
+</html>

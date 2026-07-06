@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Controls" subtitle="Checkbox, radio, toggle" viewport="700x180" -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:22px 26px;display:flex;gap:46px}
+  .group{display:flex;flex-direction:column;gap:13px}
+  .lbl{font-size:11px;color:var(--text-tertiary);font-weight:var(--fw-bold);text-transform:uppercase;letter-spacing:.08em}
+  .opt{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-primary);font-weight:var(--fw-medium)}
+  .chk{width:20px;height:20px;border-radius:var(--radius-xs);border:1.5px solid var(--border-strong);display:flex;align-items:center;justify-content:center}
+  .chk.on{background:var(--brand-gold);border-color:var(--brand-gold)}
+  .chk svg{width:14px;height:14px;color:var(--navy-900)}
+  .rad{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border-strong);display:flex;align-items:center;justify-content:center}
+  .rad.on{border-color:var(--brand-gold);border-width:2px}
+  .rad.on::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--brand-gold)}
+  .tog{width:42px;height:24px;border-radius:999px;background:var(--neutral-300);position:relative;transition:.18s}
+  .tog.on{background:var(--brand-gold)}
+  .tog::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:.18s}
+  .tog.on::after{left:20px}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+  <div class="group"><span class="lbl">Checkbox</span>
+    <div class="opt"><span class="chk on"><i data-lucide="check"></i></span>Bảo hiểm hàng hóa</div>
+    <div class="opt"><span class="chk"></span>Đóng gói gỗ</div>
+  </div>
+  <div class="group"><span class="lbl">Radio</span>
+    <div class="opt"><span class="rad on"></span>Đường biển</div>
+    <div class="opt"><span class="rad"></span>Đường bay</div>
+  </div>
+  <div class="group"><span class="lbl">Toggle</span>
+    <div class="opt"><span class="tog on"></span>Thông báo SMS</div>
+    <div class="opt"><span class="tog"></span>Thông báo email</div>
+  </div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+    lucide.createIcons();
+  </script>
+</body>
+</html>

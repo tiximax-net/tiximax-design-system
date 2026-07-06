@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Anchor" subtitle="Vertical + Horizontal · Default & Active item states" viewport="760x420" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px;display:flex;gap:40px;align-items:flex-start}
+  .block{flex:1}
+  .lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin-bottom:14px}
+
+  /* ---------- Vertical anchor ---------- */
+  .anchor-v{position:relative;padding-left:14px}
+  .anchor-v::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:2px;border-radius:2px;background:var(--border-default)}
+  .anchor-v .ink{position:absolute;left:0;width:2px;border-radius:2px;background:var(--brand-gold);transition:top .2s}
+  .av-item{display:block;font-size:14px;line-height:1;color:var(--text-secondary);font-weight:var(--fw-medium);padding:8px 0;text-decoration:none}
+  .av-item.active{color:var(--text-brand);font-weight:var(--fw-semibold)}
+
+  /* ---------- Horizontal anchor ---------- */
+  .anchor-h{position:relative;display:flex;gap:26px;border-bottom:2px solid var(--border-default)}
+  .ah-item{position:relative;font-size:14px;color:var(--text-secondary);font-weight:var(--fw-medium);padding:6px 0 12px;text-decoration:none}
+  .ah-item.active{color:var(--text-brand);font-weight:var(--fw-semibold)}
+  .ah-item.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;border-radius:2px;background:var(--brand-gold)}
+
+  .panel{margin-top:20px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:16px 18px}
+  .panel .pt{font-size:14px;font-weight:var(--fw-semibold);color:var(--text-primary)}
+  .panel .ps{font-size:13px;color:var(--text-tertiary);margin-top:3px;line-height:1.5}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+
+    <div class="block">
+      <div class="lbl">Vertical</div>
+      <nav class="anchor-v">
+        <span class="ink" style="top:36px;height:17px"></span>
+        <a class="av-item" href="#">Tổng quan</a>
+        <a class="av-item active" href="#">Dịch vụ vận chuyển</a>
+        <a class="av-item" href="#">Tuyến đường</a>
+        <a class="av-item" href="#">Bảng giá</a>
+        <a class="av-item" href="#">Liên hệ</a>
+      </nav>
+    </div>
+
+    <div class="block">
+      <div class="lbl">Horizontal</div>
+      <nav class="anchor-h">
+        <a class="ah-item" href="#">Tổng quan</a>
+        <a class="ah-item active" href="#">Dịch vụ</a>
+        <a class="ah-item" href="#">Tuyến đường</a>
+        <a class="ah-item" href="#">Bảng giá</a>
+      </nav>
+      <div class="panel">
+        <div class="pt">Dịch vụ vận chuyển</div>
+        <div class="ps">Mục đang hoạt động được làm nổi bằng mực vàng thương hiệu; các mục còn lại ở trạng thái mặc định.</div>
+      </div>
+    </div>
+
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script>
+    document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;
+  </script>
+</body>
+</html>

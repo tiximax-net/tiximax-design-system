@@ -1,0 +1,60 @@
+<!-- @dsCard group="Colors" name="Text colors" subtitle="Primary → disabled, subtitle, muted, brand, link, status (error/warning/success/info)" viewport="1100x660" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-body);background:var(--surface-page)}
+  .surface{padding:36px 40px}
+  .stitle{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:14px}
+  .rows{display:flex;flex-direction:column;gap:4px}
+  .r{display:flex;align-items:center;gap:18px;padding:8px 0}
+  .sw{width:38px;height:38px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);flex:none}
+  .samp{font-size:19px;font-weight:var(--fw-semibold);min-width:280px}
+  .nm{font-size:14px;color:var(--text-secondary);font-weight:var(--fw-semibold);min-width:130px}
+  .hex{font-size:13px;color:var(--text-tertiary);margin-left:auto;font-variant-numeric:tabular-nums}
+  .sep{height:1px;background:var(--border-subtle);margin:10px 0}
+  .label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);margin:6px 0 2px}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface">
+  <div class="stitle">Text colors</div>
+
+  <!-- Core hierarchy -->
+  <div class="label">Hierarchy</div>
+  <div class="rows">
+    <div class="r"><span class="sw" style="background:var(--text-primary)"></span><span class="samp" style="color:var(--text-primary)">Primary — heading text</span><span class="nm">text-primary</span><span class="hex">#0C1A31</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-subtitle)"></span><span class="samp" style="color:var(--text-subtitle)">Subtitle — secondary heading</span><span class="nm">text-subtitle</span><span class="hex">#B6BECB</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-secondary)"></span><span class="samp" style="color:var(--text-secondary)">Secondary — body copy</span><span class="nm">text-secondary</span><span class="hex">#6B7685</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-disabled)"></span><span class="samp" style="color:var(--text-disabled)">Disabled</span><span class="nm">text-disabled</span><span class="hex">#BFBFBF</span></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Brand / link -->
+  <div class="label">Brand &amp; Link</div>
+  <div class="rows">
+    <div class="r"><span class="sw" style="background:var(--text-brand)"></span><span class="samp" style="color:var(--text-brand)">Brand / gold text</span><span class="nm">text-brand</span><span class="hex">#C28E1F</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-link)"></span><span class="samp" style="color:var(--text-link)">Link</span><span class="nm">text-link</span><span class="hex">#2563C9</span></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Status -->
+  <div class="label">Status</div>
+  <div class="rows">
+    <div class="r"><span class="sw" style="background:var(--text-error)"></span><span class="samp" style="color:var(--text-error)">Error — critical failure</span><span class="nm">text-error</span><span class="hex">#AE2F0F</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-warning)"></span><span class="samp" style="color:var(--text-warning)">Warning — caution</span><span class="nm">text-warning</span><span class="hex">#FFBB00</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-success)"></span><span class="samp" style="color:var(--text-success)">Success — completed</span><span class="nm">text-success</span><span class="hex">#197A43</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-info)"></span><span class="samp" style="color:var(--text-info)">Info — notice</span><span class="nm">text-info</span><span class="hex">#1A6FB5</span></div>
+  </div>
+  </div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+  <script>document.getElementById('darkBody').innerHTML=document.querySelector('.ds-mode:not(.dark) .surface').innerHTML;</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Table" subtitle="Cell: Text/Badge/Tag/Action/Dropdown/Rate/Switch/Checkbox · Default/Hover/Selected/Disabled" viewport="1000x500" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card)}
+  .surface{padding:24px;display:flex;flex-direction:column;gap:30px}
+  .section-lbl{font-size:13px;font-weight:var(--fw-bold);color:var(--text-primary);padding:9px 14px;background:var(--surface-sunken);border-radius:var(--radius-sm);border:1px solid var(--border-subtle);letter-spacing:var(--ls-wide);text-transform:uppercase;margin-bottom:14px}
+  .sub-lbl{font-size:11px;font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--text-tertiary);margin:0 0 8px}
+  .group{margin-bottom:22px}
+
+  /* ===== Table shell ===== */
+  table{border-collapse:separate;border-spacing:0;width:100%;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-xs)}
+  thead th{background:var(--surface-sunken);text-align:left;font-size:12px;font-weight:var(--fw-bold);color:var(--text-secondary);letter-spacing:var(--ls-wide);text-transform:uppercase;padding:11px 16px;border-bottom:1px solid var(--border-default);white-space:nowrap;vertical-align:middle}
+  tbody td{padding:12px 16px;font-size:13px;color:var(--text-primary);border-bottom:1px solid var(--border-subtle);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+
+  /* Sortable header */
+  .th-sort{cursor:pointer}
+  .th-inner{display:inline-flex;align-items:center;gap:6px}
+  .th-inner svg{width:13px;height:13px;color:var(--text-disabled)}
+  .th-sort.asc svg,.th-sort.desc svg{color:var(--text-brand)}
+  .th-check{width:44px;text-align:center}
+
+  /* ===== Row states ===== */
+  tbody tr.hover td{background:var(--surface-sunken)}
+  tbody tr.selected td{background:var(--gold-50)}
+  /* Dark mode: selected row uses neutral gray instead of gold tint */
+  .ds-mode.dark tbody tr.selected td{background:var(--surface-raised)}
+  tbody tr.disabled td{opacity:.45}
+  .row-tag{font-size:10px;font-weight:var(--fw-bold);color:var(--text-disabled);text-transform:uppercase;letter-spacing:var(--ls-overline);padding:0 16px 6px}
+
+  /* ===== Checkbox ===== */
+  .cb{width:18px;height:18px;border:1.5px solid var(--border-strong);border-radius:var(--radius-xs);display:inline-flex;align-items:center;justify-content:center;background:var(--surface-card);flex:none;vertical-align:middle}
+  .cb svg{width:13px;height:13px;color:#fff;display:none}
+  .cb.on{background:var(--brand-gold);border-color:var(--brand-gold)}
+  .cb.on svg{display:block;color:var(--navy-900)}
+  .cb.indet{background:var(--brand-gold);border-color:var(--brand-gold)}
+  .cb.indet::after{content:"";width:9px;height:2px;background:var(--navy-900);border-radius:1px}
+
+  /* ===== Badge (status dot pill) ===== */
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:var(--fw-semibold);padding:3px 10px;border-radius:var(--radius-pill);border:1px solid transparent}
+  .badge .dot{width:6px;height:6px;border-radius:50%}
+  .badge.success{background:var(--success-bg);color:var(--text-success);border-color:var(--success-border)}
+  .badge.success .dot{background:var(--success)}
+  .badge.warning{background:var(--warning-bg);color:var(--text-warning);border-color:var(--warning-border)}
+  .badge.warning .dot{background:var(--warning)}
+  .badge.error{background:var(--error-bg);color:var(--text-error);border-color:var(--error-border)}
+  .badge.error .dot{background:var(--error)}
+
+  /* ===== Tag (solid chips, removable) ===== */
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:var(--fw-semibold);padding:3px 8px;border-radius:var(--radius-sm);background:var(--info-bg);color:var(--text-info);border:1px solid var(--info-border)}
+  .tag svg{width:11px;height:11px;cursor:pointer;opacity:.7}
+  .tag.navy{background:var(--navy-50);color:var(--navy-600);border-color:var(--navy-200)}
+
+  /* ===== Action ===== */
+  .actions{display:flex;gap:4px}
+  .act{width:30px;height:30px;border-radius:var(--radius-sm);display:inline-flex;align-items:center;justify-content:center;color:var(--text-tertiary);cursor:pointer;border:1px solid transparent}
+  .act:hover{background:var(--surface-sunken);color:var(--text-primary)}
+  .act svg{width:16px;height:16px}
+  .act.danger:hover{background:var(--error-bg);color:var(--text-error)}
+  .act.disabled{opacity:.4;pointer-events:none}
+
+  /* ===== Dropdown cell ===== */
+  .dd-cell{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:var(--fw-medium);color:var(--text-primary);padding:6px 10px;border:1px solid var(--border-default);border-radius:var(--radius-sm);background:var(--surface-card);min-width:120px;justify-content:space-between;cursor:pointer}
+  .dd-cell svg{width:15px;height:15px;color:var(--text-tertiary)}
+  .dd-cell.disabled{opacity:.5;background:var(--surface-sunken);pointer-events:none}
+
+  /* ===== Rate ===== */
+  .rate{display:inline-flex;gap:2px}
+  .rate svg{width:16px;height:16px}
+  .rate .on{color:var(--brand-gold);fill:var(--brand-gold)}
+  .rate .off{color:var(--border-strong)}
+
+  /* ===== Switch ===== */
+  .sw{width:38px;height:22px;border-radius:var(--radius-pill);background:var(--border-strong);position:relative;display:inline-block;vertical-align:middle;transition:background .15s}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:var(--shadow-xs);transition:left .15s}
+  .sw.on{background:var(--success)}
+  .sw.on::after{left:18px}
+  .sw.disabled{opacity:.45}
+
+  .muted{color:var(--text-tertiary)}
+  .mono{font-variant-numeric:tabular-nums;font-weight:var(--fw-semibold)}
+</style>
+</head>
+<body>
+ <div class="ds-modes">
+  <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface" id="lightBody"></div></div>
+  <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+ </div>
+ <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+ <script>
+  const check=(s)=>`<span class="cb ${s||''}"><i data-lucide="check"></i></span>`;
+
+  function build(){
+    let h='';
+
+    /* ========== TABLE CELLS ========== */
+    h+=`<div><div class="section-lbl">Table Cell — types &amp; states</div>`;
+    h+=`<table><thead><tr>`+
+       `<th class="th-check">${check('indet')}</th>`+
+       `<th>Text</th><th>Badge</th><th>Tag</th><th>Rate</th><th>Switch</th><th>Dropdown</th><th>Action</th>`+
+       `</tr></thead><tbody>`;
+
+    const cells=(rowState,opts)=>{
+      const o=opts||{};
+      const badge=o.badge||'success', badgeTxt=o.badgeTxt||'Đã giao';
+      return `<td class="th-check">${check(o.checked?'on':'')}</td>`+
+        `<td><div class="mono">TX-48${o.id}</div><div class="muted" style="font-size:11px">Tokyo → Hà Nội</div></td>`+
+        `<td><span class="badge ${badge}"><span class="dot"></span>${badgeTxt}</span></td>`+
+        `<td><div class="tags"><span class="tag">Ưu tiên<i data-lucide="x"></i></span><span class="tag navy">Air</span></div></td>`+
+        `<td><span class="rate">`+[1,2,3,4,5].map(i=>`<i data-lucide="star" class="${i<=(o.rate||4)?'on':'off'}"></i>`).join('')+`</span></td>`+
+        `<td><span class="sw ${o.sw?'on':''} ${rowState==='disabled'?'disabled':''}"></span></td>`+
+        `<td><span class="dd-cell ${rowState==='disabled'?'disabled':''}">${o.ddl||'Express'}<i data-lucide="chevron-down"></i></span></td>`+
+        `<td><div class="actions"><span class="act ${rowState==='disabled'?'disabled':''}"><i data-lucide="eye"></i></span><span class="act ${rowState==='disabled'?'disabled':''}"><i data-lucide="pencil"></i></span><span class="act danger ${rowState==='disabled'?'disabled':''}"><i data-lucide="trash-2"></i></span></div></td>`;
+    };
+
+    h+=`<tr>${cells('default',{id:'210',rate:5,sw:true,badge:'success',badgeTxt:'Đã giao'})}</tr>`;
+    h+=`<tr class="hover">${cells('hover',{id:'198',rate:4,sw:true,badge:'warning',badgeTxt:'Đang bay'})}</tr>`;
+    h+=`<tr class="selected">${cells('selected',{id:'155',rate:3,sw:false,checked:true,badge:'warning',badgeTxt:'Tại kho',ddl:'Standard'})}</tr>`;
+    h+=`<tr class="disabled">${cells('disabled',{id:'099',rate:2,sw:false,badge:'error',badgeTxt:'Đã hủy',ddl:'—'})}</tr>`;
+    h+=`</tbody></table>`;
+    h+=`<div class="row-tag" style="padding-top:8px">Hàng 1 Default · Hàng 2 Hover · Hàng 3 Selected · Hàng 4 Disabled</div></div>`;
+
+    return h;
+  }
+
+  const html=build();
+  document.getElementById('lightBody').innerHTML=html;
+  document.getElementById('darkBody').innerHTML=html;
+  lucide.createIcons();
+ </script>
+</body>
+</html>
