@@ -109,6 +109,7 @@
   margin-bottom: 10px;
 }
 .doc-h1 {
+  font-family: var(--font-display);  /* heading Latin = Montserrat; JP glyph → Noto (fallback) */
   font-size: var(--dd-h1);
   font-weight: 700;
   color: var(--brand-navy);
@@ -117,6 +118,7 @@
   margin: 0 0 4px;
 }
 .doc-h2 {
+  font-family: var(--font-display);
   font-size: var(--dd-h2);
   font-weight: 700;
   color: var(--brand-navy);
@@ -125,6 +127,7 @@
   margin: 0 0 4px;
 }
 .doc-h3 {
+  font-family: var(--font-display);
   font-size: var(--dd-h3);
   font-weight: 600;
   color: var(--neutral-700);
@@ -612,6 +615,7 @@
   margin: 22px 0 12px;
 }
 .dl-sec-title {
+  font-family: var(--font-display);
   font-size: var(--dd-h3); font-weight: 700;
   color: var(--brand-navy); letter-spacing: 0.02em;
 }

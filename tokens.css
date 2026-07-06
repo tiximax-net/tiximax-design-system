@@ -239,14 +239,16 @@
      NOTE: Noto Sans JP loaded via fonts/notosansjp.css (self-hosted).
      Be Vietnam Pro loaded via fonts/bevietnampro.css (self-hosted).
      Use --font-vi for Vietnamese-primary documents.
-     Headings/display = Source Sans 3 · body = Inter.
+     Heading Latin/display = Montserrat · body JP/nội dung = Source Sans 3 · body Inter.
      ============================================================ */
   --font-sans:    "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
   --font-body:    "Inter", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-jp:      "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
-  --font-latin:   "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
+  /* --font-latin = Latin display/heading của deck (tiêu đề EN, số, eyebrow…) → Montserrat (Boss chốt 2026-07).
+     Deck chỉ dùng var này cho display/label, KHÔNG cho body → an toàn. Bản VI ghi đè = Be Vietnam Pro. */
+  --font-latin:   "Montserrat", "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
   --font-vi:      "Be Vietnam Pro", "Noto Sans JP", "Source Sans 3", sans-serif;
-  --font-display: "Montserrat", "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;  /* heading = Montserrat (Boss chốt 2026-07); Noto fallback cho JP; deck vẫn dùng --font-jp/--font-latin */
+  --font-display: "Montserrat", "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;  /* heading (Montserrat Latin-only → Noto fallback JP) */
   --font-mono:    ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   --fw-extralight: 200;
