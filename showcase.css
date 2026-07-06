@@ -1,0 +1,235 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   showcase.css — Khung (chrome) trang preview design-system DÙNG CHUNG
+   Nguồn chuẩn: design-thinking/design-system/  · brand symlink về file này.
+   CHỈ tham chiếu token contract (xem TOKENS_CONTRACT.md) → render giống hệt
+   trên mọi brand. Component demo riêng của brand vẫn để trong <style> brand.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: 216px;
+  background: var(--surface-card);
+  border-right: 1px solid var(--border-subtle);
+  display: flex; flex-direction: column;
+  z-index: 100; overflow-y: auto;
+}
+.sb-brand {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+}
+.sb-brand img, .sb-brand svg { flex-shrink: 0; }
+.sb-brand-name { font-size: 13px; font-weight: 700; color: var(--text-brand); letter-spacing: 0.12em; text-transform: uppercase; }
+.sb-brand-sub  { font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.06em; margin-top: 2px; }
+.sb-group { padding: 12px 10px 4px; }
+.sb-group-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-tertiary); padding: 0 8px; margin-bottom: 4px;
+}
+.sb-nav { display: flex; flex-direction: column; gap: 1px; }
+.sb-link {
+  font-size: 12px; font-weight: 500; color: var(--text-secondary);
+  padding: 6px 8px; border-radius: 6px; text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.1s, color 0.1s;
+}
+.sb-link:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.sb-link.active { background: var(--surface-brand-subtle); color: var(--text-brand); font-weight: 700; }
+.sb-num { font-size: 9px; font-family: var(--font-mono, monospace); color: var(--text-tertiary); min-width: 18px; letter-spacing: 0.05em; }
+.sb-link.active .sb-num { color: var(--brand-accent); }
+.sb-sep { height: 1px; background: var(--border-subtle); margin: 6px 10px; }
+.sb-foot { margin-top: auto; padding: 12px; border-top: 1px solid var(--border-subtle); }
+/* ── Language toggle (EN/JP/VI) — segmented control trên nút theme ── */
+.ds-langtoggle {
+  display: flex; gap: 2px; margin-bottom: 8px;
+  background: var(--surface-sunken); border-radius: 999px; padding: 3px;
+}
+.ds-langbtn {
+  flex: 1; font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+  padding: 5px 4px; border: none; border-radius: 999px;
+  background: none; color: var(--text-tertiary); cursor: pointer;
+  font-family: var(--font-sans); transition: background 0.12s, color 0.12s;
+}
+.ds-langbtn:hover { color: var(--text-secondary); }
+.ds-langbtn.active { background: var(--surface-card); color: var(--text-brand); box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.12)); }
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; width: 100%;
+  font-size: 11px; font-weight: 600; font-family: var(--font-sans);
+  padding: 8px 12px; border-radius: 999px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-card); color: var(--text-secondary);
+  cursor: pointer; transition: all 0.12s;
+}
+.theme-toggle:hover { border-color: var(--brand-accent); color: var(--text-brand); }
+
+/* ── Font theo ngôn ngữ (toggle) — brand khai --font-lang-{en,vi,ja} trong tokens.css ── */
+:root { --font-content: var(--font-lang-en, var(--font-sans)); }
+:root[data-lang="en"] { --font-content: var(--font-lang-en, var(--font-sans)); }
+:root[data-lang="ja"] { --font-content: var(--font-lang-ja, var(--font-jp, var(--font-ja, var(--font-sans)))); }
+:root[data-lang="vi"] { --font-content: var(--font-lang-vi, var(--font-vi, var(--font-vn, var(--font-sans)))); }
+
+/* ── Main ── */
+.main { margin-left: 216px; flex: 1; padding: 48px 44px 120px; max-width: 1200px; font-family: var(--font-content); }
+
+/* ── Page header ── */
+.page-header { margin-bottom: 56px; }
+.page-super { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand-accent); margin-bottom: 8px; }
+.page-title { font-size: 30px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.02em; color: var(--text-brand); }
+.page-sub   { font-size: 13px; color: var(--text-tertiary); }
+
+/* ── Section ── */
+.sec { margin-bottom: 72px; scroll-margin-top: 28px; }
+.sec-header {
+  display: flex; align-items: baseline; gap: 12px;
+  padding-bottom: 12px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.sec-num   { font-size: 9px; font-family: var(--font-mono, monospace); color: var(--text-tertiary); letter-spacing: 0.1em; }
+.sec-title { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-secondary); }
+
+/* ── Panels ── */
+.panel {
+  background: var(--surface-card); border: 1px solid var(--border-subtle);
+  border-radius: 14px; padding: 24px; overflow: hidden;
+}
+.panel + .panel { margin-top: 10px; }
+.panel-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 14px;
+}
+.panel-brand { background: var(--brand-primary); border-color: transparent; }
+/* Live demo surface — dùng nền TRANG (theo toggle Light/Dark) để soi component
+   trong ngữ cảnh thật; vd Buttons. */
+.demo { background: var(--surface-page); border-color: var(--border-default); }
+
+/* ── Grids ── */
+.row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+.row + .row { margin-top: 10px; }
+.col { display: flex; flex-direction: column; gap: 10px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.sub-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px;
+}
+
+/* ── Color swatches ── */
+.swatch-row { display: flex; gap: 4px; margin-bottom: 12px; }
+.swatch { flex: 1; }
+.swatch-color { height: 36px; border-radius: 7px; border: 1px solid rgba(0,0,0,0.06); margin-bottom: 4px; }
+.swatch-info  { font-size: 9px; color: var(--text-tertiary); line-height: 1.4; }
+.swatch-token { font-weight: 700; color: var(--text-secondary); }
+.swatch-copy {
+  display: flex; align-items: center; gap: 4px; width: 100%;
+  padding: 1px 4px; margin: 1px -4px 0; border: 0; border-radius: 5px;
+  background: transparent; color: var(--text-tertiary);
+  font: inherit; font-size: 9px; text-align: left; cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.swatch-hex { font-family: var(--font-mono, monospace); letter-spacing: 0.02em; }
+.swatch-copy-ic { flex: none; opacity: 0; transition: opacity 0.12s; }
+.swatch-copy:hover, .swatch-copy:focus-visible { background: var(--surface-sunken); color: var(--text-secondary); outline: none; }
+.swatch-copy:hover .swatch-copy-ic, .swatch-copy:focus-visible .swatch-copy-ic { opacity: 0.7; }
+.swatch-copy.copied { color: var(--text-success, #16a34a); }
+.swatch-copy.copied .swatch-copy-ic { opacity: 1; color: var(--text-success, #16a34a); }
+
+/* ── Token table ── */
+.token-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.token-table th { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border-subtle); color: var(--text-tertiary); }
+.token-table td { padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: middle; }
+.token-table tr:last-child td { border-bottom: none; }
+.token-table td:first-child { font-family: var(--font-mono, monospace); font-size: 10px; color: var(--brand-primary); }
+.t-dot { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.08); vertical-align: middle; margin-right: 5px; }
+
+/* ── Tabs (vd Typography EN/JA/VI) — namespace .ds-* để KHÔNG đụng .tab/.tabs
+      component riêng của brand (vd futurelastic components.css) ── */
+.ds-tabs { display: block; }
+.ds-tabbar { display: flex; gap: 2px; margin-bottom: 18px; border-bottom: 1px solid var(--border-subtle); }
+.ds-tab {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--text-tertiary); background: none; border: none;
+  border-bottom: 2px solid transparent; padding: 8px 16px; margin-bottom: -1px;
+  cursor: pointer; font-family: var(--font-sans); transition: color 0.12s, border-color 0.12s;
+}
+.ds-tab:hover { color: var(--text-secondary); }
+.ds-tab.active { color: var(--text-brand); border-bottom-color: var(--brand-accent); }
+.ds-tabpanel[hidden] { display: none; }
+
+/* ── Type scale ── */
+.type-row { display: flex; align-items: baseline; gap: 20px; padding: 9px 0; border-bottom: 1px solid var(--border-subtle); }
+.type-row:last-child { border-bottom: none; }
+.type-meta   { width: 130px; flex-shrink: 0; font-size: 10px; font-family: var(--font-mono, monospace); color: var(--text-tertiary); }
+.type-sample { color: var(--text-primary); line-height: 1.2; }
+
+/* ── Spacing bars ── */
+.sp-row { display: flex; align-items: center; gap: 16px; padding: 4px 0; border-bottom: 1px solid var(--border-subtle); }
+.sp-row:last-child { border-bottom: none; }
+.sp-bar  { background: var(--surface-brand-subtle); border-radius: 2px; height: 14px; flex-shrink: 0; }
+.sp-meta { font-size: 10px; font-family: var(--font-mono, monospace); color: var(--text-tertiary); }
+
+/* ── Open-file link ── */
+.open-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm, 6px);
+  background: var(--brand-primary); color: var(--text-inverse, #fff);
+  font-size: 12px; font-weight: 600; text-decoration: none;
+  margin-top: 14px; transition: filter 0.15s;
+}
+.open-link:hover { filter: brightness(0.92); }
+
+/* ── Light-pin (specimen luôn nền sáng, không ăn theme) ── */
+.pin-light { color:#111827; --text-primary:#111827; --text-secondary:#374151; --text-tertiary:#6B7280; }
+
+/* ═══ Slide / Page / Meishi scalers — scaleAll() tự dò khổ tự nhiên ═══ */
+.preview-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.preview-item-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 7px;
+}
+.slide-scaler-idx {
+  width: 100%; aspect-ratio: 16/9;
+  position: relative; overflow: hidden;
+  border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.slide-scaler-idx .slide {
+  position: absolute; top: 0; left: 0;
+  width: 1920px; height: 1080px;      /* brand override nếu khổ khác (vd 1280×720) */
+  transform-origin: top left;
+}
+.page-scaler-idx {
+  width: 100%; aspect-ratio: 210/297;
+  position: relative; overflow: hidden;
+  border-radius: 4px; box-shadow: 0 3px 16px rgba(0,0,0,0.18);
+}
+.page-scaler-idx .page {
+  position: absolute; top: 0; left: 0;
+  width: 794px; height: 1123px;
+  transform-origin: top left;
+}
+.meishi-scaler-idx {
+  width: 100%; aspect-ratio: 91/55;
+  position: relative; overflow: hidden; border-radius: 5px;
+}
+.meishi-scaler-idx .meishi {
+  position: absolute; top: 0; left: 0;
+  width: 910px; height: 550px;         /* brand override nếu khổ khác (vd 540×324) */
+  transform-origin: top left;
+  font-family: var(--font-sans);
+}
+
+/* Landscape A4 (certificate…) — brand thêm class .landscape lên .page-scaler-idx */
+.page-scaler-idx.landscape { aspect-ratio: 297/210; }

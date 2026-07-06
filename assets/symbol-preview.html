@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<title>Tiximax — Lotus Symbol</title>
+<style>
+  body{margin:0;padding:40px;background:#EEF1F6;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#0C1A31}
+  h1{font-size:20px;margin:0 0 4px} .sub{color:#7488A6;font-size:13px;margin:0 0 28px}
+  .grid{display:flex;flex-wrap:wrap;gap:26px}
+  .item{text-align:center}
+  .box{background:#fff;border-radius:16px;padding:18px;box-shadow:0 4px 16px rgba(12,26,49,.08)}
+  .box img{display:block;width:148px;height:148px}
+  /* checkerboard to reveal transparent bg + exact square bounds */
+  .checker img{background:
+    conic-gradient(#e7ebf2 25%, transparent 0 50%, #e7ebf2 0 75%, transparent 0) 0 0/16px 16px}
+  .cap{margin-top:10px;font:600 11px/1.4 ui-monospace,monospace;color:#46587A}
+  .note{font-size:9px;color:#7488A6}
+  .sizes{display:flex;align-items:flex-end;gap:20px;margin-top:34px;background:#fff;padding:22px;border-radius:16px}
+  .sizes img{display:block}
+  .sizes .s{text-align:center}
+  .sizes .s span{display:block;margin-top:6px;font:600 10px/1 ui-monospace,monospace;color:#7488A6}
+  section{margin-bottom:8px}
+</style></head>
+<body>
+  <h1>Tiximax — Lotus Symbol</h1>
+  <p class="sub">Lotus canh giữa khung vuông 512×512, chiếm ~72% bề ngang (margin ~14% mỗi bên). Dùng cho favicon, app icon, avatar.</p>
+
+  <div class="grid">
+    <div class="item"><div class="box checker"><img src="tiximax-symbol-square.svg"></div>
+      <div class="cap">square<br><span class="note">lotus gold · nền trong suốt</span></div></div>
+    <div class="item"><div class="box"><img src="tiximax-symbol-square-navy.svg"></div>
+      <div class="cap">square-navy<br><span class="note">app icon</span></div></div>
+    <div class="item"><div class="box"><img src="tiximax-symbol-square-gold.svg"></div>
+      <div class="cap">square-gold<br><span class="note">app icon</span></div></div>
+    <div class="item"><div class="box"><img src="tiximax-symbol-circle-navy.svg"></div>
+      <div class="cap">circle-navy<br><span class="note">avatar</span></div></div>
+    <div class="item"><div class="box"><img src="tiximax-symbol-circle-gold.svg"></div>
+      <div class="cap">circle-gold<br><span class="note">avatar</span></div></div>
+  </div>
+
+  <section>
+    <p class="sub" style="margin:34px 0 0">Kiểm tra ở kích thước nhỏ (favicon/app):</p>
+    <div class="sizes">
+      <div class="s"><img src="tiximax-symbol-circle-navy.svg" width="128" height="128"><span>128</span></div>
+      <div class="s"><img src="tiximax-symbol-circle-navy.svg" width="64" height="64"><span>64</span></div>
+      <div class="s"><img src="tiximax-symbol-square-navy.svg" width="32" height="32"><span>32</span></div>
+      <div class="s"><img src="tiximax-symbol-square-navy.svg" width="16" height="16"><span>16</span></div>
+    </div>
+  </section>
+</body></html>

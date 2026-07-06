@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deck Starter — Tiximax</title>
+<link rel="stylesheet" href="deck.css">
+<script src="../deck-stage.js"></script>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════════════════════════════════════════╗
+     ║  Deck starter — sidebar preview tự động từ <deck-stage>.           ║
+     ║  • Mỗi slide = một <section data-label="…"> (nhãn hiện trên rail).  ║
+     ║  • Copy folder này, sửa nội dung section, thêm/bớt slide tuỳ ý.    ║
+     ║  • Mở bằng local HTTP server (KHÔNG file://) để assets hiển thị.   ║
+     ╚══════════════════════════════════════════════════════════════════╝ -->
+
+<deck-stage width="1920" height="1080">
+
+  <!-- 01 — COVER -->
+  <section data-label="01 Cover">
+    <div class="cover">
+      <div class="eyebrow">Tiximax Network</div>
+      <div class="cover-title">Tiêu đề bài<br>thuyết trình</div>
+      <div class="cover-rule"></div>
+      <div class="cover-en">Subtitle / English line</div>
+      <div class="cover-foot">
+        <span>越境物流・サプライチェーン</span>
+        <span>2026</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — NỘI DUNG: bullets -->
+  <section data-label="02 Nội dung">
+    <div class="slide">
+      <div class="eyebrow">Phần 01</div>
+      <div class="title">Tiêu đề slide nội dung</div>
+      <div class="rule"></div>
+      <ul class="bullets">
+        <li>Ý chính thứ nhất — thay bằng nội dung của anh.</li>
+        <li>Ý chính thứ hai — ngắn gọn, một dòng tốt nhất.</li>
+        <li>Ý chính thứ ba — rail bên trái tự sinh thumbnail.</li>
+      </ul>
+      <div class="slide-foot"><span>Tiximax</span><span>02</span></div>
+    </div>
+  </section>
+
+  <!-- 03 — NỘI DUNG: 2 cột -->
+  <section data-label="03 Hai cột">
+    <div class="slide">
+      <div class="eyebrow">Phần 02</div>
+      <div class="title">Bố cục hai cột</div>
+      <div class="rule"></div>
+      <div class="cols">
+        <div class="card"><h3>Khối A</h3><p>Mô tả ngắn cho khối nội dung bên trái.</p></div>
+        <div class="card"><h3>Khối B</h3><p>Mô tả ngắn cho khối nội dung bên phải.</p></div>
+      </div>
+      <div class="slide-foot"><span>Tiximax</span><span>03</span></div>
+    </div>
+  </section>
+
+  <!-- 04 — KẾT -->
+  <section data-label="04 Kết">
+    <div class="cover">
+      <div class="eyebrow">Cảm ơn</div>
+      <div class="cover-title">Thank you</div>
+      <div class="cover-rule"></div>
+      <div class="cover-foot"><span>info@tiximax.jp</span><span>tiximax.jp</span></div>
+    </div>
+  </section>
+
+</deck-stage>
+
+</body>
+</html>

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="ja" data-accent="gold">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiximax — A4 Document Layouts</title>
+<link rel="stylesheet" href="fonts/notosansjp.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="tiximax-docs.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--neutral-950);
+  color: rgba(255,255,255,0.72);
+  font-family: var(--font-jp);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+  margin: 0; padding: 0;
+}
+
+/* ════ SIDEBAR ════ */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: 220px;
+  background: var(--brand-navy);
+  display: flex; flex-direction: column;
+  z-index: 100; overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+.sb-brand { padding: 22px 18px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.sb-logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--brand-gold); display: block; line-height: 1; margin-bottom: 4px; }
+.sb-ds-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+
+.sb-back {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  text-decoration: none; padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: color 0.1s;
+}
+.sb-back:hover { color: rgba(255,255,255,0.65); }
+.sb-back svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+.sb-group { padding: 14px 10px 4px; }
+.sb-group-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.26); padding: 0 8px; margin-bottom: 4px; }
+.sb-nav { display: flex; flex-direction: column; gap: 1px; }
+.sb-link {
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.52);
+  padding: 7px 8px; border-radius: 6px; text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.12s, color 0.12s;
+}
+.sb-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.88); }
+.sb-link.active { background: rgba(223,169,48,0.17); color: var(--brand-gold); font-weight: 600; }
+.sb-num { font-size: 9px; font-family: monospace; color: rgba(255,255,255,0.2); min-width: 18px; }
+.sb-link.active .sb-num { color: rgba(223,169,48,0.5); }
+.sb-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 6px 10px; }
+
+/* ════ MAIN ════ */
+.main { margin-left: 220px; flex: 1; padding: 48px 52px 120px; }
+
+/* ── Page header ── */
+.page-header {
+  margin-bottom: 52px; padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+}
+.page-super { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand-gold); margin-bottom: 8px; }
+.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; color: #fff; }
+.page-sub { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; letter-spacing: 0.04em; }
+.ph-stats { display: flex; gap: 28px; flex-shrink: 0; }
+.ph-stat { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.ph-stat .n { font-size: 24px; font-weight: 700; color: var(--brand-gold); line-height: 1; }
+.ph-stat .l { font-size: 10px; letter-spacing: 0.1em; color: rgba(255,255,255,0.28); text-transform: uppercase; }
+
+/* ── Group label ── */
+.group-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding-top: 4px; margin-bottom: 36px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.group-label:not(:first-child) { margin-top: 60px; }
+
+/* ── Layout item ── */
+.layout-item { margin-bottom: 56px; scroll-margin-top: 28px; }
+.layout-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.layout-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brand-gold); opacity: 0.65; min-width: 56px; }
+.layout-name { font-size: 14px; font-weight: 600; letter-spacing: 0.01em; color: rgba(255,255,255,0.8); }
+.layout-note { margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.22); white-space: nowrap; }
+
+/* ── A4 viewport: 596 × 843 (75% of 794 × 1123) ── */
+.doc-vp {
+  width: 596px; height: 843px;
+  overflow: hidden; position: relative;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 16px 56px rgba(0,0,0,0.72);
+}
+.doc-inner {
+  width: 794px; height: 1123px;
+  transform: scale(0.75); transform-origin: top left;
+  position: absolute; top: 0; left: 0;
+}
+.doc-inner .doc-page {
+  position: relative; width: 794px; height: 1123px; overflow: hidden;
+}
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <span class="sb-logo">Tiximax</span>
+    <span class="sb-ds-label">A4 Document Layouts</span>
+  </div>
+  <a href="preview.html" class="sb-back">
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L4 6l4 4"/></svg>
+    Design System
+  </a>
+  <a href="documents-landscape-preview.html" class="sb-back">
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2l4 4-4 4"/></svg>
+    A4 Landscape Layouts
+  </a>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Correspondence / 書簡</div>
+    <nav class="sb-nav">
+      <a href="#letter"    class="sb-link active"><span class="sb-num">01</span>ビジネスレター</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Finance / 財務</div>
+    <nav class="sb-nav">
+      <a href="#invoice"   class="sb-link"><span class="sb-num">02</span>請求書</a>
+      <a href="#quote"     class="sb-link"><span class="sb-num">07</span>見積書</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Company / 会社</div>
+    <nav class="sb-nav">
+      <a href="#overview"  class="sb-link"><span class="sb-num">03</span>会社概要</a>
+      <a href="#proposal"  class="sb-link"><span class="sb-num">04</span>提案書 表紙</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">HR / 人事</div>
+    <nav class="sb-nav">
+      <a href="#jd"        class="sb-link"><span class="sb-num">05</span>求人票</a>
+      <a href="#rodo"      class="sb-link"><span class="sb-num">08</span>労働条件通知書</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Internal / 社内</div>
+    <nav class="sb-nav">
+      <a href="#minutes"   class="sb-link"><span class="sb-num">06</span>議事録</a>
+      <a href="#expense"   class="sb-link"><span class="sb-num">09</span>経費精算書</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Logistics / 物流</div>
+    <nav class="sb-nav">
+      <a href="#shiporder" class="sb-link"><span class="sb-num">10</span>出荷指示書</a>
+    </nav>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+  <header class="page-header">
+    <div>
+      <div class="page-super">Tiximax Design System</div>
+      <div class="page-title">A4 Document Layouts</div>
+      <div class="page-sub">794 × 1123 px master · 75% preview · tokens.css + tiximax-docs.css</div>
+    </div>
+    <div class="ph-stats">
+      <div class="ph-stat"><span class="n">10</span><span class="l">Layouts</span></div>
+      <div class="ph-stat"><span class="n">A4</span><span class="l">Format</span></div>
+      <div class="ph-stat"><span class="n">5</span><span class="l">Categories</span></div>
+    </div>
+  </header>
+
+  <!-- ══════════════ CORRESPONDENCE ══════════════ -->
+  <div class="group-label">Correspondence / 書簡</div>
+
+  <!-- Doc 01 ビジネスレター -->
+  <div class="layout-item" id="letter">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 01</span>
+      <span class="layout-name">Business Letter / ビジネスレター</span>
+      <span class="layout-note">letterhead · keigo body · signature</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head">
+        <div class="doc-head-logo">
+          <img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Tiximax Co., Ltd.</div></div>
+        </div>
+        <div class="doc-head-type">Business Letter</div>
+      </div>
+      <div class="doc-body">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:28px;">
+          <div style="text-align:right;font-size:12px;color:var(--neutral-500);line-height:1.7;letter-spacing:0.04em;">
+            2026年6月19日<br>弊社参照番号：TX-2026-0619
+          </div>
+        </div>
+        <div style="margin-bottom:28px;font-size:13px;line-height:1.8;">
+          株式会社 〇〇商事<br>物流企画部　部長<br>
+          <span style="font-size:15px;font-weight:600;color:var(--brand-navy);">山田 太郎 様</span>
+        </div>
+        <div style="margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--neutral-200);">
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--neutral-400);display:block;margin-bottom:4px;">件名 / Subject</span>
+          <span style="font-size:14px;font-weight:600;color:var(--brand-navy);">越境物流サービスのご提案につきまして</span>
+        </div>
+        <p class="doc-p">拝啓　時下ますますご清栄のこととお慶び申し上げます。平素は格別のご愛顧を賜り、厚く御礼申し上げます。</p>
+        <p class="doc-p">このたびは、弊社の越境物流・3PLサービスにつきましてお引き合いいただき、誠にありがとうございます。ご要望の内容を慎重に検討いたしました結果、下記のとおりご提案申し上げます。</p>
+        <p class="doc-p">弊社はベトナム・日本・韓国・インドネシア・フィリピンの5カ国にて、越境EC支援・国際輸送・通関代行・3PLフルフィルメントのワンストップサービスを提供しております。貴社のグローバル展開に際し、最適なご支援ができるものと自負しております。</p>
+        <p class="doc-p">詳細につきましては別途ご提案書をお送り申し上げますので、何卒ご高覧くださいますようお願い申し上げます。ご不明な点がございましたら、お気軽にお申し付けください。</p>
+        <p class="doc-p" style="margin-top:8px;">何卒よろしくお願い申し上げます。</p>
+        <p class="doc-p" style="text-align:right;margin-top:8px;">敬具</p>
+        <div class="doc-signature" style="max-width:320px;margin-left:auto;">
+          <div class="role">株式会社 Tiximax　代表取締役</div>
+          <div class="name">武 仁誠</div>
+          <div class="company" style="margin-top:4px;font-size:11px;color:var(--neutral-400);">
+            〒104-0045 東京都中央区築地4-3-12-1007<br>info@tiximax.jp　／　tiximax.jp
+          </div>
+        </div>
+      </div>
+      <div class="doc-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>info@tiximax.jp　·　tiximax.jp</span>
+        <span class="f-pg">1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ FINANCE ══════════════ -->
+  <div class="group-label">Finance / 財務</div>
+
+  <!-- Doc 02 請求書 -->
+  <div class="layout-item" id="invoice">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 02</span>
+      <span class="layout-name">Invoice / 請求書</span>
+      <span class="layout-note">line items · tax · インボイス登録番号 · payment info</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head">
+        <div class="doc-head-logo">
+          <img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Tiximax Co., Ltd.</div></div>
+        </div>
+        <div class="doc-head-type">Invoice · 請求書</div>
+      </div>
+      <div class="doc-body">
+        <div class="inv-head" style="margin-bottom:28px;">
+          <div>
+            <div class="inv-title">請求書</div>
+            <div style="margin-top:6px;font-size:12px;color:var(--neutral-400);">INVOICE</div>
+          </div>
+          <div class="inv-meta">
+            <div class="inv-num">請求書番号 <b>INV-2026-0089</b></div>
+            <div class="inv-num">発行日　　 <b>2026年6月19日</b></div>
+            <div class="inv-num">お支払期限 <b>2026年7月19日</b></div>
+            <div style="margin-top:12px;">
+              <div class="inv-total-box">
+                <div class="tlabel">ご請求金額（税込）</div>
+                <div class="tamount">¥ 162,800</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-cols-2" style="margin-bottom:28px;">
+          <div>
+            <div class="doc-section-label">請求先</div>
+            <div style="font-size:13px;line-height:1.8;color:var(--neutral-700);">
+              株式会社 〇〇商事<br>物流企画部　山田 太郎 様<br>〒100-0001 東京都千代田区
+            </div>
+          </div>
+          <div>
+            <div class="doc-section-label">請求元</div>
+            <div style="font-size:13px;line-height:1.8;color:var(--neutral-700);">
+              株式会社 Tiximax<br>代表取締役　武 仁誠<br>〒104-0045 東京都中央区築地4-3-12-1007
+            </div>
+          </div>
+        </div>
+        <div class="doc-divider"></div>
+        <table class="doc-table" style="margin-bottom:4px;">
+          <thead>
+            <tr>
+              <th style="width:42%;">品目 / Item</th>
+              <th style="text-align:center;">数量</th>
+              <th style="text-align:right;">単価</th>
+              <th style="text-align:right;">金額</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div style="font-weight:600;">国際輸送サービス（航空便）</div><div style="font-size:11px;color:var(--neutral-400);margin-top:2px;">東京 → ホーチミン　DDP対応</div></td>
+              <td style="text-align:center;">3 便</td><td style="text-align:right;">¥15,000</td><td style="text-align:right;">¥45,000</td>
+            </tr>
+            <tr>
+              <td><div style="font-weight:600;">通関代行手数料</div><div style="font-size:11px;color:var(--neutral-400);margin-top:2px;">HS分類・輸出申告代行</div></td>
+              <td style="text-align:center;">2 件</td><td style="text-align:right;">¥9,000</td><td style="text-align:right;">¥18,000</td>
+            </tr>
+            <tr>
+              <td><div style="font-weight:600;">3PLフルフィルメント（月額基本料）</div><div style="font-size:11px;color:var(--neutral-400);margin-top:2px;">保管・ピッキング・梱包・出荷　ベトナム拠点</div></td>
+              <td style="text-align:center;">1 ヶ月</td><td style="text-align:right;">¥85,000</td><td style="text-align:right;">¥85,000</td>
+            </tr>
+            <tr class="subtotal"><td colspan="3" style="text-align:right;padding-right:10px;">小計 Subtotal</td><td>¥148,000</td></tr>
+            <tr class="subtotal"><td colspan="3" style="text-align:right;padding-right:10px;">消費税 10%</td><td>¥14,800</td></tr>
+            <tr class="total-row">
+              <td colspan="3" style="text-align:right;padding-right:10px;font-size:13px;font-weight:700;border-top:2px solid var(--brand-navy);">合計 Total</td>
+              <td style="border-top:2px solid var(--brand-navy);">¥162,800</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="doc-divider" style="margin-top:20px;"></div>
+        <div class="doc-section-label" style="margin-bottom:8px;">お振込先</div>
+        <div class="doc-panel" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12px;color:var(--neutral-700);line-height:1.8;">
+          <div>金融機関：〇〇銀行 中央支店<br>口座種別：普通預金<br>口座番号：1234567<br>口座名義：カ）ティクシマックス</div>
+          <div style="color:var(--neutral-400);font-size:11px;line-height:1.7;">※ お振込手数料はご負担ください。<br>※ 振込名義は貴社名でお願いします。<br>※ 領収書は振込確認後に発行します。</div>
+        </div>
+      </div>
+      <div class="doc-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>適格請求書発行事業者登録番号：T1234567890123</span>
+        <span class="f-pg">1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- Doc 07 見積書 -->
+  <div class="layout-item" id="quote">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 07</span>
+      <span class="layout-name">Quotation / 見積書</span>
+      <span class="layout-note">validity period · itemized quote · approval box · navy accent header</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head">
+        <div class="doc-head-logo">
+          <img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Tiximax Co., Ltd.</div></div>
+        </div>
+        <div class="doc-head-type">Quotation · 見積書</div>
+      </div>
+      <div class="doc-body">
+        <!-- Quote header -->
+        <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:flex-start;margin-bottom:24px;">
+          <div>
+            <div style="font-size:36px;font-weight:700;letter-spacing:0.1em;color:var(--brand-navy);line-height:1;">見積書</div>
+            <div style="font-size:12px;color:var(--neutral-400);margin-top:4px;">QUOTATION</div>
+          </div>
+          <div style="text-align:right;display:flex;flex-direction:column;gap:3px;">
+            <div style="font-size:11px;color:var(--neutral-500);">見積番号 <b style="color:var(--neutral-700);">QT-2026-0042</b></div>
+            <div style="font-size:11px;color:var(--neutral-500);">発行日　 <b style="color:var(--neutral-700);">2026年6月19日</b></div>
+            <div style="font-size:11px;color:var(--neutral-500);">有効期限 <b style="color:var(--brand-navy);">2026年7月19日</b></div>
+            <div style="margin-top:10px;background:var(--brand-navy);color:#fff;padding:12px 18px;border-radius:4px;text-align:right;">
+              <div style="font-size:11px;letter-spacing:0.08em;opacity:0.7;text-transform:uppercase;">お見積金額（税込）</div>
+              <div style="font-size:26px;font-weight:700;color:var(--brand-gold);line-height:1.1;">¥ 385,000</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-cols-2" style="margin-bottom:20px;">
+          <div>
+            <div class="doc-section-label">お見積先</div>
+            <div style="font-size:13px;line-height:1.8;color:var(--neutral-700);">
+              株式会社 △△フーズ<br>業務部　鈴木 次郎 様<br>〒150-0001 東京都渋谷区
+            </div>
+          </div>
+          <div>
+            <div class="doc-section-label">見積元</div>
+            <div style="font-size:13px;line-height:1.8;color:var(--neutral-700);">
+              株式会社 Tiximax<br>代表取締役　武 仁誠<br>info@tiximax.jp　／　tiximax.jp
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-divider"></div>
+        <div style="font-size:11px;font-weight:600;color:var(--neutral-500);margin-bottom:4px;">件名</div>
+        <div style="font-size:14px;font-weight:600;color:var(--brand-navy);margin-bottom:20px;">ベトナム向け食品輸出・3PLフルフィルメント ご提案</div>
+
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th style="width:44%;">項目 / Item</th>
+              <th style="text-align:center;width:8%;">数量</th>
+              <th style="text-align:center;width:8%;">単位</th>
+              <th style="text-align:right;">単価</th>
+              <th style="text-align:right;">小計</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div style="font-weight:600;">航空輸送費（東京→ホーチミン）</div><div style="font-size:11px;color:var(--neutral-400);margin-top:2px;">最大30kgまで / 便。DDP・トラッキング込み。</div></td>
+              <td style="text-align:center;">10</td><td style="text-align:center;">便/月</td>
+              <td style="text-align:right;">¥15,000</td><td style="text-align:right;">¥150,000</td>
+            </tr>
+            <tr>
+              <td><div style="font-weight:600;">通関代行（輸出）</div><div style="font-size:11px;color:var(--neutral-400);margin-top:2px;">HS分類確認・輸出申告・証明書取得代行</div></td>
+              <td style="text-align:center;">10</td><td style="text-align:center;">件/月</td>
+              <td style="text-align:right;">¥8,000</td><td style="text-align:right;">¥80,000</td>
+            </tr>
+            <tr>
+              <td><div style="font-weight:600;">3PLフルフィルメント基本料（VN）</div><div style="font-size:11px;color:var(--neutral-400);margin-top:2px;">入庫・在庫管理・ピッキング・梱包・出荷</div></td>
+              <td style="text-align:center;">1</td><td style="text-align:center;">月</td>
+              <td style="text-align:right;">¥85,000</td><td style="text-align:right;">¥85,000</td>
+            </tr>
+            <tr>
+              <td><div style="font-weight:600;">初期設定費（システム・倉庫棚割り）</div><div style="font-size:11px;color:var(--neutral-400);margin-top:2px;">初月のみ発生。2ヶ月目以降は不要。</div></td>
+              <td style="text-align:center;">1</td><td style="text-align:center;">式</td>
+              <td style="text-align:right;">¥15,000</td><td style="text-align:right;">¥15,000</td>
+            </tr>
+            <tr class="subtotal"><td colspan="4" style="text-align:right;padding-right:10px;">小計</td><td>¥330,000</td></tr>
+            <tr class="subtotal"><td colspan="4" style="text-align:right;padding-right:10px;">消費税 10%</td><td>¥33,000</td></tr>
+            <tr class="total-row">
+              <td colspan="4" style="text-align:right;padding-right:10px;font-size:13px;font-weight:700;border-top:2px solid var(--brand-navy);">合計</td>
+              <td style="border-top:2px solid var(--brand-navy);">¥363,000</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:16px;padding:10px 16px;background:var(--neutral-50);border-radius:4px;font-size:11px;color:var(--neutral-600);line-height:1.8;">
+          ※ 本見積の有効期間は発行日より30日間です。　※ 輸送量・重量により実費が変動する場合がございます。　※ 関税・輸入消費税は別途実費となります。
+        </div>
+      </div>
+      <div class="doc-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>info@tiximax.jp　·　tiximax.jp</span>
+        <span class="f-pg">1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ COMPANY ══════════════ -->
+  <div class="group-label">Company / 会社</div>
+
+  <!-- Doc 03 会社概要 -->
+  <div class="layout-item" id="overview">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 03</span>
+      <span class="layout-name">Company Overview / 会社概要</span>
+      <span class="layout-note">navy band header · data grid · 2×2 service panels</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div style="background:var(--brand-navy);padding:28px 62px 22px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <img class="doc-head-seal" src="assets/tiximax-symbol-circle-gold.svg" alt="Tiximax" style="width:44px;height:44px;">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#fff;letter-spacing:0.03em;">株式会社 Tiximax</div>
+            <div style="font-size:10px;letter-spacing:0.14em;color:rgba(255,255,255,0.5);margin-top:2px;">TIXIMAX CO., LTD.</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--brand-gold);">会社概要</div>
+          <div style="font-size:10px;letter-spacing:0.1em;color:rgba(255,255,255,0.4);margin-top:2px;">Company Overview</div>
+        </div>
+      </div>
+      <div class="doc-body" style="padding-top:24px;">
+        <p class="doc-p">株式会社Tiximaxは「すべての人のための越境EC」を使命に、日本・アジア間の国際物流・通関・3PLフルフィルメントをワンストップで提供するロジスティクス企業です。ベトナム ホーチミンを運営センターに、アジア5カ国でクロスボーダーオペレーションを展開しています。</p>
+        <div class="doc-divider"></div>
+        <div class="doc-cols-2" style="margin-bottom:22px;align-items:start;gap:24px;">
+          <div>
+            <div class="doc-section-label" style="margin-bottom:10px;">日本法人</div>
+            <div class="doc-meta-grid">
+              <div class="doc-meta-row"><span class="k">商　号</span><span class="v">株式会社 Tiximax</span></div>
+              <div class="doc-meta-row"><span class="k">設　立</span><span class="v">2025年</span></div>
+              <div class="doc-meta-row"><span class="k">代表者</span><span class="v">代表取締役　武 仁誠</span></div>
+              <div class="doc-meta-row"><span class="k">資本金</span><span class="v">300万円</span></div>
+              <div class="doc-meta-row"><span class="k">所在地</span><span class="v">東京都中央区築地4-3-12</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="doc-section-label" style="margin-bottom:10px;">グループ</div>
+            <div class="doc-meta-grid">
+              <div class="doc-meta-row"><span class="k">設　立</span><span class="v">2022年</span></div>
+              <div class="doc-meta-row"><span class="k">従業員</span><span class="v">約50名（グループ計）</span></div>
+              <div class="doc-meta-row"><span class="k">拠　点</span><span class="v">5カ国 7拠点</span></div>
+              <div class="doc-meta-row"><span class="k">対応語</span><span class="v">日・越・英・インドネシア語</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-divider"></div>
+        <div class="doc-section-label" style="margin-bottom:12px;">事業内容</div>
+        <div class="doc-cols-2" style="gap:12px;margin-bottom:22px;">
+          <div class="doc-panel"><div style="font-size:11px;font-weight:700;color:var(--brand-gold);letter-spacing:0.1em;margin-bottom:4px;">01 · 国際輸送</div><div style="font-size:12px;color:var(--neutral-700);line-height:1.55;">航空・海上の最適ルートで越境輸送を一貫サポート。リアルタイムトラッキング対応。</div></div>
+          <div class="doc-panel"><div style="font-size:11px;font-weight:700;color:var(--brand-gold);letter-spacing:0.1em;margin-bottom:4px;">02 · 貿易・通関サポート</div><div style="font-size:12px;color:var(--neutral-700);line-height:1.55;">HS分類・インボイス作成・輸出入申告をワンストップ代行。</div></div>
+          <div class="doc-panel"><div style="font-size:11px;font-weight:700;color:var(--brand-gold);letter-spacing:0.1em;margin-bottom:4px;">03 · 3PLフルフィルメント</div><div style="font-size:12px;color:var(--neutral-700);line-height:1.55;">保管・ピッキング・梱包・発送まで完全アウトソーシング対応。</div></div>
+          <div class="doc-panel"><div style="font-size:11px;font-weight:700;color:var(--brand-gold);letter-spacing:0.1em;margin-bottom:4px;">04 · 代理購入 B2C</div><div style="font-size:12px;color:var(--neutral-700);line-height:1.55;">日本・韓国商品を海外個人向けに代理購入・転送。多言語サポート。</div></div>
+        </div>
+        <div style="background:var(--neutral-50);border:1px solid var(--neutral-200);border-radius:4px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--neutral-600);">
+          <span><b style="color:var(--brand-navy);">お問い合わせ</b>　info@tiximax.jp</span>
+          <span>tiximax.jp</span>
+          <span>平日 9:00〜18:00 JST</span>
+        </div>
+      </div>
+      <div class="doc-foot">
+        <span class="f-brand">株式会社 Tiximax</span><span>2026年6月</span><span class="f-pg">1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- Doc 04 提案書表紙 -->
+  <div class="layout-item" id="proposal">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 04</span>
+      <span class="layout-name">Proposal Cover / 提案書 表紙</span>
+      <span class="layout-note">navy full-bleed · gold rule · recipient · confidential mark</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="prop-cover">
+        <div class="prop-cover-logo">
+          <img class="seal" src="assets/tiximax-symbol-circle-gold.svg" alt="Tiximax">
+          <div class="nm">株式会社 Tiximax</div>
+        </div>
+        <div class="prop-cover-center">
+          <div class="prop-cover-rule"></div>
+          <div class="prop-cover-label">Proposal · ご提案書</div>
+          <div class="prop-cover-title">越境EC・3PL<br>サポートサービス<br>ご提案書</div>
+          <div class="prop-cover-recipient">株式会社 〇〇商事　御中</div>
+        </div>
+        <div class="prop-cover-bottom">
+          <div class="sender">株式会社 Tiximax<br>代表取締役　武 仁誠<br>2026年6月19日</div>
+          <div class="conf">Confidential<br>社外秘</div>
+        </div>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ HR ══════════════ -->
+  <div class="group-label">HR / 人事</div>
+
+  <!-- Doc 05 求人票 -->
+  <div class="layout-item" id="jd">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 05</span>
+      <span class="layout-name">Job Description / 求人票</span>
+      <span class="layout-note">tags · 2-col responsibilities / requirements · benefits</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head">
+        <div class="doc-head-logo"><img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax"><div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Tiximax Co., Ltd.</div></div></div>
+        <div class="doc-head-type">求人票 · Job Description</div>
+      </div>
+      <div class="doc-body" style="padding-top:22px;">
+        <div style="margin-bottom:16px;">
+          <div class="doc-section-label" style="margin-bottom:6px;">募集職種</div>
+          <div class="doc-h1" style="margin-bottom:10px;">営業・ロジスティクスコーディネーター</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="doc-tag doc-tag-gold">正社員</span>
+            <span class="doc-tag doc-tag-navy">東京 / リモート可</span>
+            <span class="doc-tag doc-tag-neutral">年収 400〜600万円</span>
+            <span class="doc-tag doc-tag-neutral">経験者優遇</span>
+          </div>
+        </div>
+        <div class="doc-divider"></div>
+        <div class="doc-cols-2" style="align-items:start;gap:28px;">
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div>
+              <div class="doc-h3" style="margin-bottom:8px;color:var(--brand-navy);">業務内容</div>
+              <ul class="doc-list">
+                <li>越境EC事業者様への物流ソリューション提案・営業</li>
+                <li>輸出入に関する顧客対応（日・英対応）</li>
+                <li>輸送業者・倉庫パートナーとの調整・管理</li>
+                <li>国際輸送の見積・手配・フォローアップ</li>
+                <li>社内オペレーションの改善提案</li>
+              </ul>
+            </div>
+            <div>
+              <div class="doc-h3" style="margin-bottom:8px;color:var(--brand-navy);">必須要件</div>
+              <ul class="doc-list">
+                <li>国際物流・貿易実務の経験（3年以上）</li>
+                <li>日本語ビジネスレベル</li>
+                <li>英語またはベトナム語コミュニケーション可</li>
+                <li>Excelによる基本的なデータ管理</li>
+              </ul>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div>
+              <div class="doc-h3" style="margin-bottom:8px;color:var(--brand-navy);">歓迎要件</div>
+              <ul class="doc-list">
+                <li>越境EC・3PL業界の知識・経験</li>
+                <li>ERPシステムの操作経験</li>
+                <li>東南アジアでの就業経験</li>
+                <li>フォワーダー・通関士資格保有者</li>
+              </ul>
+            </div>
+            <div>
+              <div class="doc-h3" style="margin-bottom:8px;color:var(--brand-navy);">待遇・福利厚生</div>
+              <ul class="doc-list">
+                <li>社会保険完備（雇用・健康・厚生年金）</li>
+                <li>交通費支給（上限3万円/月）</li>
+                <li>在宅勤務手当 5,000円/月</li>
+                <li>海外出張・研修制度あり</li>
+              </ul>
+            </div>
+            <div class="doc-panel" style="font-size:12px;color:var(--neutral-700);line-height:1.7;">
+              <b style="font-size:11px;color:var(--brand-gold);display:block;margin-bottom:4px;letter-spacing:0.1em;">応募方法</b>
+              careers@tiximax.jp 宛に<br>履歴書・職務経歴書をお送りください。
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="doc-foot"><span class="f-brand">株式会社 Tiximax</span><span>careers@tiximax.jp</span><span class="f-pg">1 / 1</span></div>
+    </div></div></div>
+  </div>
+
+  <!-- Doc 08 労働条件通知書 -->
+  <div class="layout-item" id="rodo">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 08</span>
+      <span class="layout-name">Working Conditions / 労働条件通知書</span>
+      <span class="layout-note">労基法準拠 · dense spec grid · work hours · wage detail</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head">
+        <div class="doc-head-logo"><img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax"><div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Tiximax Co., Ltd.</div></div></div>
+        <div class="doc-head-type">労働条件通知書</div>
+      </div>
+      <div class="doc-body" style="padding-top:18px;">
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;">
+          <div style="font-size:18px;font-weight:700;color:var(--brand-navy);letter-spacing:0.05em;">労働条件通知書</div>
+          <div style="font-size:11px;color:var(--neutral-500);">発行日：2026年6月19日</div>
+        </div>
+
+        <div style="font-size:13px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--neutral-200);">
+          <span style="font-weight:600;color:var(--brand-navy);">田中 花子</span>　殿
+        </div>
+
+        <!-- Dense spec grid -->
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:0;font-size:12px;line-height:1.6;">
+          <!-- Row -->
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">契約期間</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">期間の定めなし（正社員）</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">就業の場所</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">東京都中央区築地4-3-12-1007（本社）／ テレワーク可</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">業務内容</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">物流コーディネーター（越境EC・3PL業務）</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">始業・終業時刻</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">9:00〜18:00　休憩60分　実働8時間</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">所定時間外労働</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">あり（月平均10時間程度）</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">休日</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">土・日曜日、祝祭日、年末年始（会社カレンダーによる）</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">年次有給休暇</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">6ヶ月継続勤務後 10日（労働基準法第39条による）</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">基本給</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);font-weight:600;color:var(--brand-navy);">月額 350,000円（時間外手当 別途）</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">諸手当</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">通勤手当（上限30,000円/月）、在宅手当5,000円/月</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">賞与</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">年2回（業績連動、6月・12月）</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">締め・支払日</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">月末締め　翌月25日払い　銀行振込</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;border-bottom:1px solid var(--neutral-100);letter-spacing:0.04em;">社会保険</div>
+          <div style="padding:7px 0;border-bottom:1px solid var(--neutral-100);color:var(--neutral-800);">雇用保険・健康保険・厚生年金保険　加入</div>
+
+          <div style="font-weight:600;color:var(--neutral-500);padding:7px 12px 7px 0;letter-spacing:0.04em;">退職に関する事項</div>
+          <div style="padding:7px 0;color:var(--neutral-800);">自己都合退職の場合は2週間前に申し出ること（就業規則第○条）</div>
+        </div>
+
+        <div style="margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:11px;color:var(--neutral-400);">使用者（会社）</div>
+            <div style="font-size:13px;font-weight:600;color:var(--brand-navy);">株式会社 Tiximax　代表取締役　武 仁誠</div>
+            <div style="margin-top:8px;height:1px;background:var(--neutral-300);width:60%;"></div>
+            <div style="font-size:10px;color:var(--neutral-400);">署名・捺印</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="font-size:11px;color:var(--neutral-400);">労働者（本人）</div>
+            <div style="font-size:13px;font-weight:600;color:var(--brand-navy);">田中 花子　　　　　　　　　　　印</div>
+            <div style="margin-top:8px;height:1px;background:var(--neutral-300);width:60%;"></div>
+            <div style="font-size:10px;color:var(--neutral-400);">署名・捺印</div>
+          </div>
+        </div>
+      </div>
+      <div class="doc-foot"><span class="f-brand">株式会社 Tiximax — 社外秘</span><span>労働基準法第15条に基づく書面</span><span class="f-pg">1 / 1</span></div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ INTERNAL ══════════════ -->
+  <div class="group-label">Internal / 社内</div>
+
+  <!-- Doc 06 議事録 -->
+  <div class="layout-item" id="minutes">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 06</span>
+      <span class="layout-name">Meeting Minutes / 議事録</span>
+      <span class="layout-note">meeting meta · agenda list · action table with status tags</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head"><div class="doc-head-logo"><img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax"><div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Internal Document</div></div></div><div class="doc-head-type">議事録 · Meeting Minutes</div></div>
+      <div class="doc-body" style="padding-top:20px;">
+        <div style="margin-bottom:18px;">
+          <div class="doc-h1" style="margin-bottom:12px;">第3回 業務改善委員会　議事録</div>
+          <div class="doc-cols-2" style="gap:16px;">
+            <div class="doc-meta-grid" style="font-size:12px;">
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">日　時</span><span class="v" style="font-size:12px;">2026年6月19日（木）14:00〜15:30</span></div>
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">場　所</span><span class="v" style="font-size:12px;">会議室A ／ Zoom</span></div>
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">司　会</span><span class="v" style="font-size:12px;">武 仁誠（代表取締役）</span></div>
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">記　録</span><span class="v" style="font-size:12px;">田中 花子（オペレーション）</span></div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--brand-gold);margin-bottom:6px;">出席者</div>
+              <div style="font-size:12px;color:var(--neutral-700);line-height:1.7;">武 仁誠、田中 花子、<br>Nguyen Van A（VN）、Kim B（KR）<br>オンライン参加2名<br><span style="color:var(--neutral-400);">計 6名</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="doc-divider"></div>
+        <div style="margin-bottom:16px;">
+          <div class="doc-section-label" style="margin-bottom:10px;">議題</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:12px;font-size:12px;color:var(--neutral-700);"><span style="font-weight:700;color:var(--brand-gold);min-width:24px;">1.</span><div><b style="color:var(--neutral-800);">前回議事録の確認</b>　承認済み、修正事項なし</div></div>
+            <div style="display:flex;gap:12px;font-size:12px;color:var(--neutral-700);"><span style="font-weight:700;color:var(--brand-gold);min-width:24px;">2.</span><div><b style="color:var(--neutral-800);">Q2 KPI報告</b>　取扱件数 8,420件（前月比+12%）、通関エラー率 0.3%。目標達成。</div></div>
+            <div style="display:flex;gap:12px;font-size:12px;color:var(--neutral-700);"><span style="font-weight:700;color:var(--brand-gold);min-width:24px;">3.</span><div><b style="color:var(--neutral-800);">ERPNext 導入スケジュール</b>　フェーズ1（在庫管理）を7月中旬に開始予定。担当：田中。</div></div>
+            <div style="display:flex;gap:12px;font-size:12px;color:var(--neutral-700);"><span style="font-weight:700;color:var(--brand-gold);min-width:24px;">4.</span><div><b style="color:var(--neutral-800);">フィリピン拠点 倉庫増床</b>　候補物件3件を比較検討。来月末までに決定予定。</div></div>
+          </div>
+        </div>
+        <div class="doc-divider"></div>
+        <div>
+          <div class="doc-section-label" style="margin-bottom:10px;">アクションアイテム</div>
+          <table class="mom-action-table">
+            <thead><tr><th style="width:4%;">#</th><th style="width:40%;">内容</th><th style="width:20%;">担当者</th><th style="width:18%;">期限</th><th style="width:18%;">ステータス</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:700;color:var(--brand-gold);">A1</td><td>ERPNext フェーズ1 要件定義書を作成する</td><td>田中 花子</td><td>7月5日</td><td><span class="doc-tag doc-tag-gold" style="font-size:10px;padding:2px 8px;">進行中</span></td></tr>
+              <tr><td style="font-weight:700;color:var(--brand-gold);">A2</td><td>フィリピン倉庫候補3件の見積を取得・比較表作成</td><td>Kim B</td><td>7月15日</td><td><span class="doc-tag doc-tag-neutral" style="font-size:10px;padding:2px 8px;">未着手</span></td></tr>
+              <tr><td style="font-weight:700;color:var(--brand-gold);">A3</td><td>Q3 KPI目標値を各拠点に通達する</td><td>武 仁誠</td><td>6月25日</td><td><span class="doc-tag doc-tag-navy" style="font-size:10px;padding:2px 8px;">完了</span></td></tr>
+              <tr><td style="font-weight:700;color:var(--brand-gold);">A4</td><td>通関エラー根本原因分析レポートを提出する</td><td>Nguyen Van A</td><td>7月10日</td><td><span class="doc-tag doc-tag-neutral" style="font-size:10px;padding:2px 8px;">未着手</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px;padding:10px 16px;background:var(--neutral-50);border-radius:4px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--neutral-600);">
+          <span><b style="color:var(--brand-navy);">次回開催</b>　2026年7月17日（木）14:00〜</span><span style="color:var(--neutral-400);">会議室A ／ Zoom</span>
+        </div>
+      </div>
+      <div class="doc-foot"><span class="f-brand">株式会社 Tiximax — 社外秘</span><span>作成：田中 花子　2026.06.19</span><span class="f-pg">1 / 2</span></div>
+    </div></div></div>
+  </div>
+
+  <!-- Doc 09 経費精算書 -->
+  <div class="layout-item" id="expense">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 09</span>
+      <span class="layout-name">Expense Report / 経費精算書</span>
+      <span class="layout-note">travel expense table · category tags · receipt checklist · approval flow</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head"><div class="doc-head-logo"><img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax"><div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Internal Document</div></div></div><div class="doc-head-type">経費精算書</div></div>
+      <div class="doc-body" style="padding-top:18px;">
+
+        <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;margin-bottom:20px;">
+          <div>
+            <div style="font-size:20px;font-weight:700;color:var(--brand-navy);letter-spacing:0.03em;margin-bottom:10px;">経費精算書</div>
+            <div class="doc-meta-grid" style="font-size:12px;max-width:400px;">
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">申請者</span><span class="v" style="font-size:12px;font-weight:600;color:var(--brand-navy);">武 仁誠（代表取締役）</span></div>
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">精算期間</span><span class="v" style="font-size:12px;">2026年6月1日〜2026年6月19日</span></div>
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">出張先</span><span class="v" style="font-size:12px;">ベトナム ホーチミン市（運営センター視察）</span></div>
+              <div class="doc-meta-row"><span class="k" style="font-size:11px;">目的</span><span class="v" style="font-size:12px;">Q2 業務改善・新規拠点視察</span></div>
+            </div>
+          </div>
+          <div style="background:var(--neutral-50);border:1px solid var(--neutral-200);border-radius:4px;padding:16px 20px;text-align:right;">
+            <div style="font-size:11px;letter-spacing:0.08em;color:var(--neutral-500);text-transform:uppercase;margin-bottom:6px;">精算合計</div>
+            <div style="font-size:28px;font-weight:700;color:var(--brand-navy);line-height:1;">¥ 148,600</div>
+          </div>
+        </div>
+
+        <table class="doc-table" style="margin-bottom:4px;">
+          <thead>
+            <tr>
+              <th style="width:11%;">日付</th>
+              <th style="width:16%;">区分</th>
+              <th style="width:40%;">内容・摘要</th>
+              <th style="text-align:center;width:8%;">領収書</th>
+              <th style="text-align:right;">金額</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-size:11px;white-space:nowrap;">6月5日</td>
+              <td><span class="doc-tag doc-tag-navy" style="font-size:10px;padding:2px 8px;">航空券</span></td>
+              <td>東京（NRT）→ ホーチミン（SGN）エコノミー往復</td>
+              <td style="text-align:center;font-size:11px;color:var(--brand-gold);">✓</td>
+              <td style="text-align:right;">¥78,500</td>
+            </tr>
+            <tr>
+              <td style="font-size:11px;white-space:nowrap;">6月5日</td>
+              <td><span class="doc-tag doc-tag-neutral" style="font-size:10px;padding:2px 8px;">宿泊</span></td>
+              <td>ホーチミン市内ホテル 3泊（5〜8日）</td>
+              <td style="text-align:center;font-size:11px;color:var(--brand-gold);">✓</td>
+              <td style="text-align:right;">¥42,000</td>
+            </tr>
+            <tr>
+              <td style="font-size:11px;white-space:nowrap;">6月6日</td>
+              <td><span class="doc-tag doc-tag-neutral" style="font-size:10px;padding:2px 8px;">交通費</span></td>
+              <td>空港〜倉庫 タクシー往復・市内移動</td>
+              <td style="text-align:center;font-size:11px;color:var(--brand-gold);">✓</td>
+              <td style="text-align:right;">¥8,200</td>
+            </tr>
+            <tr>
+              <td style="font-size:11px;white-space:nowrap;">6月7日</td>
+              <td><span class="doc-tag doc-tag-gold" style="font-size:10px;padding:2px 8px;">接待</span></td>
+              <td>取引先 Nguyen 社との夕食会議（3名）</td>
+              <td style="text-align:center;font-size:11px;color:var(--brand-gold);">✓</td>
+              <td style="text-align:right;">¥12,400</td>
+            </tr>
+            <tr>
+              <td style="font-size:11px;white-space:nowrap;">6月8日</td>
+              <td><span class="doc-tag doc-tag-neutral" style="font-size:10px;padding:2px 8px;">通信</span></td>
+              <td>eSIM 現地データプラン（BIGO）4日間</td>
+              <td style="text-align:center;font-size:11px;color:var(--neutral-400);">—</td>
+              <td style="text-align:right;">¥3,200</td>
+            </tr>
+            <tr>
+              <td style="font-size:11px;white-space:nowrap;">6月19日</td>
+              <td><span class="doc-tag doc-tag-neutral" style="font-size:10px;padding:2px 8px;">交通費</span></td>
+              <td>社内移動 東京（定期券外区間）</td>
+              <td style="text-align:center;font-size:11px;color:var(--neutral-400);">—</td>
+              <td style="text-align:right;">¥4,300</td>
+            </tr>
+            <tr class="subtotal"><td colspan="4" style="text-align:right;padding-right:10px;">合計</td><td>¥148,600</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Approval flow -->
+        <div style="margin-top:18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--neutral-400);margin-bottom:10px;">承認フロー</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div style="border:1px solid var(--neutral-200);border-radius:4px;padding:12px 14px;">
+              <div style="font-size:10px;color:var(--neutral-400);margin-bottom:6px;letter-spacing:0.06em;">申請者</div>
+              <div style="font-size:13px;font-weight:600;color:var(--brand-navy);">武 仁誠</div>
+              <div style="margin-top:10px;height:28px;border-bottom:1px solid var(--neutral-300);"></div>
+              <div style="font-size:10px;color:var(--neutral-400);margin-top:4px;">署名</div>
+            </div>
+            <div style="border:1px solid var(--neutral-200);border-radius:4px;padding:12px 14px;background:var(--neutral-50);">
+              <div style="font-size:10px;color:var(--neutral-400);margin-bottom:6px;letter-spacing:0.06em;">経理確認</div>
+              <div style="font-size:13px;color:var(--neutral-500);">経理担当者</div>
+              <div style="margin-top:10px;height:28px;border-bottom:1px solid var(--neutral-200);"></div>
+              <div style="font-size:10px;color:var(--neutral-400);margin-top:4px;">署名</div>
+            </div>
+            <div style="border:1px solid var(--neutral-200);border-radius:4px;padding:12px 14px;background:var(--neutral-50);">
+              <div style="font-size:10px;color:var(--neutral-400);margin-bottom:6px;letter-spacing:0.06em;">最終承認</div>
+              <div style="font-size:13px;color:var(--neutral-500);">―</div>
+              <div style="margin-top:10px;height:28px;border-bottom:1px solid var(--neutral-200);"></div>
+              <div style="font-size:10px;color:var(--neutral-400);margin-top:4px;">署名</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="doc-foot"><span class="f-brand">株式会社 Tiximax — 社外秘</span><span>提出先：経理部　info@tiximax.jp</span><span class="f-pg">1 / 1</span></div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ LOGISTICS ══════════════ -->
+  <div class="group-label">Logistics / 物流</div>
+
+  <!-- Doc 10 出荷指示書 -->
+  <div class="layout-item" id="shiporder">
+    <div class="layout-meta">
+      <span class="layout-tag">Doc 10</span>
+      <span class="layout-name">Shipping Order / 出荷指示書</span>
+      <span class="layout-note">ship-from/to blocks · cargo table · special instructions · barcode placeholder</span>
+    </div>
+    <div class="doc-vp"><div class="doc-inner"><div class="doc-page">
+      <div class="doc-head"><div class="doc-head-logo"><img class="doc-head-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax"><div><div class="doc-head-name">株式会社 Tiximax</div><div class="doc-head-sub">Logistics Operations</div></div></div><div class="doc-head-type">出荷指示書 · Shipping Order</div></div>
+      <div class="doc-body" style="padding-top:16px;">
+
+        <!-- Shipment ID + dates -->
+        <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;margin-bottom:20px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--brand-gold);margin-bottom:6px;">出荷指示書</div>
+            <div style="font-size:22px;font-weight:700;color:var(--brand-navy);letter-spacing:0.05em;font-family:var(--font-mono);">SO-2026-00312</div>
+          </div>
+          <div style="text-align:right;display:flex;flex-direction:column;gap:3px;">
+            <div style="font-size:11px;color:var(--neutral-500);">発行日　 <b style="color:var(--neutral-700);">2026年6月19日</b></div>
+            <div style="font-size:11px;color:var(--neutral-500);">出荷予定 <b style="color:var(--neutral-700);">2026年6月21日</b></div>
+            <div style="font-size:11px;color:var(--neutral-500);">輸送方法 <b style="color:var(--brand-navy);">航空便（優先）</b></div>
+            <div style="margin-top:8px;">
+              <span class="doc-tag doc-tag-gold">要冷蔵 10℃以下</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- From / To addresses -->
+        <div class="doc-cols-2" style="margin-bottom:20px;">
+          <div style="background:var(--neutral-50);border:1px solid var(--neutral-200);border-radius:4px;padding:14px 16px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--brand-gold);margin-bottom:8px;">発送元 · Ship From</div>
+            <div style="font-size:12px;line-height:1.8;color:var(--neutral-700);">
+              <b style="color:var(--brand-navy);">Tiximax Logistics Hub</b><br>
+              127 Quang Trung, Gò Vấp<br>
+              Ho Chi Minh City, Vietnam<br>
+              担当：Nguyen Van A<br>
+              TEL: +84-28-1234-5678
+            </div>
+          </div>
+          <div style="background:var(--brand-navy);border-radius:4px;padding:14px 16px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--brand-gold);margin-bottom:8px;">お届け先 · Ship To</div>
+            <div style="font-size:12px;line-height:1.8;color:rgba(255,255,255,0.85);">
+              <b style="color:#fff;">株式会社 〇〇フーズ</b><br>
+              〒150-0001<br>
+              東京都渋谷区神宮前3-27-15<br>
+              受取担当：鈴木 次郎 様<br>
+              TEL: 03-1234-5678
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-divider"></div>
+        <div class="doc-section-label" style="margin-bottom:10px;">貨物明細 / Cargo Details</div>
+
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th style="width:5%;">#</th>
+              <th style="width:32%;">品名 / Item Description</th>
+              <th style="text-align:center;width:8%;">数量</th>
+              <th style="text-align:center;width:10%;">重量(kg)</th>
+              <th style="text-align:center;width:14%;">寸法(cm)</th>
+              <th style="text-align:right;width:12%;">申告価格</th>
+              <th style="text-align:center;width:10%;">HSコード</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:700;color:var(--brand-gold);">1</td>
+              <td><div style="font-weight:600;">冷凍フォー（乾麺）</div><div style="font-size:10px;color:var(--neutral-400);margin-top:2px;">Pho Noodles Frozen Dry · Made in Japan</div></td>
+              <td style="text-align:center;">48 袋</td>
+              <td style="text-align:center;">12.0</td>
+              <td style="text-align:center;">60×40×30</td>
+              <td style="text-align:right;">¥96,000</td>
+              <td style="text-align:center;font-size:10px;font-family:var(--font-mono);">1902.11</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--brand-gold);">2</td>
+              <td><div style="font-weight:600;">調味料セット（特製タレ）</div><div style="font-size:10px;color:var(--neutral-400);margin-top:2px;">Seasoning Kit · PHO EXPRESS Recipe</div></td>
+              <td style="text-align:center;">24 個</td>
+              <td style="text-align:center;">6.0</td>
+              <td style="text-align:center;">40×30×20</td>
+              <td style="text-align:right;">¥36,000</td>
+              <td style="text-align:center;font-size:10px;font-family:var(--font-mono);">2103.90</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--brand-gold);">3</td>
+              <td><div style="font-weight:600;">紙製スリーブ・包材</div><div style="font-size:10px;color:var(--neutral-400);margin-top:2px;">Paper Sleeve Packaging · Branded</div></td>
+              <td style="text-align:center;">500 枚</td>
+              <td style="text-align:center;">3.5</td>
+              <td style="text-align:center;">50×35×10</td>
+              <td style="text-align:right;">¥8,500</td>
+              <td style="text-align:center;font-size:10px;font-family:var(--font-mono);">4819.20</td>
+            </tr>
+            <tr class="subtotal">
+              <td colspan="3" style="text-align:left;">総重量 21.5 kg</td>
+              <td colspan="3" style="text-align:right;padding-right:10px;">申告総額</td>
+              <td>¥140,500</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;">
+          <div class="doc-panel" style="font-size:12px;color:var(--neutral-700);line-height:1.8;">
+            <b style="font-size:11px;color:var(--brand-gold);display:block;margin-bottom:4px;letter-spacing:0.1em;">特記事項 · Special Instructions</b>
+            ① 要冷蔵品のため、10℃以下で管理・輸送すること。<br>
+            ② 麺類は横積み禁止。天地無用。<br>
+            ③ 包材は湿気厳禁。ビニール梱包後にダンボール梱包。<br>
+            ④ 通関書類（Invoice / Packing List）同封済み。
+          </div>
+          <!-- Barcode placeholder -->
+          <div style="border:1px dashed var(--neutral-300);border-radius:4px;width:100px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+            <div style="width:72px;height:44px;background:repeating-linear-gradient(90deg,#222 0 2px,transparent 2px 4px),repeating-linear-gradient(90deg,#222 0 1px,transparent 1px 3px);background-size:4px 44px,3px 44px;border-radius:2px;"></div>
+            <div style="font-size:9px;font-family:var(--font-mono);color:var(--neutral-400);letter-spacing:0.06em;">SO-2026-00312</div>
+          </div>
+        </div>
+      </div>
+      <div class="doc-foot"><span class="f-brand">株式会社 Tiximax</span><span>物流部　logistics@tiximax.jp</span><span class="f-pg">1 / 1</span></div>
+    </div></div></div>
+  </div>
+
+</main>
+
+<!-- Tweaks panel: accent switcher -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="tweaks-app.jsx"></script>
+
+<script>
+const items = document.querySelectorAll('.layout-item');
+const links = document.querySelectorAll('.sb-link[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector('.sb-link[href="#' + e.target.id + '"]');
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+items.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

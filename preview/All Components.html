@@ -80,6 +80,9 @@
     <span class="topbar-group" id="topGroup">—</span>
     <span class="topbar-title" id="topTitle">All Components</span>
     <span class="topbar-sub" id="topSub"></span>
+    <button class="topbar-btn" onclick="toggleTheme()" title="Toggle light / dark" id="themeBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+    </button>
     <button class="topbar-btn" onclick="openInNewTab()" title="Open in new tab">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </button>
@@ -180,7 +183,34 @@ function openInNewTab() {
   if (currentFile) window.open(currentFile, '_blank');
 }
 
-// ─── Init: select first card ───
+// ─── Dark / light theme (localStorage key ds-theme, shared with the deck/showcase) ───
+let theme = localStorage.getItem('ds-theme') || 'light';
+function setThemeOn(root, t) {
+  // colors_and_type.css uses `.dark, [data-theme="dark"]`; some components use `.dark` internally.
+  // Set BOTH so foundation + component-local dark rules all fire.
+  root.setAttribute('data-theme', t);
+  root.classList.toggle('dark', t === 'dark');
+}
+function applyTheme(t) {
+  theme = t;
+  setThemeOn(document.documentElement, t);                         // parent shell (sidebar/topbar)
+  localStorage.setItem('ds-theme', t);
+  applyThemeToIframe();
+}
+function applyThemeToIframe() {
+  // Component pages render in an iframe with their own document → theme THAT root.
+  try {
+    const doc = document.getElementById('viewer').contentDocument;
+    if (doc && doc.documentElement) setThemeOn(doc.documentElement, theme);
+  } catch (e) { /* cross-origin guard — same-origin in practice */ }
+}
+function toggleTheme() { applyTheme(theme === 'dark' ? 'light' : 'dark'); }
+
+// Re-apply theme whenever a new component loads into the iframe
+document.getElementById('viewer').addEventListener('load', applyThemeToIframe);
+
+// ─── Init: theme + first card ───
+applyTheme(theme);
 selectCard(CARDS[0].file);
 </script>
 </body>

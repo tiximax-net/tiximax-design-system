@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ja" data-accent="gold">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiximax — Slide Deck Layouts</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="tiximax-deck.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--neutral-950);
+  color: rgba(255,255,255,0.75);
+  font-family: var(--font-jp);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* ════ SIDEBAR ════ */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 220px;
+  background: var(--brand-navy);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+.sb-brand {
+  padding: 22px 18px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.sb-logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--brand-gold); display: block; line-height: 1; margin-bottom: 4px; }
+.sb-ds-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+
+.sb-back {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  text-decoration: none; padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: color 0.1s;
+}
+.sb-back:hover { color: rgba(255,255,255,0.65); }
+.sb-back svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+.sb-group { padding: 14px 10px 4px; }
+.sb-group-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.26); padding: 0 8px; margin-bottom: 4px; }
+.sb-nav { display: flex; flex-direction: column; gap: 1px; }
+.sb-link {
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.52);
+  padding: 7px 8px; border-radius: 6px; text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.12s, color 0.12s;
+}
+.sb-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.88); }
+.sb-link.active { background: rgba(223,169,48,0.17); color: var(--brand-gold); font-weight: 600; }
+.sb-num { font-size: 9px; font-family: monospace; color: rgba(255,255,255,0.2); min-width: 18px; }
+.sb-link.active .sb-num { color: rgba(223,169,48,0.5); }
+.sb-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 6px 10px; }
+
+/* ════ MAIN ════ */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 48px 44px 120px;
+}
+
+/* ── Page header ── */
+.page-header {
+  margin-bottom: 52px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+}
+.page-super { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand-gold); margin-bottom: 8px; }
+.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; color: #fff; }
+.page-sub { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; letter-spacing: 0.04em; }
+.ph-stats { display: flex; gap: 28px; flex-shrink: 0; }
+.ph-stat { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.ph-stat .n { font-size: 24px; font-weight: 700; color: var(--brand-gold); line-height: 1; }
+.ph-stat .l { font-size: 10px; letter-spacing: 0.1em; color: rgba(255,255,255,0.28); text-transform: uppercase; }
+
+/* ── Group label ── */
+.group-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding-top: 4px; margin-bottom: 36px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.group-label:not(:first-child) { margin-top: 60px; }
+
+/* ── Slide item ── */
+.layout-item { margin-bottom: 56px; scroll-margin-top: 28px; }
+.layout-meta {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 14px;
+}
+.layout-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--brand-gold); opacity: 0.65; min-width: 68px;
+}
+.layout-name { font-size: 14px; font-weight: 600; letter-spacing: 0.01em; color: rgba(255,255,255,0.8); }
+.layout-note { margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.22); white-space: nowrap; }
+
+/* ── Slide viewport: 960×540 (50% of 1920×1080) ── */
+.slide-vp {
+  width: 960px;
+  height: 540px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 16px 56px rgba(0,0,0,0.72);
+}
+.slide-inner {
+  width: 1920px; height: 1080px;
+  transform: scale(0.5); transform-origin: top left;
+  position: absolute; top: 0; left: 0;
+  overflow: hidden;
+}
+.slide-inner section {
+  position: relative !important;
+  width: 1920px !important; height: 1080px !important;
+  display: block !important; overflow: hidden !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <span class="sb-logo">Tiximax</span>
+    <span class="sb-ds-label">Slide Deck Layouts</span>
+  </div>
+
+  <a href="preview.html" class="sb-back">
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L4 6l4 4"/></svg>
+    Design System
+  </a>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Framing — Navy</div>
+    <nav class="sb-nav">
+      <a href="#cover"    class="sb-link active"><span class="sb-num">01</span>Cover / 表紙</a>
+      <a href="#section"  class="sb-link"><span class="sb-num">02</span>Section / 章扉</a>
+      <a href="#closing"  class="sb-link"><span class="sb-num">03</span>Closing / 結び</a>
+    </nav>
+  </div>
+
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Content — Light</div>
+    <nav class="sb-nav">
+      <a href="#toc"      class="sb-link"><span class="sb-num">04</span>目次</a>
+      <a href="#message"  class="sb-link"><span class="sb-num">05</span>代表メッセージ</a>
+      <a href="#profile"  class="sb-link"><span class="sb-num">06</span>会社概要</a>
+      <a href="#timeline" class="sb-link"><span class="sb-num">07</span>沿革</a>
+      <a href="#stats"    class="sb-link"><span class="sb-num">08</span>数字で見る</a>
+      <a href="#mvv"      class="sb-link"><span class="sb-num">09</span>MVV</a>
+      <a href="#service"  class="sb-link"><span class="sb-num">10</span>サービス詳細</a>
+      <a href="#strengths" class="sb-link"><span class="sb-num">11</span>4つの強み</a>
+      <a href="#map"      class="sb-link"><span class="sb-num">12</span>拠点マップ</a>
+      <a href="#contact"  class="sb-link"><span class="sb-num">13</span>お問い合わせ</a>
+    </nav>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+  <header class="page-header">
+    <div>
+      <div class="page-super">Tiximax Design System</div>
+      <div class="page-title">Slide Deck Layouts</div>
+      <div class="page-sub">1920 × 1080 master · 50% preview · tokens.css + tiximax-deck.css</div>
+    </div>
+    <div class="ph-stats">
+      <div class="ph-stat"><span class="n">13</span><span class="l">Layouts</span></div>
+      <div class="ph-stat"><span class="n">3</span><span class="l">Surfaces</span></div>
+      <div class="ph-stat"><span class="n">2</span><span class="l">Accents</span></div>
+    </div>
+  </header>
+
+  <!-- ──────────────────────────────────── FRAMING ── -->
+  <div class="group-label">Framing — Navy Surface</div>
+
+  <!-- 01 COVER -->
+  <div class="layout-item" id="cover">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 01</span>
+      <span class="layout-name">Cover / 表紙</span>
+      <span class="layout-note">navy · vertical text · accent rule · stamp watermark</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="cover">
+          <div class="cover-deco"><div class="stamp">TX</div></div>
+          <div class="cover-top">
+            <div class="cover-logo">
+              <div class="seal">TX</div>
+              <span>株式会社 Tiximax</span>
+            </div>
+            <div class="cover-jp-vert">ベトナム・日本・韓国・インドネシア・フィリピン</div>
+          </div>
+          <div class="cover-center">
+            <div class="cover-rule"></div>
+            <div class="cover-title">会社案内</div>
+            <div class="cover-en">Company Profile</div>
+          </div>
+          <div class="cover-bottom">
+            <div class="l">越境物流・サプライチェーン支援</div>
+            <div class="r">2026 . 06</div>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 02 SECTION DIVIDER -->
+  <div class="layout-item" id="section">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 02</span>
+      <span class="layout-name">Section Divider / 章扉</span>
+      <span class="layout-note">navy · 2-col split · large number · vertical brand text</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="section">
+          <div class="section-l">
+            <div class="brand-vert">TIXIMAX　／　会社案内</div>
+            <div>
+              <div class="num-sub">SECTION</div>
+              <div class="num">04</div>
+            </div>
+            <div></div>
+          </div>
+          <div class="section-r">
+            <div class="rule"></div>
+            <div class="ttl">事業内容</div>
+            <div class="desc">Our Services — 国際輸送・通関サポート・3PLフルフィルメント・購入代行の4軸で、企業様と個人のグローバル展開をワンストップで支援します。</div>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 03 CLOSING -->
+  <div class="layout-item" id="closing">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 03</span>
+      <span class="layout-name">Closing / 結び</span>
+      <span class="layout-note">navy · centered · radial gold glow · meta info</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="closing">
+          <div class="arigatou">ありがとう<br>ございました</div>
+          <div class="rule"></div>
+          <div class="en">Thank you for your time.</div>
+          <div class="meta">
+            <div class="brand">株式会社 Tiximax</div>
+            info@tiximax.jp　／　tiximax.jp<br>
+            Ho Chi Minh　·　Tokyo　·　Seoul　·　Jakarta　·　Manila
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────── CONTENT ── -->
+  <div class="group-label">Content Slides — Light Surface</div>
+
+  <!-- 04 TABLE OF CONTENTS -->
+  <div class="layout-item" id="toc">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 04</span>
+      <span class="layout-name">Table of Contents / 目次</span>
+      <span class="layout-note">2-col numbered list · slide-head · slide-foot</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Contents</div>
+            <div class="h-title">目次</div>
+            <div class="h-meta">— 02 —</div>
+          </div>
+          <div class="toc-wrap">
+            <div class="toc-item"><span class="n">01</span><span class="ttl">代表メッセージ</span><span class="pg">P. 04</span></div>
+            <div class="toc-item"><span class="n">02</span><span class="ttl">私たちについて</span><span class="pg">P. 06</span></div>
+            <div class="toc-item"><span class="n">03</span><span class="ttl">ミッション・ビジョン・バリュー</span><span class="pg">P. 10</span></div>
+            <div class="toc-item"><span class="n">04</span><span class="ttl">事業内容</span><span class="pg">P. 12</span></div>
+            <div class="toc-item"><span class="n">05</span><span class="ttl">グローバルネットワーク</span><span class="pg">P. 18</span></div>
+            <div class="toc-item"><span class="n">06</span><span class="ttl">弊社の強み</span><span class="pg">P. 20</span></div>
+            <div class="toc-item"><span class="n">07</span><span class="ttl">2030年ロードマップ</span><span class="pg">P. 21</span></div>
+            <div class="toc-item"><span class="n">08</span><span class="ttl">お問い合わせ</span><span class="pg">P. 23</span></div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">02 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 05 MESSAGE -->
+  <div class="layout-item" id="message">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 05</span>
+      <span class="layout-name">Message / 代表メッセージ</span>
+      <span class="layout-note">quote mark · body text · signature · photo placeholder</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Message</div>
+            <div class="h-title">代表メッセージ</div>
+            <div class="h-meta">— 04 —</div>
+          </div>
+          <div class="msg-body">
+            <div class="msg-text">
+              <div class="msg-quote">「</div>
+              <p>平素より格別のご高配を賜り、誠にありがとうございます。</p>
+              <p>弊社は「仁・礼・義・智・信」の五常を根幹に、日本とアジアを繋ぐ国際物流・サプライチェーン支援を展開してまいりました。</p>
+              <p>国境を越えた物流の壁をなくし、中小企業を含むあらゆる企業が世界市場へアクセスできる環境を整備することが、弊社の使命です。</p>
+              <div class="msg-signer">
+                代表取締役<span class="name">武仁誠（タケ ヒトナリ）</span>
+              </div>
+            </div>
+            <div class="msg-photo">
+              <div class="ph-icon">人</div>
+              <div class="ph-label">代表者ポートレート</div>
+              <div class="ph-label" style="color:var(--ink-faint);">photo placeholder</div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">04 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 06 CORPORATE PROFILE -->
+  <div class="layout-item" id="profile">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 06</span>
+      <span class="layout-name">Corporate Profile / 会社概要</span>
+      <span class="layout-note">2-col data table · label / value pairs · divider lines</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Corporate Profile</div>
+            <div class="h-title">会社概要</div>
+            <div class="h-meta">— 06 —</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-top:16px;">
+            <div>
+              <div class="eyebrow" style="margin-bottom:28px;">Group</div>
+              <div class="gaiyou">
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">グループ名</div><div class="val em">Tiximax Group</div></div>
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">事業内容</div><div class="val" style="font-size:24px">越境物流・EC支援・3PL・購入代行</div></div>
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">対応地域</div><div class="val" style="font-size:22px;line-height:1.6">ベトナム・日本・韓国・インドネシア・フィリピン</div></div>
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">2027年進出予定</div><div class="val" style="font-size:22px">米国・台湾</div></div>
+              </div>
+            </div>
+            <div>
+              <div class="eyebrow" style="margin-bottom:28px;">Japan Entity</div>
+              <div class="gaiyou">
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">商　　号</div><div class="val em">株式会社 Tiximax</div></div>
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">代 表 者</div><div class="val">代表取締役　武仁誠（タケ ヒトナリ）</div></div>
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">資 本 金</div><div class="val">300万円</div></div>
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">所 在 地</div><div class="val" style="font-size:24px">〒104-0045 東京都中央区築地4-3-12-1007</div></div>
+                <div class="row" style="grid-column:1/-1;"><div class="lbl">ウェブサイト</div><div class="val" style="font-family:var(--font-latin);font-style:italic;">tiximax.jp</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">06 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 07 TIMELINE -->
+  <div class="layout-item" id="timeline">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 07</span>
+      <span class="layout-name">Timeline / 沿革・ロードマップ</span>
+      <span class="layout-note">horizontal nodes · year label · dot · active "now" state</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">History &amp; Roadmap</div>
+            <div class="h-title">沿革・ロードマップ</div>
+            <div class="h-meta">— 07 —</div>
+          </div>
+          <div class="timeline">
+            <div class="tl-row" style="display:grid;grid-template-columns:repeat(5,1fr);width:100%;">
+              <div class="tl-node">
+                <div class="yr">2022</div>
+                <div class="dot"></div>
+                <div class="label">グループ創業<br>ベトナム運営センター</div>
+                <div class="sub">Founded</div>
+              </div>
+              <div class="tl-node">
+                <div class="yr">2023</div>
+                <div class="dot"></div>
+                <div class="label">韓国・インドネシア<br>現地法人設立</div>
+                <div class="sub">KR / ID</div>
+              </div>
+              <div class="tl-node">
+                <div class="yr">2025</div>
+                <div class="dot"></div>
+                <div class="label">日本法人・フィリピン<br>現地法人設立</div>
+                <div class="sub">JP / PH</div>
+              </div>
+              <div class="tl-node now">
+                <div class="yr">2026</div>
+                <div class="dot"></div>
+                <div class="label">アジア5カ国体制<br>送金ライセンス取得へ</div>
+                <div class="sub">— Now</div>
+              </div>
+              <div class="tl-node">
+                <div class="yr">2027</div>
+                <div class="dot"></div>
+                <div class="label">米国・台湾<br>進出予定</div>
+                <div class="sub">US / TW</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">07 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 08 STATS -->
+  <div class="layout-item" id="stats">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 08</span>
+      <span class="layout-name">Stats / 数字で見るTiximax</span>
+      <span class="layout-note">large number · unit label · accent rule · description</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">By the Numbers</div>
+            <div class="h-title">数字で見るTiximax</div>
+            <div class="h-meta">— 08 —</div>
+          </div>
+          <div class="stats" style="grid-template-columns:repeat(4,1fr);">
+            <div class="stat">
+              <div class="accent-line"></div>
+              <div class="label">グローバル拠点</div>
+              <div class="num">5<span class="unit">カ国</span></div>
+              <div class="desc">ベトナム・日本・韓国<br>インドネシア・フィリピン</div>
+            </div>
+            <div class="stat">
+              <div class="accent-line"></div>
+              <div class="label">2030年目標</div>
+              <div class="num">20<span class="unit">カ国</span></div>
+              <div class="desc">アジア・米国・欧州へ<br>グローバル展開</div>
+            </div>
+            <div class="stat">
+              <div class="accent-line"></div>
+              <div class="label">2028年倉庫・拠点</div>
+              <div class="num">50<span class="unit">＋</span></div>
+              <div class="desc">自社・提携倉庫を含む<br>ネットワーク全体</div>
+            </div>
+            <div class="stat">
+              <div class="accent-line"></div>
+              <div class="label">対応言語</div>
+              <div class="num">4<span class="unit">言語</span></div>
+              <div class="desc">日本語・ベトナム語<br>英語・インドネシア語</div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">08 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 09 MVV -->
+  <div class="layout-item" id="mvv">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 09</span>
+      <span class="layout-name">MVV / ミッション・ビジョン・バリュー</span>
+      <span class="layout-note">3-col card · seal icon · border-top headline · description</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Mission · Vision · Values</div>
+            <div class="h-title">私たちの指針</div>
+            <div class="h-meta">— 10 —</div>
+          </div>
+          <div class="mvv">
+            <div class="mvv-card">
+              <div class="seal">仁</div>
+              <div class="kind">Mission</div>
+              <div class="ja">ミッション</div>
+              <div class="headline">すべての人が<br>世界とつながれる社会へ</div>
+              <div class="desc">国境を超えた物流・決済・フルフィルメントの壁をなくし、誰もが世界中の商品へアクセスできる環境を整備する。</div>
+            </div>
+            <div class="mvv-card">
+              <div class="seal">志</div>
+              <div class="kind">Vision</div>
+              <div class="ja">ビジョン</div>
+              <div class="headline">アジアから世界へ<br>2030年 20カ国展開</div>
+              <div class="desc">ロジスティクス・決済・フルフィルメントを統合したグローバルプラットフォームを構築し、アジアを代表する越境物流企業を目指す。</div>
+            </div>
+            <div class="mvv-card">
+              <div class="seal">五</div>
+              <div class="kind">Values</div>
+              <div class="ja">バリュー — 五常</div>
+              <div class="headline">仁・礼・義・<br>智・信</div>
+              <div class="desc">儒教の五常をコアバリューに。人を愛し（仁）、礼節を重んじ（礼）、義を守り（義）、知恵を磨き（智）、誠信を貫く（信）。</div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">10 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 10 SERVICE DETAIL -->
+  <div class="layout-item" id="service">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 10</span>
+      <span class="layout-name">Service Detail / サービス詳細</span>
+      <span class="layout-note">5:7 split · illustration panel · feature list with accent rules</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Service 01</div>
+            <div class="h-title">国際輸送</div>
+            <div class="h-meta">— 13 —</div>
+          </div>
+          <div style="display:grid;grid-template-columns:5fr 7fr;gap:48px;flex:1;min-height:0;padding-bottom:90px;">
+            <div style="border-radius:8px;background:rgba(12,26,49,0.04);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+              <div style="font-size:220px;font-weight:900;color:var(--accent);opacity:0.07;line-height:1;position:absolute;bottom:-24px;right:-12px;pointer-events:none;">01</div>
+              <svg viewBox="0 0 280 320" style="width:75%;max-width:340px;position:relative;z-index:1;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M28,298 C40,180 240,130 258,28" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="7 5" opacity="0.5"/>
+                <path d="M10,276 Q70,260 140,276 Q210,292 270,276" stroke="rgba(12,26,49,0.18)" stroke-width="2"/>
+                <path d="M40,252 L240,252 L254,268 L26,268 Z" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+                <rect x="80" y="212" width="120" height="40" stroke="var(--accent)" stroke-width="2.5" rx="2"/>
+                <rect x="108" y="180" width="64" height="32" stroke="rgba(12,26,49,0.35)" stroke-width="2"/>
+                <rect x="88" y="226" width="26" height="18" stroke="var(--accent)" stroke-width="1.5" fill="var(--accent)" fill-opacity="0.15" rx="1"/>
+                <rect x="152" y="226" width="26" height="18" stroke="var(--accent)" stroke-width="1.5" fill="var(--accent)" fill-opacity="0.15" rx="1"/>
+                <circle cx="28" cy="298" r="5" fill="var(--accent)"/>
+                <text x="40" y="302" fill="var(--ink-soft)" font-size="12" font-family="sans-serif" font-weight="700">Japan</text>
+                <text x="222" y="16" fill="var(--ink-faint)" font-size="11" font-family="sans-serif" font-weight="700">SE Asia</text>
+              </svg>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-start;gap:10px;overflow:hidden;">
+              <p style="font-size:26px;line-height:1.6;color:var(--ink);">航空・海上の最適ルートで越境輸送を一貫サポート。全行程をリアルタイムでトラッキングし、安心・透明な越境輸送を実現します。</p>
+              <div style="padding:12px 18px;border:1px solid var(--line);border-radius:4px;display:flex;gap:16px;align-items:baseline;">
+                <span style="font-size:20px;color:var(--accent-ink);font-weight:600;white-space:nowrap;">対象</span>
+                <span style="font-size:24px;color:var(--ink);">越境EC事業者・輸出入企業・転送サービス利用者</span>
+              </div>
+              <div style="font-size:20px;font-weight:600;color:var(--accent-ink);letter-spacing:.08em;text-transform:uppercase;">主な特長</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="border-left:3px solid var(--accent);padding-left:18px;">
+                  <div style="font-size:26px;font-weight:600;color:var(--ink);">航空便・海上便の最適ルート選定</div>
+                  <div style="font-size:22px;color:var(--ink-soft);margin-top:4px;">コスト・納期に合わせた柔軟な輸送手段を提案</div>
+                </div>
+                <div style="border-left:3px solid var(--accent);padding-left:18px;">
+                  <div style="font-size:26px;font-weight:600;color:var(--ink);">全行程リアルタイムトラッキング</div>
+                  <div style="font-size:22px;color:var(--ink-soft);margin-top:4px;">発送から到着まで可視化、荷主・受取人と情報共有</div>
+                </div>
+                <div style="border-left:3px solid var(--accent);padding-left:18px;">
+                  <div style="font-size:26px;font-weight:600;color:var(--ink);">DDP / DDU 対応</div>
+                  <div style="font-size:22px;color:var(--ink-soft);margin-top:4px;">関税込み配送で受取人の通関手続きをゼロに</div>
+                </div>
+                <div style="border-left:3px solid var(--accent);padding-left:18px;">
+                  <div style="font-size:26px;font-weight:600;color:var(--ink);">アジア5カ国の輸送ネットワーク</div>
+                  <div style="font-size:22px;color:var(--ink-soft);margin-top:4px;">独自パートナーとの連携で競争力のある運賃を実現</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">13 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 11 STRENGTHS -->
+  <div class="layout-item" id="strengths">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 11</span>
+      <span class="layout-name">Strengths / 4つの強み</span>
+      <span class="layout-note">2×2 card grid · accent number · border-bottom title · body text</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Strengths</div>
+            <div class="h-title">4つの強み</div>
+            <div class="h-meta">— 20 —</div>
+          </div>
+          <div class="tsuyomi" style="padding-bottom:90px;">
+            <div class="ts-card">
+              <div class="ts-num">No. 01</div>
+              <div class="ts-title">日本×東南アジア ブリッジ</div>
+              <div class="ts-desc">日本と東南アジア各国の文化・商習慣・法規制を熟知。多言語対応（日・越・英・インドネシア語）でビジネスの障壁を解消します。</div>
+            </div>
+            <div class="ts-card">
+              <div class="ts-num">No. 02</div>
+              <div class="ts-title">ワンストップ対応</div>
+              <div class="ts-desc">輸送・通関・3PL・購入代行まで一社完結。複数業者との調整コストをゼロにし、スピーディな越境取引を実現します。</div>
+            </div>
+            <div class="ts-card">
+              <div class="ts-num">No. 03</div>
+              <div class="ts-title">アジア5カ国展開</div>
+              <div class="ts-desc">ホーチミンを運営センターに、日本・韓国・インドネシア・フィリピンへ展開。2027年には米国・台湾への進出を計画。</div>
+            </div>
+            <div class="ts-card">
+              <div class="ts-num">No. 04</div>
+              <div class="ts-title">柔軟なスキーム設計</div>
+              <div class="ts-desc">B2C（代理購入）からB2B（越境EC・3PL）まで対応。五常（仁・礼・義・智・信）の価値観で誠実なサービスを提供します。</div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">20 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 12 MAP -->
+  <div class="layout-item" id="map">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 12</span>
+      <span class="layout-name">Map + Locations / 拠点マップ</span>
+      <span class="layout-note">navy canvas · CSS pins · location list · "planned" dashed variant</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Locations</div>
+            <div class="h-title">拠点マップ</div>
+            <div class="h-meta">— 18 —</div>
+          </div>
+          <div class="map-wrap">
+            <div class="map-canvas">
+              <div class="ocean"></div>
+              <div class="grid"></div>
+              <div class="map-pin hq" style="left:44%;top:66%;">
+                <div class="pin-dot"></div><div class="pin-line"></div>
+                <div class="pin-label">ベトナム ホーチミン</div>
+                <div class="pin-en">Operation Center</div>
+              </div>
+              <div class="map-pin" style="left:80%;top:30%;">
+                <div class="pin-dot"></div><div class="pin-line"></div>
+                <div class="pin-label">日本 東京</div>
+                <div class="pin-en">Tokyo, JP</div>
+              </div>
+              <div class="map-pin" style="left:63%;top:24%;">
+                <div class="pin-dot"></div><div class="pin-line"></div>
+                <div class="pin-label">韓国 ソウル</div>
+                <div class="pin-en">Seoul, KR</div>
+              </div>
+              <div class="map-pin" style="left:80%;top:64%;">
+                <div class="pin-dot"></div><div class="pin-line"></div>
+                <div class="pin-label">フィリピン</div>
+                <div class="pin-en">Manila, PH</div>
+              </div>
+              <div class="map-pin" style="left:54%;top:80%;">
+                <div class="pin-dot"></div><div class="pin-line"></div>
+                <div class="pin-label">インドネシア</div>
+                <div class="pin-en">Jakarta, ID</div>
+              </div>
+              <div class="map-pin target" style="left:13%;top:44%;">
+                <div class="pin-dot"></div><div class="pin-line"></div>
+                <div class="pin-label">米国</div>
+                <div class="pin-en">2027 ▸ 予定</div>
+              </div>
+              <div class="map-pin target" style="left:67%;top:44%;">
+                <div class="pin-dot"></div><div class="pin-line"></div>
+                <div class="pin-label">台湾</div>
+                <div class="pin-en">2027 ▸ 予定</div>
+              </div>
+            </div>
+            <div class="map-list">
+              <div class="map-row lead">
+                <span class="badge">01</span>
+                <div class="place"><span class="ja">ベトナム ／ ホーチミン</span><span class="role">運営センター</span></div>
+                <span class="en">Ho Chi Minh, VN</span>
+              </div>
+              <div class="map-row">
+                <span class="badge">02</span>
+                <div class="place"><span class="ja">日本 ／ 東京</span><span class="role">株式会社 Tiximax</span></div>
+                <span class="en">Tokyo, JP</span>
+              </div>
+              <div class="map-row">
+                <span class="badge">03</span>
+                <div class="place"><span class="ja">韓国 ／ ソウル</span><span class="role">現地法人</span></div>
+                <span class="en">Seoul, KR</span>
+              </div>
+              <div class="map-row">
+                <span class="badge">04</span>
+                <div class="place"><span class="ja">インドネシア ／ ジャカルタ</span><span class="role">現地法人</span></div>
+                <span class="en">Jakarta, ID</span>
+              </div>
+              <div class="map-row">
+                <span class="badge">05</span>
+                <div class="place"><span class="ja">フィリピン ／ マニラ</span><span class="role">現地法人</span></div>
+                <span class="en">Manila, PH</span>
+              </div>
+              <div class="map-target">
+                <span class="mt-label">2027年 進出予定</span>
+                <span class="mt-places">米国 ・ 台湾</span>
+              </div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">18 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+  <!-- 13 CONTACT -->
+  <div class="layout-item" id="contact">
+    <div class="layout-meta">
+      <span class="layout-tag">Layout 13</span>
+      <span class="layout-name">Contact / お問い合わせ</span>
+      <span class="layout-note">info table · navy CTA panel · logo seal · QR placeholder</span>
+    </div>
+    <div class="slide-vp">
+      <div class="slide-inner"><section>
+        <div class="slide-frame">
+          <div class="slide-head">
+            <div class="eyebrow">Contact</div>
+            <div class="h-title">お問い合わせ</div>
+            <div class="h-meta">— 23 —</div>
+          </div>
+          <div class="contact">
+            <div class="contact-info">
+              <div class="contact-row"><div class="lbl">商　　号</div><div class="val">株式会社 Tiximax</div></div>
+              <div class="contact-row"><div class="lbl">所 在 地</div><div class="val" style="font-size:26px">〒104-0045 東京都中央区築地4-3-12-1007</div></div>
+              <div class="contact-row"><div class="lbl">Email</div><div class="val" style="font-family:var(--font-latin);font-style:italic;">info@tiximax.jp</div></div>
+              <div class="contact-row"><div class="lbl">Web</div><div class="val" style="font-family:var(--font-latin);font-style:italic;">tiximax.jp</div></div>
+              <div class="contact-row"><div class="lbl">対応時間</div><div class="val">平日 9:00 〜 18:00 (JST)</div></div>
+            </div>
+            <div class="contact-side">
+              <div class="seal-big">TX</div>
+              <div>
+                <div class="side-cta">越境物流のご相談はこちら</div>
+                <div class="side-en">Let's bridge your business.</div>
+              </div>
+              <div class="qr-ph">QR コード<br>tiximax.jp</div>
+            </div>
+          </div>
+          <div class="slide-foot">
+            <span class="brand"><span class="dot"></span>株式会社 Tiximax</span>
+            <span class="pg">23 / 24</span>
+          </div>
+        </div>
+      </section></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const sections = document.querySelectorAll('.layout-item');
+const links = document.querySelectorAll('.sb-link[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector('.sb-link[href="#' + e.target.id + '"]');
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

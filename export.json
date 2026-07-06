@@ -1,0 +1,29 @@
+[
+  {
+    "serveRoot": "..",
+    "url": "design-system/slides-preview.html",
+    "out": "pdf/slides-preview.pdf",
+    "width": 1300,
+    "autoHeight": true
+  },
+  {
+    "serveRoot": "..",
+    "url": "design-system/documents-preview.html",
+    "out": "pdf/documents-preview.pdf",
+    "width": 1100,
+    "autoHeight": true
+  },
+  {
+    "serveRoot": "..",
+    "url": "design-system/documents-landscape-preview.html",
+    "out": "pdf/documents-landscape-preview.pdf",
+    "width": 1300,
+    "autoHeight": true
+  },
+  {
+    "serveRoot": "..",
+    "url": "design-system/doc-paged-starter.html",
+    "out": "pdf/doc-paged-starter.pdf",
+    "paged": true
+  }
+]

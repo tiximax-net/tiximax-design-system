@@ -1,0 +1,9 @@
+{
+  "projectId": "ab829868-4a3d-43ca-82d5-6ce38bfc3af5",
+  "pkg": "@tiximax/design-system",
+  "globalName": "Tiximax",
+  "shape": "package",
+  "buildCmd": "npm run build",
+  "cssEntry": "src/styles.css",
+  "runtimeFontPrefixes": ["Noto Sans JP", "Noto Sans SC", "Noto Sans TC", "Be Vietnam Pro"]
+}

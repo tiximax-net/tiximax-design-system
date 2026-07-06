@@ -1,35 +1,42 @@
 # TIXIMAX — Design System
 
 > Foundations, components, and UI kits for building TIXIMAX-branded interfaces and assets.
-> **White-surface-forward, multi-color, light + dark.** Import `colors_and_type.css` in every artifact.
+
+### Browse the system
+- **Component library** — open `preview/All Components.html` (sidebar browser, 30 cards: brand, colors, type, spacing, and 21 components). Has a **light/dark toggle** (top-right).
+- **Individual components** — `preview/comp-*.html` (token-driven; each loads `colors_and_type.css`).
+- **UI kits** — `ui_kits/website/index.html` (marketing site) and `ui_kits/portal/index.html` (customer app).
+- **Deck & document pipeline** — `index.html` (showcase), `slides-preview.html`, `documents-preview.html`; PDF export via the group `html-to-pdf` tool + `export.json`.
+
+### Foundations at a glance
+- **Tokens:** `colors_and_type.css` (standard, component-facing) and `tokens.css` (deck-aware, adds JP/VI font infra for PDF). Keep the two in sync.
+- **Dark mode:** light-first; apply `[data-theme="dark"]` (or `.dark`) on any container. Both foundation files carry the dark layer.
+- **Fonts:** **self-hosted** (offline-safe for Puppeteer PDF) — Inter (body/UI) · Montserrat + Source Sans 3 (display options) · Noto Sans JP (Japanese) · Be Vietnam Pro (Vietnamese docs). No Google Fonts CDN. The heading face is a one-line seam: `--font-display` in `colors_and_type.css`.
 
 ---
 
 ## 1. Company / Product Context
 
-**TIXIMAX** (Tiximax Logistics) is a Vietnamese **international shipping & buy-on-behalf ("mua hộ") logistics company**. It helps individuals and businesses in Vietnam purchase and import goods from overseas markets — primarily **Indonesia, the Philippines, Japan, Korea, China, and the US** — handling ordering, payment, consolidation, freight, customs, and last-mile delivery.
+**TIXIMAX** (Tiximax Logistics) is a Vietnamese **international shipping & buy-on-behalf ("mua hộ") logistics company**. It helps individuals and businesses in Vietnam purchase and import goods from overseas markets — primarily **Indonesia, Japan, Korea, China, and the US** — handling ordering, payment, consolidation, freight, customs, and last-mile delivery.
 
-The brand grew out of a premium furniture / flooring import business and expanded into a full cross-border logistics service, now operating **regional storefronts (TIXIMAX Indonesia, TIXIMAX Philippines)** alongside the core Vietnam brand. Its positioning is **trust, speed, and transparency** in a category where customers are anxious about money, timing, and whether their goods will actually arrive.
+The brand grew out of a premium furniture / flooring import business and expanded into a full cross-border logistics service. Its positioning is **trust, speed, and transparency** in a category (international forwarding) where customers are anxious about money, timing, and whether their goods will actually arrive.
 
 **Core surfaces represented in this system:**
-
 - **Marketing website** — explains the buy-on-behalf + shipping services, pricing, routes, and converts visitors into registered customers.
 - **Customer portal / order-tracking app** — where customers create purchase requests, get quotes, pay, and track shipments through the logistics pipeline.
 
 ### Sources provided
+- `uploads/tiximax-logo-light.svg` — primary wordmark (TIXIMAX with a gold spark mark).
+- `uploads/SourceSans3-*.ttf` — full Source Sans 3 family (variable + static weights, roman + italic).
+- Brand colors: **#F4B931** (gold), **#264F91** (navy), **#EB5635** (red-orange), plus **#006FBB** (blue) and **#008148** (green); signature spark yellow **#F7B82D**.
 
-- `assets/logo-txm*.png`, `assets/logo-indo*.png`, `assets/logo-phil*.png` — wordmark lockups for **TIXIMAX / Indonesia / Philippines** in color, black, and white.
-- `assets/tiximax-logo-*.svg` + `assets/tiximax-mark.svg` — vector wordmark variants and the standalone spark mark.
-
-- Brand colors supplied and expanded into full ramps (see §3).
-
-> ⚠️ No codebase, Figma file, or live-site export was provided. The component library, UI kits, and derived ramps are an **original, brand-consistent interpretation** built from the logos, fonts, and brand colors — not a pixel recreation of an existing TIXIMAX product. Treat the UI kits as a faithful *house style*; send real product screens/Figma for exact parity.
+> ⚠️ No codebase, Figma file, or live-site export was provided. The component library, UI kits, and the derived color ramps in this system are an **original, brand-consistent interpretation** built from the logo, fonts, and three brand colors above — not a pixel recreation of an existing TIXIMAX product. Treat the UI kits as a faithful *house style*, and send real product screens/Figma if you want exact parity.
 
 ---
 
 ## 2. Content Fundamentals (voice & tone)
 
-TIXIMAX serves a Vietnamese audience with growing **regional (Indonesia, Philippines) and Japanese-market** reach, so production copy is primarily **Vietnamese**, with **Japanese** supported (see the Noto Sans JP type scale). English is used for product/section labels in this system for portability.
+TIXIMAX serves a Vietnamese audience, so production copy is primarily **Vietnamese**; English is used for product/section labels in this system for portability.
 
 - **Tone:** confident, reassuring, practical. The brand sells *peace of mind* for cross-border shopping — copy emphasizes safety, speed, clear pricing, and "we handle everything."
 - **Person:** addresses the customer directly as **"bạn" / "you"**, and refers to the company as **"TIXIMAX" / "chúng tôi" / "we."** Warm but professional — not slangy.
@@ -46,34 +53,33 @@ TIXIMAX serves a Vietnamese audience with growing **regional (Indonesia, Philipp
 
 ## 3. Visual Foundations
 
-The TIXIMAX look is **clean and white-forward** — bright white/off-white surfaces carry the interface, with a **multi-color brand palette** (gold, yellow, navy, blue, green, red) used for action, status, and accent. It reads premium and trustworthy, not flashy.
+The TIXIMAX look is **gold-on-navy, clean and corporate-warm** — a premium logistics feel, not a flashy consumer app.
 
-- **Backgrounds are predominantly white / cool off-white.** `--surface-card` is pure white `#FFFFFF`; the page sits on a faint cool `--surface-page` `#F5F7FA`. Navy is an **accent band** (hero, footer, high-contrast strips) — not the dominant surface.
-- **Color usage:** **Gold** (`--brand-gold #F4B931`) is the primary action / CTA color and the logo spark. **Yellow** (`#F7B82D`) is the signature highlight. **Navy** (`#264F91`) anchors dark bands and primary/secondary emphasis. **Blue** (`#006FBB`) = info/links, **green** (`#008148`) = success, **red** (`#EB5635`) = energy/promo and the semantic error color. Each hue ships a full `50→900` ramp.
-- **Light + dark:** the system is fully **dual-mode**. Add `class="dark"` (or `[data-theme="dark"]`) on any container to flip every surface, text, border, semantic, and shadow token to its dark equivalent. Every reference card shows a Light/Dark split.
-- **Typography:** **Montserrat** for headings/display (Bold/SemiBold, tight tracking), **Inter** for body & UI (`--font-body`, `--font-sans`, `--font-display`, relaxed line-height), **Noto Sans JP** for Japanese content.3 remains embedded from `fonts/` and wired to `--font-sans` / `--font-display`. Highly legible at the small sizes that order/tracking tables demand. **Responsive:** all `--fs-*` tokens auto-scale at Tablet (≤1024px) and Mobile (≤767px) breakpoints — just use the tokens or `.ds-*` classes, no manual media queries needed.
-- **Corner radii:** medium-soft. Cards `--radius-lg` (14px), buttons/inputs ~8–10px (`--radius-md`), pills/chips fully rounded. Nothing sharp-cornered, nothing pill-everywhere.
-- **Cards:** white surface, 1px subtle border (`--border-default`) **and** a soft low shadow (`--shadow-sm`/`--shadow-md`). Both, lightly. No colored left-border accent cards.
-- **Shadows:** soft, **navy-tinted** (`rgba(38,79,145,…)`), never gray-black. Elevation rises `xs → xl`. A dedicated **gold glow** (`--shadow-gold`) is reserved for the primary CTA. Focus rings are a translucent gold halo (`--shadow-focus`).
-- **Borders:** hairline `1px`, cool gray. Strong border only on inputs at rest / dividers that need to read. Focus border is gold.
-- **Hover:** buttons darken one step; links underline; cards lift shadow `sm → md` and translate up `~2px`.
-- **Press:** scale down slightly (`transform: scale(0.98)`) and drop shadow. No color inversion.
-- **Animation:** quick, functional. `~150–220ms ease-out`. Fades and small translate/scale. No bouncy spring, no infinite decorative loops in product UI.
-- **Transparency / blur:** sparingly — overlay scrims (`--surface-overlay`, navy @ 55%) behind modals; optional light backdrop-blur on sticky navbars.
-- **Layout:** generous whitespace, ~1200px max content width, sticky top nav. Section rhythm alternates white / off-white / occasional navy band.
-- **Imagery vibe:** warm, bright, real-world logistics & lifestyle (parcels, warehouses, happy shoppers). Not cold or stocky. Gold accents tie photography back to brand. **Avoid purple/blue gradients and emoji cards.**
+- **Color usage:** Navy (`#264F91`) anchors headers, footers, and hero sections. Gold (`#F4B931`) is the primary action / highlight color and the signature accent (the logo spark). Red-orange (`#EB5635`) is an energy accent used sparingly — promos, urgent states, and as the semantic error color. Blue (`#006FBB`) carries info states and green (`#008148`) success. Backgrounds are mostly white / cool off-white (`#F5F7FA`); navy is used for high-contrast bands.
+- **Typography:** Source Sans 3 for headings/display (heavy, tight tracking) and **Inter** for body (Regular, relaxed line-height). Humanist sans keeps it approachable and highly legible at small sizes (important for tables of order/tracking data).
+- **Backgrounds:** predominantly flat color. Navy hero bands may carry a **subtle gold radial glow** or a faint diagonal motif echoing the logo's chevron/spark geometry. No heavy photographic noise; product photography (when used) is bright and clean. **Avoid purple/blue gradients and emoji cards.**
+- **Corner radii:** medium-soft. Cards `--radius-lg` (14px), buttons/inputs `--radius-md` (10px), pills/chips fully rounded. Nothing sharp-cornered, nothing pill-everywhere.
+- **Cards:** white surface, 1px subtle border (`--border-default`) **and** a soft low shadow (`--shadow-sm`/`--shadow-md`). Not border-only, not shadow-only — both, lightly. No colored left-border accent cards.
+- **Shadows:** soft, navy-tinted, never gray-black. Elevation rises `xs → xl`. A dedicated **gold glow shadow** is reserved for the primary CTA. Focus rings are a translucent gold halo.
+- **Borders:** hairline `1px`, cool gray. Strong border only on inputs at rest / dividers that need to read.
+- **Hover states:** buttons darken one step (gold-500→gold-600, navy-800→navy-700-ish lift); links underline; cards lift shadow `sm → md` and translate up `~2px`. 
+- **Press states:** scale down slightly (`transform: scale(0.98)`) and drop shadow. No color inversion.
+- **Animation:** quick, functional. `transitions ~150–220ms ease-out`. Fades and small translate/scale. No bouncy spring, no infinite decorative loops in product UI.
+- **Transparency / blur:** sparingly — overlay scrims (`--surface-overlay`, navy @ 55%) behind modals; optional light backdrop-blur on sticky navbars over content.
+- **Layout:** generous whitespace, 12-col grid feel, max content width ~1200px on web. Sticky top nav. Section rhythm alternates white / off-white / navy bands.
+- **Imagery vibe:** warm, bright, real-world logistics & lifestyle (parcels, warehouses, happy shoppers). Not cold or corporate-stocky. Gold accents tie photography back to brand.
 
 ---
 
 ## 4. Iconography
 
-- **System:** TIXIMAX has no proprietary icon font. This system standardizes on **[Lucide](https://lucide.dev)** — a clean, open, 24×24, ~2px-stroke outline set — loaded from CDN. Its geometric-but-friendly style pairs with the type system and the logistics domain (package, truck, plane, map-pin, search, shield-check, wallet).
-- **Style:** outline / stroke icons (not filled), `1.75–2px` stroke, `currentColor` so they inherit text color. Gold or navy fills only for emphasis badges.
+- **System:** TIXIMAX has no proprietary icon font. This design system standardizes on **[Lucide](https://lucide.dev)** — a clean, open, 24×24, ~2px-stroke outline set — loaded from CDN. Its geometric-but-friendly stroke style pairs well with Source Sans 3 and the logistics domain (package, truck, plane, map-pin, search, shield-check, wallet).
+- **Style:** outline / stroke icons (not filled), `1.75–2px` stroke, `currentColor` so they inherit text color. Use gold or navy fills only for emphasis badges.
 - **Sizing:** 16px (inline / dense tables), 20px (buttons, inputs), 24px (nav, feature blocks). Keep stroke weight visually consistent across sizes.
-- **Journey / progress motif:** the airplane (`assets/airplane.svg`) is the order-tracking indicator, moving along the progress path.
-- **Logo / spark mark:** the gold spark in the wordmark (`assets/tiximax-mark.svg`) is the brand's signature device. Reuse the spark geometry as a decorative motif — never redraw a different icon to replace it.
-- **Emoji:** not used in product UI. **Unicode glyphs:** avoid as icons; use Lucide.
-- CDN: `https://unpkg.com/lucide@latest`.
+- **Emoji:** not used in product UI.
+- **Unicode glyphs:** avoid using as icons; use Lucide.
+- **Logo / spark mark:** the gold spark in the wordmark is the brand's signature graphic device. Reuse the spark geometry as a decorative motif, never redraw a different icon to replace it.
+- CDN: `https://unpkg.com/lucide@latest` (or `lucide-static` for inline SVG).
 
 > If TIXIMAX's real product uses a specific icon set, send it and we'll swap. Lucide is a flagged substitution.
 
@@ -81,38 +87,25 @@ The TIXIMAX look is **clean and white-forward** — bright white/off-white surfa
 
 ## 5. Font substitution note
 
-- ⚙️ **Montserrat** (headings), **Inter** (body/UI/sans/display), **Noto Sans JP** (Japanese) — loaded from Google Fonts CDN. Inter is wired as `--font-body`, `--font-sans`, and `--font-display`. If TIXIMAX standardizes on a single licensed family, send it and we'll rewire the tokens.
+✅ No substitution needed — the full **Source Sans 3** family was provided and is embedded from `fonts/`.
 
 ---
 
-## 6. Component inventory
-
-The system ships **19 components**, each with a reference card in `preview/` (all shown Light + Dark):
-
-Alerts · Anchor · Avatar · Badges · Breadcrumb · Buttons · Card · Collapse · Controls (checkbox/radio/toggle) · Datepicker · Drawer · Dropdown · Inputs · List · Menu · Modal · Popup · Progress (airplane tracking) · Table
-
-**Buttons** are the anchor of the system: **3 sizes** (Small 36px · Medium 44px · Large 52px) × **6 variants** (Primary/gold · Secondary/navy · Outline · No line · Disabled · "Xem thêm"/more) × **3 types** (text · text+icon · icon-only). Radius ~8px, hover darkens one step, press `scale(0.98)`.
-
----
-
-## 7. Index / Manifest
+## 6. Index / Manifest
 
 | File | What it is |
-| --- | --- |
-| `README.md` | This document — context, voice, visual foundations, iconography, inventory. |
-| `DESIGN_SYSTEM.md` | Full token + component spec (Vietnamese). |
-| `design.md` | Extended design guide (Vietnamese). |
+|---|---|
+| `README.md` | This document — context, voice, visual foundations, iconography. |
 | `SKILL.md` | Agent Skill entry point for using this system. |
-| `colors_and_type.css` | All design tokens: color ramps, semantic + text colors, type scale + classes, radius, spacing, shadow, **dark-theme overrides**. **Import this in every artifact.** |
-| `fonts/` | *(removed)* |
-| `assets/` | Logo lockups for TIXIMAX / Indonesia / Philippines (color/black/white PNG + SVG wordmarks), spark `tiximax-mark.svg`, favicons, `airplane.svg`. |
-| `preview/` | Design System tab cards — Brand, Colors, Type, Spacing/Radius/Shadow, 19 components. |
+| `colors_and_type.css` | All design tokens: color ramps, semantic colors, type scale + classes, radius, spacing, shadow. **Import this in every artifact.** |
+| `fonts/` | Source Sans 3 (variable roman + italic, plus key static weights). |
+| `assets/` | Logo variants (`tiximax-logo-light/white/navy.svg`) + favicons (`favicon.svg` navy, `favicon-light.svg` white, `favicon-mark.svg` transparent). |
+| `preview/` | Design System tab cards (colors, type, spacing, shadow, components). |
 | `ui_kits/website/` | Marketing website UI kit (React/JSX components + `index.html`). |
 | `ui_kits/portal/` | Customer order & tracking portal UI kit. |
 
 ### Quick start
-
 ```html
 <link rel="stylesheet" href="colors_and_type.css">
-<!-- use var(--brand-gold), class="ds-h1", etc. Add class="dark" on a wrapper for dark mode. -->
+<!-- then use var(--brand-gold), class="ds-h1", etc. -->
 ```

@@ -1,0 +1,466 @@
+/* ============================================================
+   TIXIMAX DESIGN SYSTEM — Foundations
+   Colors + Typography tokens (CSS custom properties)
+   Brand: gold #F4B931 · red #EB5635 · navy #264F91
+          blue #006FBB · green #008148 · yellow #F7B82D
+   Headings: Source Sans 3 · Body: Inter
+   ------------------------------------------------------------
+   NOTE: this is the deck-aware foundation (loaded by decks).
+   It mirrors colors_and_type.css (the standard) and adds the
+   self-hosted JP / VI font infrastructure used by slide decks
+   and offline PDF export. Keep color values in sync with
+   colors_and_type.css and src/styles.css.
+   ============================================================ */
+
+/* ---------- Self-hosted JP / VI fonts (must precede @font-face) ----------
+   Noto Sans JP → --font-jp / --font-ja fallback (CJK glyphs)
+   Be Vietnam Pro → --font-vi (Vietnamese-primary documents)
+   Both use unicode-range subsetting, so browsers only fetch glyphs in use. */
+@import url("fonts/notosansjp.css");
+@import url("fonts/bevietnampro.css");
+
+/* ---------- Fonts — Source Sans 3 (headings/display) variable ---------- */
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-Italic-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------- Source Sans 3 — static fallbacks (PDF exporters, older tools) ---------- */
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Inter — body text (self-hosted, offline-safe for PDF) ---------- */
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ============================================================
+     COLOR — BRAND
+     ============================================================ */
+  /* --- Core brand (logo) — official TIXIMAX colors --- */
+  --brand-black:  #000000;  /* primary black */
+  --brand-white:  #FFFCF8;  /* warm off-white */
+  --brand-yellow: #F7B82D;  /* signature gold-yellow (logo spark) */
+
+  --brand-gold:        #F4B931;  /* primary brand — yellow gold */
+  --brand-gold-bright: #F9CB5A;  /* lighter gold / highlights */
+  --brand-red:         #EB5635;  /* accent / energy */
+  --brand-navy:        #264F91;  /* deep brand blue */
+  --brand-blue:        #006FBB;  /* medium blue */
+  --brand-green:       #008148;  /* green */
+
+  /* Yellow tint/shade ramp (#F7B82D) */
+  --yellow-50:   #FEF8E9;
+  --yellow-100:  #FDEEC4;
+  --yellow-200:  #FBDD8C;
+  --yellow-300:  #F9CB54;
+  --yellow-400:  #F8C03D;
+  --yellow-500:  #F7B82D;  /* base */
+  --yellow-600:  #E0A114;
+  --yellow-700:  #AE7D10;
+  --yellow-800:  #7C590B;
+  --yellow-900:  #4A3507;
+
+  /* Gold tint/shade ramp (#F4B931) */
+  --gold-50:   #FEF9EA;
+  --gold-100:  #FDF1CE;
+  --gold-200:  #FBE19B;
+  --gold-300:  #F9D168;
+  --gold-400:  #F6C54C;
+  --gold-500:  #F4B931;  /* base */
+  --gold-600:  #D8A01B;
+  --gold-700:  #A87B15;
+  --gold-800:  #78580F;
+  --gold-900:  #4B370A;
+
+  /* Red tint/shade ramp (#EB5635) */
+  --red-50:    #FDF0EC;
+  --red-100:   #F9D8CD;
+  --red-200:   #F3B099;
+  --red-300:   #ED8866;
+  --red-400:   #EC6F4D;
+  --red-500:   #EB5635;  /* base */
+  --red-600:   #CA4325;
+  --red-700:   #9D341C;
+  --red-800:   #712514;
+  --red-900:   #46170C;
+
+  /* Navy tint/shade ramp (#264F91) */
+  --navy-50:   #ECF1F8;
+  --navy-100:  #D2DDEE;
+  --navy-200:  #A3B9DA;
+  --navy-300:  #7596C5;
+  --navy-400:  #4D72AB;
+  --navy-500:  #264F91;  /* base */
+  --navy-600:  #1F427A;
+  --navy-700:  #183360;
+  --navy-800:  #112547;
+  --navy-900:  #0B172E;
+
+  /* Blue tint/shade ramp (#006FBB) */
+  --blue-50:   #E8F4FC;
+  --blue-100:  #C4E3F7;
+  --blue-200:  #87C7EF;
+  --blue-300:  #4AABE6;
+  --blue-400:  #1F8DD1;
+  --blue-500:  #006FBB;  /* base */
+  --blue-600:  #005E9E;
+  --blue-700:  #004A7C;
+  --blue-800:  #00365A;
+  --blue-900:  #00223A;
+
+  /* Green tint/shade ramp (#008148) */
+  --green-50:  #E8F5EE;
+  --green-100: #C2E6D6;
+  --green-200: #85CDAC;
+  --green-300: #47B483;
+  --green-400: #219A65;
+  --green-500: #008148;  /* base */
+  --green-600: #006D3D;
+  --green-700: #005530;
+  --green-800: #003E23;
+  --green-900: #002716;
+
+  /* ============================================================
+     COLOR — NEUTRAL (cool gray, faint navy cast)
+     ============================================================ */
+  --neutral-0:   #FFFFFF;
+  --neutral-25:  #FBFCFD;
+  --neutral-50:  #F5F7FA;
+  --neutral-100: #EDF0F4;
+  --neutral-200: #DDE2EA;
+  --neutral-300: #C3CBD7;
+  --neutral-400: #9AA5B5;
+  --neutral-500: #707C8E;
+  --neutral-600: #515C6D;
+  --neutral-700: #3A4452;
+  --neutral-800: #252D38;
+  --neutral-900: #141A22;
+  --neutral-950: #0B0F15;
+
+  /* ============================================================
+     COLOR — SEMANTIC
+     ============================================================ */
+  --success:        #008148;  /* brand green */
+  --success-bg:     #E8F5EE;
+  --success-border: #85CDAC;
+  --warning:        #F4B931;  /* brand gold */
+  --warning-bg:     #FEF9EA;
+  --warning-border: #FBE19B;
+  --error:          #EB5635;  /* brand red */
+  --error-bg:       #FDF0EC;
+  --error-border:   #F3B099;
+  --info:           #006FBB;  /* brand blue */
+  --info-bg:        #E8F4FC;
+  --info-border:    #87C7EF;
+
+  /* ============================================================
+     COLOR — TEXT
+     ============================================================ */
+  --text-primary:   #0C1A31;  /* deep navy text (logo navy) */
+  --text-secondary: #515C6D;
+  --text-tertiary:  #8B95A5;
+  --text-disabled:  #B6BECB;
+  --text-inverse:   #FFFFFF;
+  --text-brand:     #C28E1F;  /* readable gold on light */
+  --text-link:      #2563C9;
+  --text-error:     #AE2F0F;
+  --text-success:   #197A43;
+  --text-subtitle:  #B6BECB;  /* subtitles / less important (parity với colors_and_type.css) */
+  --text-warning:   #FFBB00;  /* warning / caution */
+  --text-info:      #1A6FB5;  /* informational / notice */
+
+  /* ============================================================
+     COLOR — SURFACE / BORDER
+     ============================================================ */
+  --surface-page:    #F5F7FA;
+  --surface-card:    #FFFFFF;
+  --surface-raised:  #FFFFFF;  /* elevated surface (elevation qua shadow ở light) */
+  --surface-sunken:  #EDF0F4;
+  --surface-navy:    #264F91;
+  --surface-overlay: rgba(38, 79, 145, 0.55);
+  --border-subtle:   #EDF0F4;
+  --border-default:  #DDE2EA;
+  --border-strong:   #C3CBD7;
+  --border-focus:    #F4B931;
+
+  /* ============================================================
+     CONTRACT — tên semantic dùng chung cho showcase.css (ds-index)
+     Xem design-thinking/design-system/TOKENS_CONTRACT.md
+     ============================================================ */
+  --brand-primary:        var(--brand-navy);   /* #264F91 — nút primary, active, tiêu đề */
+  --brand-accent:         var(--brand-gold);   /* #F4B931 — nhấn phụ */
+  --surface-brand-subtle: rgba(38, 79, 145, 0.08); /* nền phủ navy nhạt (link active, tag) */
+
+  /* ============================================================
+     TYPOGRAPHY — family + base tokens
+     NOTE: Noto Sans JP loaded via fonts/notosansjp.css (self-hosted).
+     Be Vietnam Pro loaded via fonts/bevietnampro.css (self-hosted).
+     Use --font-vi for Vietnamese-primary documents.
+     Headings/display = Source Sans 3 · body = Inter.
+     ============================================================ */
+  --font-sans:    "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
+  --font-body:    "Inter", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-jp:      "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
+  --font-latin:   "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
+  --font-vi:      "Be Vietnam Pro", "Noto Sans JP", "Source Sans 3", sans-serif;
+  --font-display: "Source Sans 3", system-ui, sans-serif;
+  --font-mono:    ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fw-extralight: 200;
+  --fw-light:      300;
+  --fw-regular:    400;
+  --fw-medium:     500;
+  --fw-semibold:   600;
+  --fw-bold:       700;
+  --fw-black:      900;
+
+  /* Type scale (1.250 major-third-ish, tuned) */
+  --fs-display:  56px;
+  --fs-h1:       40px;
+  --fs-h2:       32px;
+  --fs-h3:       26px;
+  --fs-h4:       21px;
+  --fs-title:    18px;
+  --fs-body-lg:  18px;
+  --fs-body:     16px;
+  --fs-body-sm:  14px;
+  --fs-caption:  13px;
+  --fs-overline: 12px;
+
+  --lh-tight:   1.1;
+  --lh-snug:    1.25;
+  --lh-normal:  1.5;
+  --lh-relaxed: 1.65;
+
+  --ls-tight:   -0.02em;
+  --ls-normal:  0;
+  --ls-wide:    0.04em;
+  --ls-overline: 0.12em;
+
+  /* ============================================================
+     RADIUS
+     ============================================================ */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-2xl:  28px;
+  --radius-pill: 999px;
+
+  /* ============================================================
+     SPACING SCALE (4px base)
+     ============================================================ */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ============================================================
+     SHADOW / ELEVATION (navy-tinted, never gray-black)
+     ============================================================ */
+  --shadow-xs:  0 1px 2px rgba(38, 79, 145, 0.06);
+  --shadow-sm:  0 1px 3px rgba(38, 79, 145, 0.08), 0 1px 2px rgba(38, 79, 145, 0.06);
+  --shadow-md:  0 4px 10px rgba(38, 79, 145, 0.08), 0 2px 4px rgba(38, 79, 145, 0.06);
+  --shadow-lg:  0 12px 24px rgba(38, 79, 145, 0.10), 0 4px 8px rgba(38, 79, 145, 0.06);
+  --shadow-xl:  0 24px 48px rgba(38, 79, 145, 0.14), 0 8px 16px rgba(38, 79, 145, 0.08);
+  --shadow-gold: 0 8px 20px rgba(244, 185, 49, 0.32);
+  --shadow-focus: 0 0 0 3px rgba(244, 185, 49, 0.35);
+}
+
+/* ============================================================
+   DARK MODE — override semantic tokens (2026-07)
+   Light-first: :root = light; [data-theme="dark"] đảo semantic.
+   Raw scales (--gold-*, --navy-*...) KHÔNG đổi theo theme.
+   Canvas in ấn (A4/slide) pin cứng màu — không ăn override này.
+   ============================================================ */
+[data-theme="dark"] {
+  /* Semantic states */
+  --success-bg:     #0F2A1D;
+  --success-border: #1F5C40;
+  --warning-bg:     #2B2210;
+  --warning-border: #705A15;
+  --error-bg:       #2E150E;
+  --error-border:   #7A2F1B;
+  --info-bg:        #0C2233;
+  --info-border:    #0F517E;
+
+  /* Text */
+  --text-primary:   #F2F5FA;
+  --text-secondary: #B7C1D1;
+  --text-tertiary:  #939DAE;
+  --text-disabled:  #4E5A70;
+  --text-inverse:   #0C1A31;
+  --text-brand:     #F6C54C;  /* gold-400 — gold đọc được trên nền tối */
+  --text-link:      #7FB0F5;
+  --text-error:     #F0967D;
+  --text-success:   #57BE8D;
+  --text-subtitle:  #6B7585;
+  --text-warning:   #F9D168;
+  --text-info:      #5FB0EC;
+
+  /* Surface / border — navy-tinted dark */
+  --surface-page:    #0D1420;
+  --surface-card:    #151F31;
+  --surface-raised:  #1E2632;  /* raised sáng hơn card ở dark */
+  --surface-sunken:  #0A101A;
+  --surface-navy:    #264F91;  /* brand surface giữ nguyên */
+  --surface-overlay: rgba(5, 10, 18, 0.65);
+  --border-subtle:   #1C2536;
+  --border-default:  #28344A;
+  --border-strong:   #3A4A66;
+  --border-focus:    #F4B931;
+
+  /* CONTRACT — override cho dark (showcase.css). brand-accent gold giữ nguyên.
+     brand-primary: navy sáng để đọc được như TEXT trên card tối + làm nền nút
+     với text-inverse (dark) đủ tương phản. */
+  --brand-primary:        #7FB0F5;
+  --surface-brand-subtle: rgba(38, 79, 145, 0.30);
+
+  /* Shadow — đen sâu trên nền tối */
+  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md:  0 4px 10px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-lg:  0 12px 24px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-xl:  0 24px 48px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.45);
+  --shadow-gold: 0 8px 20px rgba(244, 185, 49, 0.25);
+  --shadow-focus: 0 0 0 3px rgba(244, 185, 49, 0.30);
+}
+
+/* ============================================================
+   SEMANTIC TYPE CLASSES
+   ============================================================ */
+.ds-display {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--text-primary);
+}
+.ds-h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-tight);
+  color: var(--text-primary);
+}
+.ds-h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-h2);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-tight);
+  color: var(--text-primary);
+}
+.ds-h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-snug);
+  color: var(--text-primary);
+}
+.ds-h4 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-snug);
+  color: var(--text-primary);
+}
+.ds-title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-title);
+  line-height: var(--lh-snug);
+  color: var(--text-primary);
+}
+.ds-body-lg {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+.ds-body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+.ds-body-sm {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+.ds-caption {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-normal);
+  color: var(--text-tertiary);
+}
+.ds-overline {
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-overline);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--ls-overline);
+  text-transform: uppercase;
+  color: var(--text-brand);
+}
+
+* { font-feature-settings: "kern" 1; }

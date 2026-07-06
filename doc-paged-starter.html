@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiximax — Paged A4 Starter (多ページ)</title>
+<!-- Footer (số trang X/Y): tool đọc 2 meta này -->
+<meta name="doc-brand" content="株式会社 Tiximax">
+<meta name="doc-note" content="CONFIDENTIAL — お取扱注意">
+<link rel="stylesheet" href="fonts/notosansjp.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="tiximax-docs.css">
+<link rel="stylesheet" href="tiximax-doc-paged.css">
+</head>
+<body>
+<div class="doc-screen">
+  <div class="doc-flow">
+
+    <!-- ══ RUNNING HEADER — lặp mọi trang (fixed khi in) ══ -->
+    <header class="doc-running-head">
+      <div class="rh-logo">
+        <img class="rh-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+        <div>
+          <div class="rh-name">株式会社 Tiximax</div>
+          <div class="rh-sub">Tiximax Co., Ltd.</div>
+        </div>
+      </div>
+      <div class="rh-type">御 提 案 書 ・ Proposal</div>
+    </header>
+
+    <!-- ══ NỘI DUNG DÒNG CHẢY — tự phân trang A4 ══ -->
+    <main class="doc-flow-body">
+
+      <div class="doc-section-label">SERVICE PROPOSAL</div>
+      <h1 class="doc-h1">越境物流・フルフィルメント　ご提案</h1>
+      <div class="doc-rule"></div>
+      <p class="doc-p">
+        平素より格別のご高配を賜り、厚く御礼申し上げます。この度は弊社サービスに
+        ご関心をお寄せいただき誠にありがとうございます。日越間を軸とした国際輸送・
+        通関・3PLフルフィルメントにつき、下記のとおりご提案申し上げます。
+      </p>
+
+      <div class="doc-meta-grid" style="margin:18px 0;">
+        <div class="doc-meta-row"><span class="k">提出先</span><span class="v">〇〇株式会社 御中</span></div>
+        <div class="doc-meta-row"><span class="k">発行日</span><span class="v">2026年7月2日</span></div>
+        <div class="doc-meta-row"><span class="k">有効期限</span><span class="v">発行日より30日間</span></div>
+        <div class="doc-meta-row"><span class="k">担当</span><span class="v">武 仁誠（代表取締役）</span></div>
+      </div>
+
+      <h2 class="doc-h2">1. 提供サービス概要</h2>
+      <p class="doc-p">
+        弊社は日本・ベトナム・韓国・インドネシア・フィリピンの5カ国ネットワークを
+        基盤に、以下の4つのコアサービスをワンストップで提供いたします。各サービスは
+        単独でもパッケージでもご利用いただけます。
+      </p>
+      <ul class="doc-list">
+        <li>国際輸送 — 航空・海上、全行程トラッキング、DDP/DDU対応</li>
+        <li>貿易・通関サポート — HSコード分類、書類作成、輸出入申告</li>
+        <li>3PLフルフィルメント — 保管・ピッキング・梱包・ラストマイル</li>
+        <li>購買代行 B2C — 日韓商品の海外個人向け代理購入・転送</li>
+      </ul>
+
+      <div class="doc-panel" style="margin:18px 0;">
+        <strong>ポイント：</strong> 初期費用無料。月間出荷 500 件以上で保管料 20% 減免。
+        既存 WMS/EC カートとの API 連携に標準対応しております。
+      </div>
+
+      <h2 class="doc-h2">2. 料金明細（月額・税抜）</h2>
+      <p class="doc-p">
+        以下は標準プランの内訳です。長い表でも各行はページ跨ぎで分断されず、
+        表頭は各ページ先頭で自動的に繰り返されます。
+      </p>
+      <table class="doc-table">
+        <thead>
+          <tr><th>項目</th><th>単位</th><th>単価</th><th>数量</th><th>金額</th></tr>
+        </thead>
+        <tbody>
+          <!-- ROWS -->
+        </tbody>
+      </table>
+
+      <h2 class="doc-h2">3. 導入スケジュール</h2>
+      <p class="doc-p">
+        契約締結後、標準で 4 週間での本稼働を想定しております。要件定義から
+        API 連携テスト、パイロット出荷を経て本番切替まで、専任担当が伴走します。
+      </p>
+
+      <!-- Ngắt trang thủ công: gắn .page-break TRỰC TIẾP lên phần tử mở trang
+           mới (KHÔNG dùng div rỗng — div rỗng đẻ ra trang trắng thừa). -->
+      <div class="doc-section-label page-break">TERMS</div>
+      <h2 class="doc-h2">4. 契約条件</h2>
+      <ol style="padding-left:20px; line-height:1.9; font-size:14px; color:var(--neutral-700);">
+        <li>本提案の有効期限は発行日より30日間とする。</li>
+        <li>料金は月末締め翌月末払い、指定口座への銀行振込とする。</li>
+        <li>保管貨物の危険品・要冷蔵品は事前協議のうえ別料金とする。</li>
+        <li>不可抗力による履行遅滞について両者は免責される。</li>
+        <li>本契約に定めなき事項は両者誠意をもって協議し解決する。</li>
+      </ol>
+
+      <div class="doc-panel-navy" style="margin:18px 0;">
+        本提案書に関するお問い合わせは <strong>info@tiximax.jp</strong> まで。
+        担当より 1 営業日以内にご返信いたします。
+      </div>
+
+      <div class="doc-signature avoid-break">
+        <span class="role">株式会社 Tiximax　代表取締役</span>
+        <span class="name">武　仁誠</span>
+        <span class="company">〒104-0045 東京都中央区築地4-3-12-1007 ／ info@tiximax.jp</span>
+      </div>
+
+      <!-- 会社情報 / Đăng ký pháp nhân — MST hai pháp nhân -->
+      <div class="doc-meta-grid avoid-break" style="margin-top:18px;">
+        <div class="doc-meta-row">
+          <span class="k">株式会社 Tiximax（日本）</span>
+          <span class="v">法人番号 9010001256251</span>
+        </div>
+        <div class="doc-meta-row">
+          <span class="k">Công ty CP Tiximax（越）</span>
+          <span class="v">MST 0402170386（CN HCM: 0402170386-001）</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer tĩnh (chỉ hiện màn hình; PDF dùng footerTemplate của tool) -->
+    <footer class="doc-running-foot">
+      <span class="f-brand">株式会社 Tiximax</span>
+      <span>CONFIDENTIAL — お取扱注意</span>
+      <span>tiximax.jp</span>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+// Sinh nhiều dòng để ép tràn nhiều trang → kiểm tra thead lặp + row không cắt đôi
+const items = [
+  ['基本保管料', 'm³/月', 4800, 12], ['入庫作業', '件', 45, 320],
+  ['ピッキング', '点', 28, 540], ['梱包（標準）', '件', 65, 300],
+  ['梱包（緩衝材）', '件', 90, 120], ['ラストマイル配送', '件', 480, 300],
+  ['国際航空輸送', 'kg', 620, 180], ['国際海上輸送', 'm³', 15800, 6],
+  ['通関手数料', '申告', 8500, 8], ['HSコード分類', '品目', 1200, 24],
+  ['検品', '点', 22, 500], ['返品処理', '件', 180, 40],
+  ['ラベル貼付', '点', 12, 500], ['セット組み', '件', 95, 80],
+  ['冷蔵保管', 'm³/月', 9600, 3], ['危険品取扱', '件', 3200, 5],
+  ['在庫棚卸', '回', 15000, 1], ['API連携保守', '月', 30000, 1],
+  ['レポート作成', '月', 12000, 1], ['カスタマー対応', '時間', 3500, 20],
+];
+const tbody = document.querySelector('.doc-table tbody');
+const fmt = n => '¥' + n.toLocaleString('ja-JP');
+let sum = 0;
+for (const [name, unit, price, qty] of items) {
+  const amt = price * qty; sum += amt;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="text-align:left">${name}</td><td>${unit}</td>`
+    + `<td>${fmt(price)}</td><td>${qty}</td><td>${fmt(amt)}</td>`;
+  tbody.appendChild(tr);
+}
+const tax = Math.round(sum * 0.1);
+const sub = document.createElement('tr'); sub.className = 'subtotal';
+sub.innerHTML = `<td colspan="4" style="text-align:left">小計</td><td>${fmt(sum)}</td>`;
+tbody.appendChild(sub);
+const t = document.createElement('tr'); t.className = 'total-row';
+t.innerHTML = `<td colspan="4" style="text-align:left">合計（税込）</td><td>${fmt(sum + tax)}</td>`;
+tbody.appendChild(t);
+</script>
+</body>
+</html>

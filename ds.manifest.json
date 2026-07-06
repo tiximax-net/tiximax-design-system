@@ -1,0 +1,85 @@
+{
+  "brand": {
+    "card": "@dsCard group=\"Overview\" name=\"Index\" subtitle=\"Tiximax · Navy #264F91 · Gold #F4B931 · Red #EB5635 · 8 components · Deck · Docs\" viewport='{\"width\":1440,\"height\":900}'",
+    "lang": "vi",
+    "languages": ["vi", "ja", "en"],
+    "defaultLang": "vi",
+    "title": "Tiximax Design System",
+    "themeColor": "",
+    "favicon": [],
+    "head": [],
+    "styles": [
+      "tokens.css",
+      "showcase.css",
+      "ds-index.css"
+    ],
+    "brandName": "Tiximax",
+    "brandSub": "",
+    "logo": "<img src=\"assets/tiximax-symbol-square-navy.svg\" alt=\"Tiximax\" class=\"sb-logo-sq\">",
+    "super": "Design System · Tiximax Group",
+    "pageTitle": "Tiximax",
+    "pageSub": "Navy #264F91 · Gold #F4B931 · Red #EB5635 · 8 components · Deck · Docs · tiximax.net"
+  },
+  "sections": [
+    {
+      "id": "brand",
+      "group": "Foundations",
+      "title": "Brand & Logo",
+      "file": "sections/brand.html"
+    },
+    {
+      "id": "colors",
+      "group": "Foundations",
+      "title": "Colors",
+      "file": "sections/colors.html"
+    },
+    {
+      "id": "typography",
+      "group": "Foundations",
+      "title": "Typography",
+      "file": "sections/typography.html"
+    },
+    {
+      "id": "buttons",
+      "group": "Components",
+      "title": "Buttons",
+      "file": "sections/buttons.html"
+    },
+    {
+      "id": "badges",
+      "group": "Components",
+      "title": "Badges & Tags",
+      "file": "sections/badges.html"
+    },
+    {
+      "id": "cards",
+      "group": "Components",
+      "title": "Cards",
+      "file": "sections/cards.html"
+    },
+    {
+      "id": "stats",
+      "group": "Components",
+      "title": "StatBlock",
+      "file": "sections/stats.html"
+    },
+    {
+      "id": "nav",
+      "group": "Components",
+      "title": "Heading & Navbar",
+      "file": "sections/nav.html"
+    },
+    {
+      "id": "deck",
+      "group": "Templates",
+      "title": "Slide Deck",
+      "file": "sections/deck.html"
+    },
+    {
+      "id": "docs",
+      "group": "Templates",
+      "title": "Documents",
+      "file": "sections/docs.html"
+    }
+  ]
+}

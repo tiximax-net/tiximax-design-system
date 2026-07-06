@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja" data-accent="gold">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiximax — A4 Landscape Layouts</title>
+<link rel="stylesheet" href="fonts/notosansjp.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="tiximax-docs.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--neutral-950);
+  color: rgba(255,255,255,0.72);
+  font-family: var(--font-jp);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+  margin: 0; padding: 0;
+}
+
+/* ════ SIDEBAR ════ */
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: 220px;
+  background: var(--brand-navy);
+  display: flex; flex-direction: column;
+  z-index: 100; overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+.sb-brand { padding: 22px 18px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.sb-logo { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--brand-gold); display: block; line-height: 1; margin-bottom: 4px; }
+.sb-ds-label { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+
+.sb-back {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  text-decoration: none; padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: color 0.1s;
+}
+.sb-back:hover { color: rgba(255,255,255,0.65); }
+.sb-back svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+.sb-group { padding: 14px 10px 4px; }
+.sb-group-label { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.26); padding: 0 8px; margin-bottom: 4px; }
+.sb-nav { display: flex; flex-direction: column; gap: 1px; }
+.sb-link {
+  font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.52);
+  padding: 7px 8px; border-radius: 6px; text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.12s, color 0.12s;
+}
+.sb-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.88); }
+.sb-link.active { background: rgba(223,169,48,0.17); color: var(--brand-gold); font-weight: 600; }
+.sb-num { font-size: 9px; font-family: monospace; color: rgba(255,255,255,0.2); min-width: 18px; }
+.sb-link.active .sb-num { color: rgba(223,169,48,0.5); }
+.sb-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 6px 10px; }
+
+/* ════ MAIN ════ */
+.main { margin-left: 220px; flex: 1; padding: 48px 52px 120px; }
+
+/* ── Page header ── */
+.page-header {
+  margin-bottom: 52px; padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+}
+.page-super { font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand-gold); margin-bottom: 8px; }
+.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.01em; color: #fff; }
+.page-sub { font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 6px; letter-spacing: 0.04em; }
+.ph-stats { display: flex; gap: 28px; flex-shrink: 0; }
+.ph-stat { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.ph-stat .n { font-size: 24px; font-weight: 700; color: var(--brand-gold); line-height: 1; }
+.ph-stat .l { font-size: 10px; letter-spacing: 0.1em; color: rgba(255,255,255,0.28); text-transform: uppercase; }
+
+/* ── Group label ── */
+.group-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding-top: 4px; margin-bottom: 36px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.group-label:not(:first-child) { margin-top: 60px; }
+
+/* ── Layout item ── */
+.layout-item { margin-bottom: 56px; scroll-margin-top: 28px; }
+.layout-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.layout-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brand-gold); opacity: 0.65; min-width: 56px; }
+.layout-name { font-size: 14px; font-weight: 600; letter-spacing: 0.01em; color: rgba(255,255,255,0.8); }
+.layout-note { margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.22); white-space: nowrap; }
+
+/* ── A4 landscape viewport: 1123 × 794 master, 0.72 preview ── */
+.land-vp {
+  width: 809px; height: 572px;
+  overflow: hidden; position: relative;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 16px 56px rgba(0,0,0,0.72);
+}
+.land-inner {
+  width: 1123px; height: 794px;
+  transform: scale(0.72); transform-origin: top left;
+  position: absolute; top: 0; left: 0;
+}
+.land-inner .doc-land {
+  position: relative; width: 1123px; height: 794px; overflow: hidden;
+}
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <span class="sb-logo">Tiximax</span>
+    <span class="sb-ds-label">A4 Landscape Layouts</span>
+  </div>
+  <a href="documents-preview.html" class="sb-back">
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L4 6l4 4"/></svg>
+    A4 Portrait Layouts
+  </a>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Finance / 財務</div>
+    <nav class="sb-nav">
+      <a href="#dashboard" class="sb-link active"><span class="sb-num">L1</span>業績ダッシュボード</a>
+      <a href="#pl"        class="sb-link"><span class="sb-num">L2</span>損益計算書</a>
+      <a href="#matrix"    class="sb-link"><span class="sb-num">L4</span>料金比較表</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Strategy / 戦略</div>
+    <nav class="sb-nav">
+      <a href="#roadmap"   class="sb-link"><span class="sb-num">L3</span>ロードマップ</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Company / 会社</div>
+    <nav class="sb-nav">
+      <a href="#org"       class="sb-link"><span class="sb-num">L5</span>グループ組織図</a>
+    </nav>
+  </div>
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Ceremonial / 式典</div>
+    <nav class="sb-nav">
+      <a href="#cert"      class="sb-link"><span class="sb-num">L6</span>表彰状</a>
+    </nav>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+  <header class="page-header">
+    <div>
+      <div class="page-super">Tiximax Design System</div>
+      <div class="page-title">A4 Landscape Layouts</div>
+      <div class="page-sub">1123 × 794 px master · 72% preview · tokens.css + tiximax-docs.css</div>
+    </div>
+    <div class="ph-stats">
+      <div class="ph-stat"><span class="n">6</span><span class="l">Layouts</span></div>
+      <div class="ph-stat"><span class="n">A4L</span><span class="l">Format</span></div>
+      <div class="ph-stat"><span class="n">4</span><span class="l">Categories</span></div>
+    </div>
+  </header>
+
+  <!-- ══════════════ FINANCE ══════════════ -->
+  <div class="group-label">Finance / 財務</div>
+
+  <!-- L1 業績ダッシュボード -->
+  <div class="layout-item" id="dashboard">
+    <div class="layout-meta">
+      <span class="layout-tag">Land L1</span>
+      <span class="layout-name">Monthly KPI Dashboard / 月次業績ダッシュボード</span>
+      <span class="layout-note">KPI cards · 2:1 table + panel · 5-country ops</span>
+    </div>
+    <div class="land-vp"><div class="land-inner"><div class="doc-land">
+      <div class="doc-land-head">
+        <div class="dl-title-wrap">
+          <span class="dl-doctype">月次業績ダッシュボード</span>
+          <span class="dl-doctype-en">Monthly Performance · 2026年6月</span>
+        </div>
+        <div class="dl-brand">
+          <img class="dl-brand-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="dl-brand-name">株式会社 Tiximax</div><div class="dl-brand-sub">Group Operations</div></div>
+        </div>
+      </div>
+      <div class="doc-land-body">
+        <div class="dl-kpi-row">
+          <div class="dl-kpi accent">
+            <span class="k-label">取扱高 / GMV</span>
+            <span class="k-value">¥248<span class="unit">M</span></span>
+            <span class="k-delta up">▲ 12.4% MoM</span>
+          </div>
+          <div class="dl-kpi">
+            <span class="k-label">出荷件数 / Shipments</span>
+            <span class="k-value">18,420</span>
+            <span class="k-delta up">▲ 8.1% MoM</span>
+          </div>
+          <div class="dl-kpi">
+            <span class="k-label">通関リードタイム</span>
+            <span class="k-value">2.3<span class="unit">日</span></span>
+            <span class="k-delta up">▼ 0.4日 改善</span>
+          </div>
+          <div class="dl-kpi">
+            <span class="k-label">オンタイム率 / OTD</span>
+            <span class="k-value">96.8<span class="unit">%</span></span>
+            <span class="k-delta down">▼ 0.6pt MoM</span>
+          </div>
+        </div>
+
+        <div class="dl-sec">
+          <span class="dl-sec-title">拠点別実績</span>
+          <span class="dl-sec-line"></span>
+          <span class="dl-sec-note">単位：百万円 / 件</span>
+        </div>
+
+        <div class="dl-cols-2-1">
+          <table class="dl-fin-table">
+            <thead>
+              <tr><th>拠点 / Hub</th><th>取扱高</th><th>出荷件数</th><th>OTD</th><th>前月比</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ベトナム（ホーチミン）</td><td>96.2</td><td>7,210</td><td>97.4%</td><td class="pos">+14.2%</td></tr>
+              <tr><td>日本（東京）</td><td>71.8</td><td>4,880</td><td>98.1%</td><td class="pos">+9.6%</td></tr>
+              <tr><td>韓国（ソウル）</td><td>34.5</td><td>2,640</td><td>95.9%</td><td class="pos">+11.0%</td></tr>
+              <tr><td>インドネシア（ジャカルタ）</td><td>26.4</td><td>2,010</td><td>94.7%</td><td class="pos">+18.3%</td></tr>
+              <tr><td>フィリピン（マニラ）</td><td>19.1</td><td>1,680</td><td>93.8%</td><td class="pos">+22.5%</td></tr>
+              <tr class="total"><td>グループ合計</td><td>248.0</td><td>18,420</td><td>96.8%</td><td>+12.4%</td></tr>
+            </tbody>
+          </table>
+          <div class="doc-panel-navy" style="border-radius:12px;">
+            <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--brand-gold);font-weight:700;margin-bottom:10px;">今月のハイライト</div>
+            <ul class="doc-list" style="gap:9px;">
+              <li style="color:rgba(255,255,255,0.85);">東南アジア2拠点が2桁成長 — ジャカルタ +18%、マニラ +23%</li>
+              <li style="color:rgba(255,255,255,0.85);">通関リードタイム 2.3日へ短縮（HSコード自動判定導入）</li>
+              <li style="color:rgba(255,255,255,0.85);">要対応：マニラOTDが94%を下回る — ラストマイル増強を検討</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="doc-land-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>社外秘 / Confidential · 経営管理部</span>
+        <span class="f-pg">2026-06 · 1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- L2 損益計算書 -->
+  <div class="layout-item" id="pl">
+    <div class="layout-meta">
+      <span class="layout-tag">Land L2</span>
+      <span class="layout-name">Profit &amp; Loss / 損益計算書</span>
+      <span class="layout-note">multi-period · grouped rows · 実績/予算/前年</span>
+    </div>
+    <div class="land-vp"><div class="land-inner"><div class="doc-land">
+      <div class="doc-land-head">
+        <div class="dl-title-wrap">
+          <span class="dl-doctype">損益計算書</span>
+          <span class="dl-doctype-en">Profit &amp; Loss · FY2026 上期</span>
+        </div>
+        <div class="dl-brand">
+          <img class="dl-brand-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="dl-brand-name">株式会社 Tiximax</div><div class="dl-brand-sub">Consolidated</div></div>
+        </div>
+      </div>
+      <div class="doc-land-body">
+        <div class="dl-cols-1-2" style="grid-template-columns:1fr 2.4fr;align-items:start;">
+          <div>
+            <div class="dl-sec" style="margin-top:6px;"><span class="dl-sec-title">サマリー</span><span class="dl-sec-line"></span></div>
+            <div class="dl-kpi" style="margin-bottom:12px;">
+              <span class="k-label">売上高</span>
+              <span class="k-value">¥1,284<span class="unit">M</span></span>
+              <span class="k-delta up">▲ 16.2% YoY</span>
+            </div>
+            <div class="dl-kpi accent" style="margin-bottom:12px;">
+              <span class="k-label">営業利益</span>
+              <span class="k-value">¥142<span class="unit">M</span></span>
+              <span class="k-delta up" style="color:var(--brand-gold);">営業利益率 11.1%</span>
+            </div>
+            <div class="dl-kpi">
+              <span class="k-label">当期純利益</span>
+              <span class="k-value">¥98<span class="unit">M</span></span>
+              <span class="k-delta up">▲ 21.4% YoY</span>
+            </div>
+          </div>
+          <table class="dl-fin-table">
+            <thead>
+              <tr><th>科目 / Account</th><th>当期実績</th><th>予算</th><th>前年同期</th><th>予算比</th></tr>
+            </thead>
+            <tbody>
+              <tr class="group"><td>売上高</td><td>1,284.0</td><td>1,240.0</td><td>1,105.0</td><td class="pos">+3.5%</td></tr>
+              <tr class="indent"><td>国際輸送</td><td>612.4</td><td>590.0</td><td>538.2</td><td class="pos">+3.8%</td></tr>
+              <tr class="indent"><td>3PLフルフィルメント</td><td>384.1</td><td>360.0</td><td>318.6</td><td class="pos">+6.7%</td></tr>
+              <tr class="indent"><td>通関・貿易支援</td><td>168.9</td><td>172.0</td><td>151.4</td><td class="neg">−1.8%</td></tr>
+              <tr class="indent"><td>越境EC・購入代行</td><td>118.6</td><td>118.0</td><td>96.8</td><td class="pos">+0.5%</td></tr>
+              <tr class="group"><td>売上原価</td><td>968.2</td><td>942.0</td><td>846.3</td><td class="neg">+2.8%</td></tr>
+              <tr class="subtotal"><td>売上総利益</td><td>315.8</td><td>298.0</td><td>258.7</td><td class="pos">+6.0%</td></tr>
+              <tr class="group"><td>販売費及び一般管理費</td><td>173.6</td><td>168.0</td><td>152.1</td><td class="neg">+3.3%</td></tr>
+              <tr class="total"><td>営業利益</td><td>142.2</td><td>130.0</td><td>106.6</td><td class="pos">+9.4%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="doc-land-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>単位：百万円 · 社外秘 / Confidential · 財務部</span>
+        <span class="f-pg">FY2026 H1 · 1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- L4 料金比較表 -->
+  <div class="layout-item" id="matrix">
+    <div class="layout-meta">
+      <span class="layout-tag">Land L4</span>
+      <span class="layout-name">Service Plan Matrix / サービス料金比較表</span>
+      <span class="layout-note">feature grid · plan columns · yes/no marks</span>
+    </div>
+    <div class="land-vp"><div class="land-inner"><div class="doc-land">
+      <div class="doc-land-head">
+        <div class="dl-title-wrap">
+          <span class="dl-doctype">サービス料金比較表</span>
+          <span class="dl-doctype-en">Fulfillment Plans · 2026</span>
+        </div>
+        <div class="dl-brand">
+          <img class="dl-brand-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="dl-brand-name">株式会社 Tiximax</div><div class="dl-brand-sub">3PL Solutions</div></div>
+        </div>
+      </div>
+      <div class="doc-land-body">
+        <table class="dl-matrix">
+          <thead>
+            <tr>
+              <th style="width:30%;">プラン / 機能</th>
+              <th class="feature">Starter<span class="plan-price">¥0 初期費用</span></th>
+              <th class="feature">Business<span class="plan-price">¥30,000 / 月</span></th>
+              <th class="feature">Enterprise<span class="plan-price">個別見積</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>対応拠点</td><td class="feature">1拠点</td><td class="feature">最大3拠点</td><td class="feature">5カ国全拠点</td></tr>
+            <tr><td>保管・ピッキング・梱包</td><td class="feature"><span class="yes">✓</span></td><td class="feature"><span class="yes">✓</span></td><td class="feature"><span class="yes">✓</span></td></tr>
+            <tr><td>国際輸送（航空・海上）</td><td class="feature"><span class="yes">✓</span></td><td class="feature"><span class="yes">✓</span></td><td class="feature"><span class="yes">✓</span></td></tr>
+            <tr><td>通関代行・HSコード判定</td><td class="feature"><span class="no">—</span></td><td class="feature"><span class="yes">✓</span></td><td class="feature"><span class="yes">✓</span></td></tr>
+            <tr><td>リアルタイム在庫API</td><td class="feature"><span class="no">—</span></td><td class="feature"><span class="yes">✓</span></td><td class="feature"><span class="yes">✓</span></td></tr>
+            <tr><td>DDP / DDU 対応</td><td class="feature"><span class="no">—</span></td><td class="feature"><span class="yes">✓</span></td><td class="feature"><span class="yes">✓</span></td></tr>
+            <tr><td>専任アカウントマネージャー</td><td class="feature"><span class="no">—</span></td><td class="feature"><span class="no">—</span></td><td class="feature"><span class="yes">✓</span></td></tr>
+            <tr><td>SLA保証・優先サポート</td><td class="feature"><span class="no">—</span></td><td class="feature"><span class="no">—</span></td><td class="feature"><span class="yes">✓</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="doc-land-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>info@tiximax.jp · tiximax.jp · 価格は税抜表示</span>
+        <span class="f-pg">Rate Card 2026 · 1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ STRATEGY ══════════════ -->
+  <div class="group-label">Strategy / 戦略</div>
+
+  <!-- L3 ロードマップ -->
+  <div class="layout-item" id="roadmap">
+    <div class="layout-meta">
+      <span class="layout-tag">Land L3</span>
+      <span class="layout-name">2030 Roadmap / 事業ロードマップ</span>
+      <span class="layout-note">horizontal gantt · year axis · phased bars</span>
+    </div>
+    <div class="land-vp"><div class="land-inner"><div class="doc-land">
+      <div class="doc-land-head">
+        <div class="dl-title-wrap">
+          <span class="dl-doctype">2030 事業ロードマップ</span>
+          <span class="dl-doctype-en">Global Expansion Plan</span>
+        </div>
+        <div class="dl-brand">
+          <img class="dl-brand-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="dl-brand-name">株式会社 Tiximax</div><div class="dl-brand-sub">Corporate Strategy</div></div>
+        </div>
+      </div>
+      <div class="doc-land-body" style="--dl-cols:5;">
+        <div class="dl-gantt" style="margin-top:8px;">
+          <div class="dl-gantt-axis">
+            <div class="ax-lead">マイルストーン</div>
+            <div class="ax-col">2026</div>
+            <div class="ax-col">2027</div>
+            <div class="ax-col">2028</div>
+            <div class="ax-col">2029</div>
+            <div class="ax-col">2030</div>
+          </div>
+          <div class="dl-gantt-row">
+            <div class="g-label">アジア5カ国網<small>VN · JP · KR · ID · PH</small></div>
+            <div class="dl-gantt-track"><div class="dl-gantt-bar navy" style="left:0%;width:18%;">完了</div></div>
+          </div>
+          <div class="dl-gantt-row">
+            <div class="g-label">米国・台湾進出<small>Oregon LLC · E-1 visa</small></div>
+            <div class="dl-gantt-track"><div class="dl-gantt-bar" style="left:20%;width:22%;">市場参入</div></div>
+          </div>
+          <div class="dl-gantt-row">
+            <div class="g-label">越境決済・送金<small>日越回廊 · fintech</small></div>
+            <div class="dl-gantt-track"><div class="dl-gantt-bar soft" style="left:8%;width:40%;">ライセンス取得 → 展開</div></div>
+          </div>
+          <div class="dl-gantt-row">
+            <div class="g-label">50拠点ネットワーク<small>倉庫・提携</small></div>
+            <div class="dl-gantt-track"><div class="dl-gantt-bar" style="left:40%;width:30%;">拠点拡大</div></div>
+          </div>
+          <div class="dl-gantt-row">
+            <div class="g-label">グローバル基盤<small>20カ国 · プラットフォーム</small></div>
+            <div class="dl-gantt-track"><div class="dl-gantt-bar ghost" style="left:60%;width:40%;">スケール</div></div>
+          </div>
+        </div>
+
+        <div class="dl-sec"><span class="dl-sec-title">年度目標</span><span class="dl-sec-line"></span></div>
+        <div class="dl-cols-4">
+          <div class="doc-panel"><b style="color:var(--brand-navy);">2027</b><br><span style="font-size:12px;color:var(--neutral-600);">米国＆台湾へ展開開始</span></div>
+          <div class="doc-panel"><b style="color:var(--brand-navy);">2028</b><br><span style="font-size:12px;color:var(--neutral-600);">50拠点・提携網を確立</span></div>
+          <div class="doc-panel"><b style="color:var(--brand-navy);">2030</b><br><span style="font-size:12px;color:var(--neutral-600);">20カ国 越境物流基盤</span></div>
+          <div class="doc-panel-navy" style="border-radius:0 4px 4px 0;"><b style="color:var(--brand-gold);">Vision</b><br><span style="font-size:12px;color:rgba(255,255,255,0.8);">グローバル越境物流プラットフォーム</span></div>
+        </div>
+      </div>
+      <div class="doc-land-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>五常 — 仁 · 礼 · 義 · 智 · 信</span>
+        <span class="f-pg">Roadmap 2030 · 1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ COMPANY ══════════════ -->
+  <div class="group-label">Company / 会社</div>
+
+  <!-- L5 グループ組織図 -->
+  <div class="layout-item" id="org">
+    <div class="layout-meta">
+      <span class="layout-tag">Land L5</span>
+      <span class="layout-name">Group Structure / グループ組織図</span>
+      <span class="layout-note">parent node · connector bus · country leaves</span>
+    </div>
+    <div class="land-vp"><div class="land-inner"><div class="doc-land">
+      <div class="doc-land-head">
+        <div class="dl-title-wrap">
+          <span class="dl-doctype">グループ組織図</span>
+          <span class="dl-doctype-en">Legal Entity Structure · 2026</span>
+        </div>
+        <div class="dl-brand">
+          <img class="dl-brand-seal" src="assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+          <div><div class="dl-brand-name">株式会社 Tiximax</div><div class="dl-brand-sub">Group HQ</div></div>
+        </div>
+      </div>
+      <div class="doc-land-body">
+        <div class="dl-org" style="margin-top:24px;">
+          <div class="dl-org-node">
+            <div class="n-name">Tiximax Group</div>
+            <div class="n-sub">代表取締役 武 仁誠 / CEO</div>
+          </div>
+          <div class="dl-org-connector"></div>
+          <div class="dl-org-bus" style="width:78%;"></div>
+          <div class="dl-org-row" style="margin-top:26px;">
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <div class="dl-org-connector" style="height:0;"></div>
+              <div class="dl-org-leaf">
+                <div class="l-flag">🇻🇳 VN</div>
+                <div class="l-name">ホーチミン</div>
+                <div class="l-role">運営ハブ・3PL</div>
+                <span class="l-status live">稼働中</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <div class="dl-org-leaf">
+                <div class="l-flag">🇯🇵 JP</div>
+                <div class="l-name">株式会社 Tiximax</div>
+                <div class="l-role">東京・中央区築地</div>
+                <span class="l-status live">稼働中</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <div class="dl-org-leaf">
+                <div class="l-flag">🇰🇷 KR</div>
+                <div class="l-name">ソウル法人</div>
+                <div class="l-role">購入代行・輸送</div>
+                <span class="l-status live">稼働中</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <div class="dl-org-leaf">
+                <div class="l-flag">🇮🇩 ID</div>
+                <div class="l-name">ジャカルタ法人</div>
+                <div class="l-role">PT PMA・フルフィル</div>
+                <span class="l-status live">稼働中</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <div class="dl-org-leaf">
+                <div class="l-flag">🇵🇭 PH</div>
+                <div class="l-name">マニラ法人</div>
+                <div class="l-role">ラストマイル・決済</div>
+                <span class="l-status live">稼働中</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <div class="dl-org-leaf" style="border-top-color:var(--neutral-300);opacity:0.85;">
+                <div class="l-flag" style="color:var(--neutral-400);">🇺🇸 US</div>
+                <div class="l-name">Oregon LLC</div>
+                <div class="l-role">貿易ハブ（設立中）</div>
+                <span class="l-status plan">2027予定</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="doc-land-foot">
+        <span class="f-brand">株式会社 Tiximax</span>
+        <span>5カ国稼働 · 米国/台湾 2027進出予定</span>
+        <span class="f-pg">Org Chart 2026 · 1 / 1</span>
+      </div>
+    </div></div></div>
+  </div>
+
+  <!-- ══════════════ CEREMONIAL ══════════════ -->
+  <div class="group-label">Ceremonial / 式典</div>
+
+  <!-- L6 表彰状 -->
+  <div class="layout-item" id="cert">
+    <div class="layout-meta">
+      <span class="layout-tag">Land L6</span>
+      <span class="layout-name">Certificate / 表彰状</span>
+      <span class="layout-note">double frame · centered · seal + signature</span>
+    </div>
+    <div class="land-vp"><div class="land-inner"><div class="doc-land">
+      <div class="dl-cert">
+        <div class="dl-cert-frame"></div>
+        <div class="dl-cert-inner">
+          <div class="dl-cert-title">表彰状</div>
+          <div class="dl-cert-rule"></div>
+          <div class="dl-cert-recipient">Nguyen Van A<span class="r-suffix">殿</span></div>
+          <div class="dl-cert-body">
+            あなたは <span class="highlight">2026年度上半期</span> において、ホーチミン運営ハブの通関業務改善に多大なる貢献をされ、<br>
+            グループのリードタイムを <span class="highlight">2.3日</span> へ短縮する成果を挙げられました。<br>
+            その卓越した功績を称え、ここに表彰いたします。
+          </div>
+          <div class="dl-cert-foot">
+            <div class="dl-cert-date">2026年 7月 1日</div>
+            <div class="dl-cert-sign">
+              <div class="s-org">株式会社 Tiximax</div>
+              <div class="s-role">代表取締役</div>
+              <div class="s-name">武 仁誠</div>
+            </div>
+            <img class="dl-cert-seal" src="assets/tiximax-symbol-circle-gold.svg" alt="Seal">
+          </div>
+        </div>
+      </div>
+    </div></div></div>
+  </div>
+
+</main>
+
+<!-- Tweaks panel: accent switcher -->
+<script>
+(function(){
+  var root = document.documentElement;
+  // Sidebar active-link tracking on scroll
+  var links = Array.prototype.slice.call(document.querySelectorAll('.sb-link'));
+  var map = {};
+  links.forEach(function(l){ var id = l.getAttribute('href').slice(1); map[id] = l; });
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting && map[e.target.id]){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        map[e.target.id].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('.layout-item').forEach(function(it){ obs.observe(it); });
+})();
+</script>
+</body>
+</html>

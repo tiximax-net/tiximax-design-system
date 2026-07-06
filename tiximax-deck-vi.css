@@ -1,0 +1,36 @@
+/* ============================================================
+   Tiximax Deck — Lớp style RIÊNG cho bản tiếng Việt (VI)
+   ------------------------------------------------------------
+   • CHỈ index-vi.html nạp file này, SAU tokens.css + tiximax-deck.css.
+   • Bản JP (index.html) và các tài liệu khác KHÔNG nạp file này.
+     => Mọi chỉnh sửa tại đây KHÔNG BAO GIỜ ảnh hưởng bản JP.
+   • Đặt TẤT CẢ tùy chỉnh style riêng của bản VI ở đây. Vì nạp sau
+     cùng, có thể ghi đè token/màu/layout của base mà không sửa file
+     dùng chung (tách biệt hoàn toàn theo chiều VI -> JP).
+   ============================================================ */
+
+/* --- Font tiếng Việt (ghi đè --font-jp / --font-latin của base) --- */
+:root {
+  --font-jp:    "Be Vietnam Pro", system-ui, sans-serif;
+  --font-latin: "Be Vietnam Pro", system-ui, sans-serif;
+}
+
+/* --- Căn đường kẻ timeline vào đúng tâm các chấm milestone (font VI) --- */
+.tl-row::before { top: 90px; }
+
+/* --- Slide 1: danh sách quốc gia dọc bên phải — thu nhỏ cho tên VI (dài hơn JP)
+       khỏi chạy xuống đè footer "2026 . 05" --- */
+.cover-jp-vert { font-size: 20px; letter-spacing: 0.05em; }
+
+/* --- Slide 10 (Mission/Vision/Values): chữ VI dài hơn JP -> nén khoảng cách &
+       cỡ chữ trong thẻ để nội dung không tràn xuống đè footer (giữ ~55px hở) --- */
+.mvv-card           { padding: 32px 36px 28px; }
+.mvv-card .seal     { width: 58px; height: 58px; font-size: 26px; margin-bottom: 18px; }
+.mvv-card .ja       { font-size: 26px; }
+.mvv-card .headline { margin-top: 16px; padding-top: 16px; font-size: 40px; line-height: 1.3; }
+.mvv-card .desc     { margin-top: 12px; font-size: 23px; line-height: 1.5; }
+
+/* ============================================================
+   Tùy chỉnh riêng cho bản VI — thêm bên dưới.
+   (Ví dụ: đổi cỡ chữ, khoảng cách, màu... chỉ cho bản tiếng Việt)
+   ============================================================ */

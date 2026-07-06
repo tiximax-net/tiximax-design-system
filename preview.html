@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiximax — Design System</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-jp);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ════ SIDEBAR ════ */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 220px;
+  background: var(--brand-navy);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+.sb-foot { margin-top: auto; padding: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; width: 100%;
+  font-size: 11px; font-weight: 600; font-family: var(--font-body);
+  padding: 8px 12px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: transparent; color: rgba(255,255,255,0.8);
+  cursor: pointer; transition: all 0.12s;
+}
+.theme-toggle:hover { border-color: var(--brand-gold); color: #fff; }
+
+.sb-brand {
+  padding: 22px 18px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.sb-logo {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--brand-gold);
+  display: block;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.sb-ds-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+
+.sb-group { padding: 14px 10px 4px; }
+.sb-group-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.28);
+  padding: 0 8px;
+  margin-bottom: 4px;
+}
+.sb-nav { display: flex; flex-direction: column; gap: 1px; }
+.sb-link {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  padding: 7px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.12s, color 0.12s;
+}
+.sb-link:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
+.sb-link.active { background: rgba(244,185,49,0.18); color: var(--brand-gold); font-weight: 600; }
+.sb-num {
+  font-size: 9px;
+  font-family: monospace;
+  color: rgba(255,255,255,0.22);
+  min-width: 18px;
+  letter-spacing: 0.05em;
+}
+.sb-link.active .sb-num { color: rgba(244,185,49,0.55); }
+.sb-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 6px 10px; }
+
+/* ════ MAIN ════ */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 52px 48px 120px;
+  max-width: 1160px;
+}
+
+/* ── Page header ── */
+.page-header { margin-bottom: 60px; }
+.page-super {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text-brand); margin-bottom: 10px;
+}
+.page-title {
+  font-size: 32px; font-weight: 700; letter-spacing: -0.02em;
+  color: var(--text-primary); margin-bottom: 6px;
+}
+.page-sub { font-size: 13px; color: var(--text-tertiary); }
+
+/* ── Section ── */
+.sec { margin-bottom: 80px; scroll-margin-top: 28px; }
+.sec-header {
+  display: flex; align-items: baseline; gap: 12px;
+  padding-bottom: 12px; margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.sec-num { font-size: 9px; font-family: monospace; color: var(--text-tertiary); letter-spacing: 0.1em; }
+.sec-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text-secondary);
+}
+
+/* ── Panel ── */
+.panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  overflow: hidden;
+}
+.panel + .panel { margin-top: 10px; }
+.panel-dark { background: var(--brand-navy); border-color: transparent; }
+.panel-gold { background: var(--brand-gold); border-color: transparent; }
+.panel-surface { background: var(--surface-sunken); }
+.panel-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 16px;
+}
+.panel-dark .panel-label { color: rgba(255,255,255,0.3); }
+
+/* ── Grid helpers ── */
+.row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+.row + .row { margin-top: 10px; }
+.row-center { align-items: center; }
+.col { display: flex; flex-direction: column; gap: 10px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.sub-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 8px;
+}
+
+/* ── Color swatches ── */
+.swatch-row { display: flex; gap: 4px; }
+.swatch { flex: 1; }
+.swatch-color { height: 44px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06); margin-bottom: 5px; }
+.swatch-info { font-size: 9px; color: var(--text-tertiary); line-height: 1.5; }
+.swatch-token { font-weight: 700; font-family: monospace; color: var(--text-secondary); }
+
+/* ── Type scale ── */
+.type-row {
+  display: flex; align-items: baseline; gap: 20px;
+  padding: 12px 0; border-bottom: 1px solid var(--border-subtle);
+}
+.type-row:last-child { border-bottom: none; }
+.type-meta { width: 130px; flex-shrink: 0; font-size: 10px; font-family: monospace; color: var(--text-tertiary); line-height: 1.7; }
+.type-sample { color: var(--text-primary); line-height: 1.1; }
+
+/* ── Token table ── */
+.token-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.token-table th { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border-subtle); color: var(--text-tertiary); }
+.token-table td { padding: 7px 10px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: middle; }
+.token-table tr:last-child td { border-bottom: none; }
+.token-table td:first-child { font-family: monospace; font-size: 10px; color: var(--text-tertiary); }
+.t-preview { display: inline-block; width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); vertical-align: middle; margin-right: 6px; }
+
+/* ── Button component ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-jp); font-weight: 600;
+  border-radius: var(--radius-sm); border: 2px solid transparent;
+  cursor: pointer; white-space: nowrap; line-height: 1;
+  text-decoration: none; transition: opacity 0.15s;
+}
+.btn-primary   { background: var(--brand-gold);  color: var(--brand-navy);    border-color: var(--brand-gold); }
+.btn-secondary { background: var(--brand-navy);  color: var(--text-inverse);  border-color: var(--brand-navy); }
+.btn-outline   { background: transparent;        color: var(--brand-navy);    border-color: var(--brand-navy); }
+.btn-ghost     { background: transparent;        color: var(--text-secondary); border-color: transparent; }
+.btn-sm { font-size: 13px; padding: 6px 14px; }
+.btn-md { font-size: 15px; padding: 10px 22px; }
+.btn-lg { font-size: 17px; padding: 14px 28px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Badge component ── */
+.badge {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-jp); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.04em; border-radius: var(--radius-pill); padding: 3px 10px;
+}
+.badge-gold    { background: var(--gold-100);    color: var(--gold-800);     border: 1px solid var(--gold-200); }
+.badge-navy    { background: var(--navy-100);    color: var(--navy-800);     border: 1px solid var(--navy-200); }
+.badge-success { background: var(--success-bg);  color: var(--text-success); border: 1px solid var(--success-border); }
+.badge-warning { background: var(--warning-bg);  color: var(--gold-800);     border: 1px solid var(--warning-border); }
+.badge-error   { background: var(--error-bg);    color: var(--text-error);   border: 1px solid var(--error-border); }
+.badge-neutral { background: var(--neutral-100); color: var(--neutral-700);  border: 1px solid var(--neutral-200); }
+
+/* ── Tag component ── */
+.tag {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-jp); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  border-radius: var(--radius-xs); padding: 3px 8px;
+}
+.tag-gold    { background: var(--gold-50);    color: var(--gold-700);     border: 1px solid var(--gold-200); }
+.tag-navy    { background: var(--navy-50);    color: var(--navy-700);     border: 1px solid var(--navy-200); }
+.tag-red     { background: var(--red-50);     color: var(--red-700);      border: 1px solid var(--red-200); }
+.tag-neutral { background: var(--neutral-50); color: var(--neutral-600);  border: 1px solid var(--neutral-200); }
+
+/* ── Card component ── */
+.card {
+  border-radius: var(--radius-md); padding: 24px;
+  font-family: var(--font-jp); display: flex; flex-direction: column; gap: 10px;
+}
+.card-default { background: var(--surface-card); border: 1px solid var(--border-default); box-shadow: var(--shadow-md); }
+.card-navy    { background: var(--brand-navy); border: none; box-shadow: var(--shadow-lg); }
+.card-gold    { background: var(--brand-gold); border: none; box-shadow: var(--shadow-gold); }
+.card-title { font-size: 17px; font-weight: 600; color: var(--text-primary); }
+.card-navy .card-title { color: var(--text-inverse); }
+.card-gold .card-title { color: var(--brand-navy); }
+.card-body { font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
+.card-navy .card-body { color: rgba(255,255,255,0.65); }
+.card-gold .card-body { color: rgba(38,79,145,0.65); }
+.card-icon { font-size: 26px; line-height: 1; }
+
+/* ── ServiceCard component ── */
+.service-card {
+  border-radius: var(--radius-md); padding: 28px 24px;
+  font-family: var(--font-jp); display: flex; flex-direction: column; gap: 14px;
+}
+.service-card-default { background: var(--surface-card); border: 1px solid var(--border-default); box-shadow: var(--shadow-sm); }
+.service-card-highlight { background: var(--brand-gold); border: none; box-shadow: var(--shadow-gold); }
+.service-num {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.service-card-default .service-num { color: var(--text-brand); }
+.service-card-highlight .service-num { color: rgba(38,79,145,0.5); }
+.service-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+.service-card-default .service-title { color: var(--text-primary); }
+.service-card-highlight .service-title { color: var(--brand-navy); }
+.service-desc { font-size: 13px; line-height: 1.65; }
+.service-card-default .service-desc { color: var(--text-secondary); }
+.service-card-highlight .service-desc { color: rgba(38,79,145,0.65); }
+
+/* ── StatBlock component ── */
+.stat-block { text-align: center; }
+.stat-value-wrap { display: flex; align-items: baseline; justify-content: center; gap: 2px; }
+.stat-value { font-size: 52px; font-weight: 900; line-height: 1; }
+.stat-unit  { font-size: 24px; font-weight: 600; line-height: 1; }
+.stat-gold  .stat-value, .stat-gold  .stat-unit { color: var(--brand-gold); }
+.stat-navy  .stat-value, .stat-navy  .stat-unit { color: var(--brand-navy); }
+.stat-label { font-size: 13px; color: var(--text-secondary); letter-spacing: 0.04em; margin-top: 4px; }
+
+/* ── Navbar component ── */
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 36px; height: 62px;
+  font-family: var(--font-jp);
+}
+.navbar-light { background: var(--surface-card); border-bottom: 1px solid var(--border-subtle); }
+.navbar-dark  { background: var(--brand-navy); }
+.navbar-brand { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; }
+.navbar-light .navbar-brand { color: var(--brand-navy); }
+.navbar-dark  .navbar-brand { color: var(--brand-gold); }
+.navbar-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+.navbar-link { font-size: 13px; font-weight: 500; text-decoration: none; }
+.navbar-light .navbar-link { color: var(--text-secondary); }
+.navbar-dark  .navbar-link { color: rgba(255,255,255,0.65); }
+.navbar-cta {
+  font-family: var(--font-jp); font-size: 13px; font-weight: 600;
+  background: var(--brand-gold); color: var(--brand-navy);
+  border: none; border-radius: var(--radius-sm); padding: 8px 18px; cursor: pointer;
+}
+
+/* ── Shadow demo ── */
+.shadow-demo {
+  background: var(--surface-card); border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  height: 64px; font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+  font-family: monospace; letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <span class="sb-logo">Tiximax</span>
+    <span class="sb-ds-label">Design System</span>
+  </div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Foundations</div>
+    <nav class="sb-nav">
+      <a href="#colors"     class="sb-link active"><span class="sb-num">01</span>Colors</a>
+      <a href="#typography" class="sb-link"><span class="sb-num">02</span>Typography</a>
+      <a href="#shadows"    class="sb-link"><span class="sb-num">03</span>Shadows</a>
+    </nav>
+  </div>
+
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Components</div>
+    <nav class="sb-nav">
+      <a href="#button"      class="sb-link"><span class="sb-num">04</span>Button</a>
+      <a href="#badge"       class="sb-link"><span class="sb-num">05</span>Badge</a>
+      <a href="#tag"         class="sb-link"><span class="sb-num">06</span>Tag</a>
+      <a href="#card"        class="sb-link"><span class="sb-num">07</span>Card</a>
+      <a href="#heading"     class="sb-link"><span class="sb-num">08</span>Heading</a>
+      <a href="#navbar"      class="sb-link"><span class="sb-num">09</span>Navbar</a>
+      <a href="#service-card" class="sb-link"><span class="sb-num">10</span>ServiceCard</a>
+      <a href="#stat-block"  class="sb-link"><span class="sb-num">11</span>StatBlock</a>
+    </nav>
+  </div>
+
+  <div class="sb-sep"></div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Documents</div>
+    <nav class="sb-nav">
+      <a href="slides-preview.html" class="sb-link" style="justify-content:space-between;">
+        <span style="display:flex;align-items:center;gap:8px;"><span class="sb-num">↗</span>スライド Layouts</span>
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:.35;flex-shrink:0;"><path d="M1 8L8 1M8 1H2M8 1V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="documents-preview.html" class="sb-link" style="justify-content:space-between;">
+        <span style="display:flex;align-items:center;gap:8px;"><span class="sb-num">↗</span>A4 Layouts</span>
+        <svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:.35;flex-shrink:0;"><path d="M1 8L8 1M8 1H2M8 1V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </nav>
+  </div>
+  <div class="sb-foot">
+    <button class="theme-toggle" onclick="toggleTheme()"><span id="theme-icon">🌙</span> <span id="theme-label">Dark mode</span></button>
+  </div>
+</aside>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+  <header class="page-header">
+    <div class="page-super">Design System</div>
+    <h1 class="page-title">Tiximax — Brand & Components</h1>
+    <p class="page-sub">Colors · Typography · UI components — v1.0 · Source Sans 3 / Noto Sans JP / Be Vietnam Pro</p>
+  </header>
+
+  <!-- ── 01 COLORS ── -->
+  <section class="sec" id="colors">
+    <div class="sec-header">
+      <span class="sec-num">01</span>
+      <span class="sec-title">Colors</span>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Brand — Primary</div>
+      <div class="swatch-row">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F4B931"></div>
+          <div class="swatch-info"><span class="swatch-token">--brand-gold</span><br>#F4B931 · Gold</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#264F91"></div>
+          <div class="swatch-info"><span class="swatch-token">--brand-navy</span><br>#264F91 · Navy</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#EB5635"></div>
+          <div class="swatch-info"><span class="swatch-token">--brand-red</span><br>#EB5635 · Red</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F7B82D"></div>
+          <div class="swatch-info"><span class="swatch-token">--brand-gold-bright</span><br>#F7B82D · Spark</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Gold ramp</div>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-color" style="background:#FEF9EA"></div><div class="swatch-info"><span class="swatch-token">--gold-50</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FDF1CE"></div><div class="swatch-info"><span class="swatch-token">--gold-100</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FBE19B"></div><div class="swatch-info"><span class="swatch-token">--gold-200</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F9D168"></div><div class="swatch-info"><span class="swatch-token">--gold-300</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F6C54C"></div><div class="swatch-info"><span class="swatch-token">--gold-400</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F4B931; border:2px solid #000"></div><div class="swatch-info"><span class="swatch-token">--gold-500 ★</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#D8A01B"></div><div class="swatch-info"><span class="swatch-token">--gold-600</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#A87B15"></div><div class="swatch-info"><span class="swatch-token">--gold-700</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#78580F"></div><div class="swatch-info"><span class="swatch-token">--gold-800</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#4B370A"></div><div class="swatch-info"><span class="swatch-token">--gold-900</span></div></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Navy ramp</div>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-color" style="background:#ECF1F8"></div><div class="swatch-info"><span class="swatch-token">--navy-50</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#D2DDEE"></div><div class="swatch-info"><span class="swatch-token">--navy-100</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#A3B9DA"></div><div class="swatch-info"><span class="swatch-token">--navy-200</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#7596C5"></div><div class="swatch-info"><span class="swatch-token">--navy-300</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#4D72AB"></div><div class="swatch-info"><span class="swatch-token">--navy-400</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#264F91"></div><div class="swatch-info"><span class="swatch-token">--navy-500</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1F427A"></div><div class="swatch-info"><span class="swatch-token">--navy-600</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#183360"></div><div class="swatch-info"><span class="swatch-token">--navy-700</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#264F91; border:2px solid #000"></div><div class="swatch-info"><span class="swatch-token">--navy-800 ★</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#0B172E"></div><div class="swatch-info"><span class="swatch-token">--navy-900</span></div></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Neutral scale</div>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-color" style="background:#FFFFFF"></div><div class="swatch-info"><span class="swatch-token">--neutral-0</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F5F7FA"></div><div class="swatch-info"><span class="swatch-token">--neutral-50</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EDF0F4"></div><div class="swatch-info"><span class="swatch-token">--neutral-100</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#DDE2EA"></div><div class="swatch-info"><span class="swatch-token">--neutral-200</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#C3CBD7"></div><div class="swatch-info"><span class="swatch-token">--neutral-300</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#9AA5B5"></div><div class="swatch-info"><span class="swatch-token">--neutral-400</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#707C8E"></div><div class="swatch-info"><span class="swatch-token">--neutral-500</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#515C6D"></div><div class="swatch-info"><span class="swatch-token">--neutral-600</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3A4452"></div><div class="swatch-info"><span class="swatch-token">--neutral-700</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#252D38"></div><div class="swatch-info"><span class="swatch-token">--neutral-800</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#141A22"></div><div class="swatch-info"><span class="swatch-token">--neutral-900</span></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#0B0F15"></div><div class="swatch-info"><span class="swatch-token">--neutral-950</span></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">Semantic</div>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch-color" style="background:#E8F5EE"></div><div class="swatch-info"><span class="swatch-token">--success-bg</span><br>#008148</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FEF9EA"></div><div class="swatch-info"><span class="swatch-token">--warning-bg</span><br>#F4B931</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FDF0EC"></div><div class="swatch-info"><span class="swatch-token">--error-bg</span><br>#EB5635</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E8F4FC"></div><div class="swatch-info"><span class="swatch-token">--info-bg</span><br>#006FBB</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 02 TYPOGRAPHY ── -->
+  <section class="sec" id="typography">
+    <div class="sec-header">
+      <span class="sec-num">02</span>
+      <span class="sec-title">Typography</span>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Type scale — Source Sans 3 (--font-jp)</div>
+      <div class="type-row">
+        <div class="type-meta">--fs-display<br>56px / black</div>
+        <div class="type-sample" style="font-size:var(--fs-display);font-weight:900;letter-spacing:-0.02em;line-height:1">Tiximax</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-h1<br>40px / bold</div>
+        <div class="type-sample" style="font-size:var(--fs-h1);font-weight:700;letter-spacing:-0.02em">物流の未来を、今</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-h2<br>32px / bold</div>
+        <div class="type-sample" style="font-size:var(--fs-h2);font-weight:700;letter-spacing:-0.02em">Cross-Border Logistics</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-h3<br>26px / semibold</div>
+        <div class="type-sample" style="font-size:var(--fs-h3);font-weight:600">5ヶ国・50拠点ネットワーク</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-h4<br>21px / semibold</div>
+        <div class="type-sample" style="font-size:var(--fs-h4);font-weight:600">3PL Fulfillment Services</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-title<br>18px / semibold</div>
+        <div class="type-sample" style="font-size:var(--fs-title);font-weight:600">国際輸送・通関サポート</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-body<br>16px / regular</div>
+        <div class="type-sample" style="font-size:var(--fs-body);font-weight:400;color:var(--text-secondary);line-height:1.65">航空・海上輸送、ルート最適化、フルトラッキング対応でDDP/DDUにも対応します。</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-body-sm<br>14px / regular</div>
+        <div class="type-sample" style="font-size:var(--fs-body-sm);font-weight:400;color:var(--text-secondary);line-height:1.65">HS codeの分類・書類作成・輸出入申告・制限品目の確認まで一括サポート。</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-caption<br>13px / regular</div>
+        <div class="type-sample" style="font-size:var(--fs-caption);color:var(--text-tertiary)">更新日: 2026年6月 · tiximax.jp</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">--fs-overline<br>12px / bold · wide</div>
+        <div class="type-sample" style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-brand)">Logistics Network</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">Font families</div>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Stack</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td>--font-jp</td><td>Source Sans 3, Noto Sans JP</td><td>日本語・メイン UI</td></tr>
+          <tr><td>--font-vi</td><td>Be Vietnam Pro, Noto Sans JP, Source Sans 3</td><td>ベトナム語優先ドキュメント</td></tr>
+          <tr><td>--font-latin</td><td>Source Sans 3, Noto Sans JP</td><td>英数字</td></tr>
+          <tr><td>--font-display</td><td>Source Sans 3</td><td>ディスプレイ見出し</td></tr>
+          <tr><td>--font-mono</td><td>ui-monospace, SFMono, Consolas</td><td>コード・数値</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 03 SHADOWS ── -->
+  <section class="sec" id="shadows">
+    <div class="sec-header">
+      <span class="sec-num">03</span>
+      <span class="sec-title">Shadows</span>
+    </div>
+    <div class="panel">
+      <div class="g3" style="gap:16px">
+        <div><div class="sub-label">--shadow-xs</div><div class="shadow-demo" style="box-shadow:var(--shadow-xs)">xs</div></div>
+        <div><div class="sub-label">--shadow-sm</div><div class="shadow-demo" style="box-shadow:var(--shadow-sm)">sm</div></div>
+        <div><div class="sub-label">--shadow-md</div><div class="shadow-demo" style="box-shadow:var(--shadow-md)">md</div></div>
+        <div><div class="sub-label">--shadow-lg</div><div class="shadow-demo" style="box-shadow:var(--shadow-lg)">lg</div></div>
+        <div><div class="sub-label">--shadow-xl</div><div class="shadow-demo" style="box-shadow:var(--shadow-xl)">xl</div></div>
+        <div><div class="sub-label">--shadow-gold</div><div class="shadow-demo" style="box-shadow:var(--shadow-gold);background:var(--gold-50)">gold</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 04 BUTTON ── -->
+  <section class="sec" id="button">
+    <div class="sec-header">
+      <span class="sec-num">04</span>
+      <span class="sec-title">Button</span>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Variants</div>
+      <div class="row row-center" style="gap:12px">
+        <button class="btn btn-primary btn-md">Primary</button>
+        <button class="btn btn-secondary btn-md">Secondary</button>
+        <button class="btn btn-outline btn-md">Outline</button>
+        <button class="btn btn-ghost btn-md">Ghost</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Sizes — Primary</div>
+      <div class="row row-center" style="gap:12px">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary btn-md">Medium</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Sizes — Secondary</div>
+      <div class="row row-center" style="gap:12px">
+        <button class="btn btn-secondary btn-sm">Small</button>
+        <button class="btn btn-secondary btn-md">Medium</button>
+        <button class="btn btn-secondary btn-lg">Large</button>
+      </div>
+    </div>
+
+    <div class="panel panel-dark">
+      <div class="panel-label">On dark background</div>
+      <div class="row row-center" style="gap:12px">
+        <button class="btn btn-primary btn-md">Primary</button>
+        <button class="btn btn-md" style="background:transparent;color:white;border:2px solid rgba(255,255,255,0.35)">Outline White</button>
+        <button class="btn btn-md" style="background:transparent;color:rgba(255,255,255,0.6);border-color:transparent">Ghost</button>
+        <button class="btn btn-primary btn-md" disabled>Disabled</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 05 BADGE ── -->
+  <section class="sec" id="badge">
+    <div class="sec-header">
+      <span class="sec-num">05</span>
+      <span class="sec-title">Badge</span>
+    </div>
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Variants</div>
+      <div class="row row-center" style="gap:8px">
+        <span class="badge badge-gold">Gold</span>
+        <span class="badge badge-navy">Navy</span>
+        <span class="badge badge-success">Success</span>
+        <span class="badge badge-warning">Warning</span>
+        <span class="badge badge-error">Error</span>
+        <span class="badge badge-neutral">Neutral</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">In context</div>
+      <div class="row row-center" style="gap:8px">
+        <span class="badge badge-gold">配送中</span>
+        <span class="badge badge-success">完了</span>
+        <span class="badge badge-error">要確認</span>
+        <span class="badge badge-navy">B2B</span>
+        <span class="badge badge-warning">保留</span>
+        <span class="badge badge-neutral">下書き</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 06 TAG ── -->
+  <section class="sec" id="tag">
+    <div class="sec-header">
+      <span class="sec-num">06</span>
+      <span class="sec-title">Tag</span>
+    </div>
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Colors</div>
+      <div class="row row-center" style="gap:8px">
+        <span class="tag tag-gold">Gold</span>
+        <span class="tag tag-navy">Navy</span>
+        <span class="tag tag-red">Red</span>
+        <span class="tag tag-neutral">Neutral</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">In context</div>
+      <div class="row row-center" style="gap:8px">
+        <span class="tag tag-gold">Logistics</span>
+        <span class="tag tag-navy">Japan</span>
+        <span class="tag tag-navy">Vietnam</span>
+        <span class="tag tag-red">Express</span>
+        <span class="tag tag-neutral">B2C</span>
+        <span class="tag tag-neutral">3PL</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 07 CARD ── -->
+  <section class="sec" id="card">
+    <div class="sec-header">
+      <span class="sec-num">07</span>
+      <span class="sec-title">Card</span>
+    </div>
+    <div class="g3">
+      <div class="card card-default">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Default Card</div>
+        <div class="card-body">White background with border and medium shadow. Standard container for content.</div>
+      </div>
+      <div class="card card-navy">
+        <div class="card-icon">🌏</div>
+        <div class="card-title" style="color:white">Navy Card</div>
+        <div class="card-body">Brand navy background for high-contrast sections and featured content.</div>
+      </div>
+      <div class="card card-gold">
+        <div class="card-icon">⭐</div>
+        <div class="card-title">Gold Card</div>
+        <div class="card-body">Brand gold background for CTAs, highlights, and premium content.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 08 HEADING ── -->
+  <section class="sec" id="heading">
+    <div class="sec-header">
+      <span class="sec-num">08</span>
+      <span class="sec-title">Heading</span>
+    </div>
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Levels</div>
+      <div class="col" style="gap:16px">
+        <div><div class="sub-label">H1 — 40px bold</div><h1 style="font-size:var(--fs-h1);font-weight:700;letter-spacing:-0.02em;margin:0">国際物流のパートナー</h1></div>
+        <div><div class="sub-label">H2 — 32px bold</div><h2 style="font-size:var(--fs-h2);font-weight:700;letter-spacing:-0.02em;margin:0">Cross-Border Logistics</h2></div>
+        <div><div class="sub-label">H3 — 26px semibold</div><h3 style="font-size:var(--fs-h3);font-weight:600;margin:0">5ヶ国ネットワーク</h3></div>
+        <div><div class="sub-label">H4 — 21px semibold</div><h4 style="font-size:var(--fs-h4);font-weight:600;margin:0">3PL Fulfillment Services</h4></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label">Color variants</div>
+      <div class="col" style="gap:12px">
+        <h2 style="font-size:var(--fs-h2);font-weight:700;letter-spacing:-0.02em;margin:0;color:var(--text-primary)">Primary (default)</h2>
+        <h2 style="font-size:var(--fs-h2);font-weight:700;letter-spacing:-0.02em;margin:0;color:var(--brand-navy)">Navy</h2>
+        <h2 style="font-size:var(--fs-h2);font-weight:700;letter-spacing:-0.02em;margin:0;color:var(--text-brand)">Gold (--text-brand)</h2>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 09 NAVBAR ── -->
+  <section class="sec" id="navbar">
+    <div class="sec-header">
+      <span class="sec-num">09</span>
+      <span class="sec-title">Navbar</span>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div class="sub-label" style="margin-bottom:8px">Light</div>
+      <div style="border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden">
+        <nav class="navbar navbar-light">
+          <span class="navbar-brand">Tiximax</span>
+          <ul class="navbar-links">
+            <li><a class="navbar-link" href="#">サービス</a></li>
+            <li><a class="navbar-link" href="#">会社概要</a></li>
+            <li><a class="navbar-link" href="#">ニュース</a></li>
+            <li><button class="navbar-cta">お問い合わせ</button></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div>
+      <div class="sub-label" style="margin-bottom:8px">Dark</div>
+      <div style="border-radius:var(--radius-md);overflow:hidden">
+        <nav class="navbar navbar-dark">
+          <span class="navbar-brand">Tiximax</span>
+          <ul class="navbar-links">
+            <li><a class="navbar-link" href="#">サービス</a></li>
+            <li><a class="navbar-link" href="#">会社概要</a></li>
+            <li><a class="navbar-link" href="#">ニュース</a></li>
+            <li><button class="navbar-cta">お問い合わせ</button></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 10 SERVICE CARD ── -->
+  <section class="sec" id="service-card">
+    <div class="sec-header">
+      <span class="sec-num">10</span>
+      <span class="sec-title">ServiceCard</span>
+    </div>
+    <div class="g4">
+      <div class="service-card service-card-default">
+        <div class="service-num">01</div>
+        <div>
+          <div class="service-title">国際輸送</div>
+          <div class="service-desc">航空・海上輸送、ルート最適化、フルトラッキング対応、DDP/DDU対応</div>
+        </div>
+      </div>
+      <div class="service-card service-card-highlight">
+        <div class="service-num">02</div>
+        <div>
+          <div class="service-title">通関サポート</div>
+          <div class="service-desc">HSコード分類、書類作成、輸出入申告、制限品目確認</div>
+        </div>
+      </div>
+      <div class="service-card service-card-default">
+        <div class="service-num">03</div>
+        <div>
+          <div class="service-title">3PLフルフィルメント</div>
+          <div class="service-desc">倉庫保管、ピッキング、梱包、ラストマイル配送</div>
+        </div>
+      </div>
+      <div class="service-card service-card-default">
+        <div class="service-num">04</div>
+        <div>
+          <div class="service-title">購入代行 B2C</div>
+          <div class="service-desc">日本・韓国商品の購入代理・国際転送サービス</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 11 STAT BLOCK ── -->
+  <section class="sec" id="stat-block">
+    <div class="sec-header">
+      <span class="sec-num">11</span>
+      <span class="sec-title">StatBlock</span>
+    </div>
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-label">Gold accent — key metrics</div>
+      <div class="g4">
+        <div class="stat-block stat-gold">
+          <div class="stat-value-wrap">
+            <span class="stat-value">5</span>
+            <span class="stat-unit">ヶ国</span>
+          </div>
+          <div class="stat-label">展開国数</div>
+        </div>
+        <div class="stat-block stat-gold">
+          <div class="stat-value-wrap">
+            <span class="stat-value">50</span>
+            <span class="stat-unit">+</span>
+          </div>
+          <div class="stat-label">倉庫・拠点</div>
+        </div>
+        <div class="stat-block stat-gold">
+          <div class="stat-value-wrap">
+            <span class="stat-value">2030</span>
+          </div>
+          <div class="stat-label">20ヶ国目標年</div>
+        </div>
+        <div class="stat-block stat-gold">
+          <div class="stat-value-wrap">
+            <span class="stat-value">24</span>
+            <span class="stat-unit">h</span>
+          </div>
+          <div class="stat-label">サポート対応</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-dark">
+      <div class="panel-label">On navy background</div>
+      <div class="g4">
+        <div class="stat-block stat-gold">
+          <div class="stat-value-wrap">
+            <span class="stat-value">5</span>
+            <span class="stat-unit">ヶ国</span>
+          </div>
+          <div class="stat-label" style="color:rgba(255,255,255,0.45)">展開国数</div>
+        </div>
+        <div class="stat-block stat-gold">
+          <div class="stat-value-wrap">
+            <span class="stat-value">50</span>
+            <span class="stat-unit">+</span>
+          </div>
+          <div class="stat-label" style="color:rgba(255,255,255,0.45)">倉庫・拠点</div>
+        </div>
+        <div class="stat-block" style="color:white;text-align:center">
+          <div class="stat-value-wrap" style="justify-content:center">
+            <span class="stat-value" style="color:white">2026</span>
+          </div>
+          <div class="stat-label" style="color:rgba(255,255,255,0.45)">設立年</div>
+        </div>
+        <div class="stat-block stat-gold">
+          <div class="stat-value-wrap">
+            <span class="stat-value">24</span>
+            <span class="stat-unit">h</span>
+          </div>
+          <div class="stat-label" style="color:rgba(255,255,255,0.45)">サポート対応</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// Highlight active sidebar link on scroll
+const sections = document.querySelectorAll('.sec');
+const links = document.querySelectorAll('.sb-link');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector('.sb-link[href="#' + e.target.id + '"]');
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => obs.observe(s));
+
+/* Theme toggle — snippet chuẩn toàn workspace (key: ds-theme) */
+const THEME_KEY = 'ds-theme';
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const i = document.getElementById('theme-icon'), l = document.getElementById('theme-label');
+  if (i) i.textContent = t === 'dark' ? '☀️' : '🌙';
+  if (l) l.textContent = t === 'dark' ? 'Light mode' : 'Dark mode';
+}
+function toggleTheme() {
+  const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem(THEME_KEY, t); } catch {}
+  applyTheme(t);
+}
+applyTheme((() => { try { return localStorage.getItem(THEME_KEY) || 'light'; } catch { return 'light'; } })());
+</script>
+</body>
+</html>

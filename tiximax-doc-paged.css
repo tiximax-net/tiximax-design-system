@@ -1,0 +1,174 @@
+/* ============================================================
+   TIXIMAX DOCUMENT SYSTEM — PAGED MEDIA (真の A4 多ページ)
+   ------------------------------------------------------------
+   Mô hình DÒNG CHẢY (flow), KHÁC với tiximax-docs.css (canvas cố định).
+
+   • Author MỘT luồng nội dung liên tục → Chromium tự phân trang A4.
+   • Header/footer LẶP LẠI mỗi trang (position:fixed) → không bao giờ đè body.
+   • break-inside:avoid trên hàng/bảng/card → không cắt giữa chừng.
+   • thead lặp lại đầu mỗi trang khi bảng tràn trang.
+
+   Xuất PDF:  html-to-pdf/index.mjs --paged   (dùng page.pdf format A4,
+              preferCSSPageSize → @page dưới đây điều khiển khổ + lề).
+              Số trang "X / Y" do footerTemplate của tool vẽ trong lề dưới.
+
+   Import order:  tokens.css  →  (tùy chọn) tiximax-docs.css component  →  file này.
+   Tái dùng nguyên các component .doc-* / .dl-* của tiximax-docs.css
+   (bảng, panel, list, heading, signature, invoice…) — file này chỉ lo
+   VỎ TRANG + HEADER/FOOTER LẶP + LUẬT NGẮT TRANG.
+   ============================================================ */
+
+/* ── Khổ trang & lề (nguồn sự thật duy nhất; tool đọc qua preferCSSPageSize) ── */
+:root {
+  --pg-head-h:  30mm;   /* chiều cao band header (khớp margin-top) */
+  --pg-foot-h:  16mm;   /* chiều cao band footer (khớp margin-bottom) */
+  --pg-side:    16mm;   /* lề trái/phải */
+}
+
+@page {
+  size: A4 portrait;
+  margin: var(--pg-head-h) var(--pg-side) var(--pg-foot-h) var(--pg-side);
+}
+/* ── LANDSCAPE (横型) ──────────────────────────────────────
+   Tài liệu ngang: thêm class .landscape lên <html> hoặc <body>
+   VÀ đúng 1 dòng override khổ giấy (cascade: @page sau thắng):
+       <style>@page { size: A4 landscape; }</style>
+   Đặt SAU link tiximax-doc-paged.css. Header/footer/thead vẫn tự lặp. */
+html.landscape, body.landscape { --pg-side: 18mm; }
+
+/* ── Reset in ấn ──────────────────────────────────────────── */
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+.doc-flow {
+  font-family: var(--font-jp);
+  font-size: 14px;            /* 10.5pt — chuẩn 本文 công sở Nhật */
+  line-height: 1.75;
+  color: var(--neutral-700);
+  counter-reset: page;
+}
+
+/* ── Running header — LẶP mọi trang qua position:fixed ───────
+   Trên MÀN HÌNH: tĩnh (đứng đầu tài liệu).
+   Khi IN/PDF: fixed → Chromium vẽ lại ở lề trên từng trang.        */
+.doc-running-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--pg-side) 10px;
+  border-bottom: 2.5px solid var(--brand-gold);
+  background: var(--neutral-0);
+}
+.doc-running-head .rh-logo { display: flex; align-items: center; gap: 12px; }
+.doc-running-head .rh-seal {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: contain; flex-shrink: 0;
+}
+.doc-running-head .rh-name {
+  font-size: 16px; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--brand-navy); line-height: 1.2;
+}
+.doc-running-head .rh-sub {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--neutral-500);
+}
+.doc-running-head .rh-type {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--neutral-400);
+}
+
+/* Running footer TĨNH cuối tài liệu (chỉ hiện màn hình để preview mép dưới).
+   Số trang thật do footerTemplate của html-to-pdf vẽ khi xuất PDF. */
+.doc-running-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 8px; margin-top: 18px;
+  border-top: 1px solid var(--neutral-200);
+  font-size: 11px; color: var(--neutral-400); letter-spacing: 0.04em;
+}
+.doc-running-foot .f-brand { font-weight: 600; color: var(--neutral-500); }
+
+/* KHI IN/PDF: header + footer band do html-to-pdf vẽ qua headerTemplate/
+   footerTemplate (lặp mọi trang, KHÔNG dùng position:fixed — vì fixed sẽ
+   TẮT tính năng lặp <thead> của bảng dài). Header/footer trong luồng chỉ
+   phục vụ PREVIEW màn hình → ẩn hẳn khi in để khỏi trùng. */
+@media print {
+  .doc-running-head,
+  .doc-running-foot { display: none !important; }
+}
+
+/* ── Vùng nội dung ───────────────────────────────────────────
+   Không cần padding ngang: @page margin đã lo lề.               */
+.doc-flow-body { }
+.doc-flow-body > :first-child { margin-top: 0; }
+
+/* ══ LUẬT NGẮT TRANG (điểm mấu chốt chống vỡ) ══════════════ */
+
+/* Tiêu đề không mồ côi: dính với đoạn theo sau */
+.doc-h1, .doc-h2, .doc-h3,
+.doc-section-label, .dl-sec-title {
+  break-after: avoid-page;
+  -webkit-column-break-after: avoid;
+}
+
+/* Khối nguyên vẹn — không cắt giữa chừng */
+.doc-panel, .doc-panel-navy,
+.doc-signature,
+.doc-meta-grid,
+.dl-kpi, .doc-tag,
+figure, blockquote, .keep-together {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Bảng: header LẶP đầu mỗi trang, hàng không cắt đôi */
+.doc-table, .dl-fin-table, .mom-action-table, .dl-matrix { break-inside: auto; }
+.doc-table thead, .dl-fin-table thead,
+.mom-action-table thead, .dl-matrix thead {
+  display: table-header-group;   /* repeat trên mỗi trang */
+}
+.doc-table tfoot, .dl-fin-table tfoot { display: table-footer-group; }
+.doc-table tr, .dl-fin-table tr,
+.mom-action-table tr, .dl-matrix tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+/* tổng cộng / total dính với hàng trên nó */
+.doc-table .total-row, .doc-table .subtotal,
+.dl-fin-table tr.total, .dl-fin-table tr.subtotal {
+  break-before: avoid-page;
+}
+
+/* Danh sách: mỗi mục không cắt đôi */
+.doc-list li { break-inside: avoid; }
+
+/* ── Tiện ích ngắt trang thủ công ────────────────────────── */
+.page-break        { break-before: page; page-break-before: always; }
+.page-break-after  { break-after: page;  page-break-after: always; }
+.avoid-break       { break-inside: avoid; page-break-inside: avoid; }
+
+/* Số trang chờ tool điền (nếu muốn nhúng thủ công trong flow) */
+.doc-pageno::after { content: counter(page); }
+.doc-pagecount::after { content: counter(pages); }
+
+/* ══════════════════════════════════════════════════════════
+   PREVIEW MÀN HÌNH — giả lập trang A4 có bóng đổ (không ảnh
+   hưởng bản in). Chỉ áp khi bọc trong .doc-screen.
+   ══════════════════════════════════════════════════════════ */
+@media screen {
+  .doc-screen {
+    background: var(--neutral-100);
+    padding: 32px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  .doc-screen .doc-flow {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--neutral-0);
+    box-shadow: 0 4px 24px rgba(11,15,21,0.12);
+    padding: 0 0 var(--pg-foot-h);
+  }
+  .doc-screen .doc-flow.landscape { width: 297mm; min-height: 210mm; }
+  .doc-screen .doc-flow-body { padding: 24px var(--pg-side) 0; }
+  .doc-screen .doc-running-head { padding: 18px var(--pg-side) 10px; }
+  .doc-screen .doc-running-foot { margin: 24px var(--pg-side) 0; }
+}

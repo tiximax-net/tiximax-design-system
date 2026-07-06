@@ -6,8 +6,40 @@
    Typeface: Inter
    ============================================================ */
 
-/* ---------- Fonts ---------- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* ---------- Fonts — SELF-HOSTED (offline-safe; required for Puppeteer PDF export) ----------
+   Converged from the deck-aware tokens.css. NO Google Fonts CDN — the @import
+   below pulls locally-subset woff2 (unicode-range) so browsers fetch only used glyphs.
+   Families available: Inter (body/UI) · Montserrat (display option) ·
+   Source Sans 3 (display option) · Noto Sans JP (Japanese) · Be Vietnam Pro (Vietnamese docs).
+   Keep in sync with tokens.css. All @import rules MUST precede @font-face + other rules. */
+@import url("fonts/montserrat.css");    /* Montserrat — display option */
+@import url("fonts/notosansjp.css");    /* Noto Sans JP — Japanese (CJK) */
+@import url("fonts/bevietnampro.css");  /* Be Vietnam Pro — Vietnamese-primary docs */
+
+/* Inter — body text (variable, self-hosted) */
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Source Sans 3 — display option (variable + static fallbacks for PDF exporters) */
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("fonts/SourceSans3-Italic-VariableFont_wght.ttf") format("truetype-variations");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
 
 :root {
   /* ============================================================
@@ -152,6 +184,7 @@
      ============================================================ */
   --surface-page:    #F5F7FA;
   --surface-card:    #FFFFFF;
+  --surface-raised:  #FFFFFF;  /* FIX: thiếu ở light :root (chỉ có trong dark) → component var(--surface-raised) mất nền ở light */
   --surface-sunken:  #EDF0F4;
   --surface-navy:    #264F91;
   --surface-overlay: rgba(38, 79, 145, 0.55);
@@ -163,9 +196,15 @@
   /* ============================================================
      TYPOGRAPHY — family + base tokens
      ============================================================ */
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Inter", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;  /* body text */
+  /* FONT CHOICE SEAM — Boss quyết theo từng ngôn ngữ trong PR review.
+     Default giữ nguyên như GitHub render (Inter) → 0 thay đổi thị giác ngoài ý muốn.
+     Đổi heading sang Montserrat: --font-display: "Montserrat", ... ; sang Source Sans 3: "Source Sans 3", ...
+     Cả Montserrat + Source Sans 3 đã self-host sẵn, chỉ đổi 1 dòng. */
+  --font-sans:    "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter", "Montserrat", "Source Sans 3", system-ui, sans-serif;  /* headings — flip first family */
+  --font-body:    "Inter", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;  /* body text */
+  --font-jp:      "Inter", "Noto Sans JP", system-ui, sans-serif;                 /* Japanese (CJK fallback) */
+  --font-vi:      "Be Vietnam Pro", "Inter", "Noto Sans JP", sans-serif;          /* Vietnamese-primary docs */
 
   --fw-extralight: 200; /* @kind font */
   --fw-light:      300; /* @kind font */

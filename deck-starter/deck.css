@@ -1,0 +1,57 @@
+/* ───────────────────────────────────────────────────────────────────────
+   Deck starter — self-contained slide base (brand: Tiximax)
+   Pairs with deck-stage.js (left thumbnail rail / sidebar preview).
+   Each slide is a <section data-label="…"> child of <deck-stage>.
+   Swap the @import + the brand block below to re-theme for another deck.
+   ─────────────────────────────────────────────────────────────────────── */
+@import url("../tokens.css");
+
+:root {
+  --deck-bg:      #ffffff;
+  --deck-ink:     var(--navy-800, #112547);
+  --deck-muted:   var(--navy-400, #4D72AB);
+  --deck-accent:  var(--brand-gold, #F4B931);
+  --deck-line:    #E7E9EE;
+  --deck-font:    "Source Sans 3", -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Brand hook for the rail's current-slide highlight (read by deck-stage.js). */
+deck-stage { --deck-rail-accent: var(--brand-gold, #F4B931); }
+
+/* Each <section> is one slide on a 1920×1080 canvas. */
+deck-stage > section {
+  width: 1920px;
+  height: 1080px;
+  box-sizing: border-box;
+  background: var(--deck-bg);
+  color: var(--deck-ink);
+  font-family: var(--deck-font);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Content slide scaffold ─────────────────────────────────────────── */
+.slide        { padding: 120px 140px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+.eyebrow      { font-size: 26px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--deck-accent); }
+.title        { font-size: 76px; font-weight: 800; line-height: 1.08; margin: 18px 0 0; }
+.subtitle     { font-size: 34px; font-weight: 500; color: var(--deck-muted); margin-top: 16px; }
+.rule         { width: 96px; height: 6px; background: var(--deck-accent); border-radius: 3px; margin: 40px 0; }
+
+.bullets      { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 30px; }
+.bullets li   { font-size: 38px; line-height: 1.35; padding-left: 56px; position: relative; }
+.bullets li::before { content: ""; position: absolute; left: 0; top: 16px; width: 24px; height: 24px; border-radius: 50%; background: var(--deck-accent); }
+
+.cols         { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 20px; }
+.card         { border: 2px solid var(--deck-line); border-radius: 18px; padding: 48px 52px; }
+.card h3      { font-size: 40px; font-weight: 700; margin: 0 0 14px; }
+.card p       { font-size: 30px; line-height: 1.4; color: var(--deck-muted); margin: 0; }
+
+.slide-foot   { margin-top: auto; padding-top: 40px; display: flex; justify-content: space-between; align-items: center; font-size: 24px; color: var(--deck-muted); border-top: 1px solid var(--deck-line); }
+
+/* ── Cover slide ────────────────────────────────────────────────────── */
+.cover        { height: 100%; padding: 140px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; background: var(--navy-800, #112547); color: #fff; }
+.cover .eyebrow { color: var(--deck-accent); }
+.cover-title  { font-size: 120px; font-weight: 800; line-height: 1.05; margin: 28px 0 0; }
+.cover-en     { font-size: 40px; font-weight: 400; color: rgba(255,255,255,.7); margin-top: 20px; letter-spacing: .04em; }
+.cover-foot   { margin-top: 80px; display: flex; gap: 48px; font-size: 28px; color: rgba(255,255,255,.85); }
+.cover-rule   { width: 120px; height: 8px; background: var(--deck-accent); border-radius: 4px; margin: 44px 0; }
