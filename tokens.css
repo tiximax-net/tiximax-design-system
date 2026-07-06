@@ -18,6 +18,7 @@
    Both use unicode-range subsetting, so browsers only fetch glyphs in use. */
 @import url("fonts/notosansjp.css");
 @import url("fonts/bevietnampro.css");
+@import url("fonts/montserrat.css");   /* Montserrat → --font-display (headings, Latin-only) */
 
 /* ---------- Fonts — Source Sans 3 (headings/display) variable ---------- */
 @font-face {
@@ -245,7 +246,7 @@
   --font-jp:      "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
   --font-latin:   "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;
   --font-vi:      "Be Vietnam Pro", "Noto Sans JP", "Source Sans 3", sans-serif;
-  --font-display: "Source Sans 3", system-ui, sans-serif;
+  --font-display: "Montserrat", "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;  /* heading = Montserrat (Boss chốt 2026-07); Noto fallback cho JP; deck vẫn dùng --font-jp/--font-latin */
   --font-mono:    ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   --fw-extralight: 200;

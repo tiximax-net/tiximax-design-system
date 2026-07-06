@@ -196,12 +196,10 @@
   /* ============================================================
      TYPOGRAPHY — family + base tokens
      ============================================================ */
-  /* FONT CHOICE SEAM — Boss quyết theo từng ngôn ngữ trong PR review.
-     Default giữ nguyên như GitHub render (Inter) → 0 thay đổi thị giác ngoài ý muốn.
-     Đổi heading sang Montserrat: --font-display: "Montserrat", ... ; sang Source Sans 3: "Source Sans 3", ...
-     Cả Montserrat + Source Sans 3 đã self-host sẵn, chỉ đổi 1 dòng. */
+  /* FONT — heading = Montserrat (Boss chốt 2026-07). Self-hosted, chỉ latin/latin-ext/vietnamese.
+     Body/UI = Inter. Montserrat là Latin-only → nội dung tiếng Nhật rơi về --font-jp (Noto). */
   --font-sans:    "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Inter", "Montserrat", "Source Sans 3", system-ui, sans-serif;  /* headings — flip first family */
+  --font-display: "Montserrat", "Source Sans 3", "Noto Sans JP", system-ui, sans-serif;  /* headings (Montserrat Latin-only → Noto fallback cho tiếng Nhật) */
   --font-body:    "Inter", "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;  /* body text */
   --font-jp:      "Inter", "Noto Sans JP", system-ui, sans-serif;                 /* Japanese (CJK fallback) */
   --font-vi:      "Be Vietnam Pro", "Inter", "Noto Sans JP", sans-serif;          /* Vietnamese-primary docs */
@@ -289,6 +287,7 @@
   color: var(--text-primary);
 }
 .ds-h1 {
+  font-family: var(--font-display);
   font-weight: var(--fw-bold);
   font-size: var(--fs-h1);
   line-height: var(--lh-tight);
@@ -296,6 +295,7 @@
   color: var(--text-primary);
 }
 .ds-h2 {
+  font-family: var(--font-display);
   font-weight: var(--fw-bold);
   font-size: var(--fs-h2);
   line-height: var(--lh-snug);
@@ -303,18 +303,21 @@
   color: var(--text-primary);
 }
 .ds-h3 {
+  font-family: var(--font-display);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-h3);
   line-height: var(--lh-snug);
   color: var(--text-primary);
 }
 .ds-h4 {
+  font-family: var(--font-display);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-h4);
   line-height: var(--lh-snug);
   color: var(--text-primary);
 }
 .ds-title {
+  font-family: var(--font-display);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-title);
   line-height: var(--lh-snug);
