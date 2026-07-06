@@ -1,0 +1,76 @@
+<!-- @dsCard group="Type" name="Typography" subtitle="Type scale · Montserrat / Inter / Noto · đa ngữ" viewport="1000x900" -->
+<!DOCTYPE html>
+<html lang="vi" data-lang-default="vi" data-langs="vi,ja,en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typography</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  body{background:var(--surface-page);color:var(--text-primary);font-family:var(--font-body);padding:24px;line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+  .panel{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:14px;padding:24px;overflow:hidden}
+  .panel-label{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:14px}
+  .sub-label{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:8px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .type-row{display:flex;align-items:baseline;gap:20px;padding:9px 0;border-bottom:1px solid var(--border-subtle)}
+  .type-row:last-child{border-bottom:none}
+  .type-meta{width:132px;flex-shrink:0;font-size:10px;font-family:var(--font-mono);color:var(--text-tertiary);line-height:1.5}
+  .type-sample{color:var(--text-primary);line-height:1.2;min-width:0}
+  .token-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:18px}
+  .token-table th{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;text-align:left;padding:7px 10px;border-bottom:1px solid var(--border-subtle);color:var(--text-tertiary)}
+  .token-table td{padding:6px 10px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);vertical-align:middle}
+  .token-table tr:last-child td{border-bottom:none}
+  .token-table td:first-child{font-family:var(--font-mono);font-size:10px;color:var(--brand-primary)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Type scale -->
+  <div class="panel">
+    <div class="panel-label"><span data-i18n data-en="Type scale — heading Montserrat · body Inter" data-ja="タイプスケール — 見出し Montserrat・本文 Inter" data-vi="Thang chữ — tiêu đề Montserrat · thân Inter">Type scale — heading Montserrat · body Inter</span></div>
+    <div class="type-row"><div class="type-meta">--fs-display<br>56px · 900</div><div class="type-sample" style="font-family:var(--font-display);font-size:var(--fs-display);font-weight:var(--fw-black);letter-spacing:var(--ls-tight);color:var(--brand-navy)">Tiximax</div></div>
+    <div class="type-row"><div class="type-meta">--fs-h1<br>40px · 700</div><div class="type-sample" style="font-family:var(--font-display);font-size:var(--fs-h1);font-weight:var(--fw-bold);letter-spacing:var(--ls-tight);color:var(--brand-navy)">物流の未来を、今</div></div>
+    <div class="type-row"><div class="type-meta">--fs-h2<br>32px · 700</div><div class="type-sample" style="font-family:var(--font-display);font-size:var(--fs-h2);font-weight:var(--fw-bold);letter-spacing:var(--ls-tight)">Cross-Border Logistics</div></div>
+    <div class="type-row"><div class="type-meta">--fs-h3<br>26px · 600</div><div class="type-sample" style="font-family:var(--font-display);font-size:var(--fs-h3);font-weight:var(--fw-semibold)">5ヶ国・50拠点ネットワーク</div></div>
+    <div class="type-row"><div class="type-meta">--fs-h4<br>21px · 600</div><div class="type-sample" style="font-family:var(--font-display);font-size:var(--fs-h4);font-weight:var(--fw-semibold)">3PL Fulfillment Services</div></div>
+    <div class="type-row"><div class="type-meta">--fs-title<br>18px · 600</div><div class="type-sample" style="font-family:var(--font-display);font-size:var(--fs-title);font-weight:var(--fw-semibold)">Chuyển phát quốc tế · Hỗ trợ hải quan</div></div>
+    <div class="type-row"><div class="type-meta">--fs-body<br>16px · 400</div><div class="type-sample" style="font-size:var(--fs-body);color:var(--text-secondary);line-height:1.6">Vận tải hàng không &amp; đường biển, tối ưu tuyến, tracking toàn hành trình, hỗ trợ DDP/DDU.</div></div>
+    <div class="type-row"><div class="type-meta">--fs-body-sm<br>14px · 400</div><div class="type-sample" style="font-size:var(--fs-body-sm);color:var(--text-tertiary)">Phân loại HS code, soạn chứng từ, khai báo xuất nhập khẩu, kiểm tra hàng hạn chế.</div></div>
+    <div class="type-row"><div class="type-meta">--fs-caption<br>13px · 400</div><div class="type-sample" style="font-size:var(--fs-caption);color:var(--text-tertiary)">Cập nhật: 2026年6月 · tiximax.net</div></div>
+    <div class="type-row"><div class="type-meta">--fs-overline<br>12px · 700 wide</div><div class="type-sample" style="font-size:var(--fs-overline);font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);text-transform:uppercase;color:var(--brand-gold)">Logistics Network</div></div>
+  </div>
+
+  <!-- Multilingual font families -->
+  <div class="panel">
+    <div class="panel-label"><span data-i18n data-en="Multilingual — VI · JP — font families" data-ja="多言語 — VI・JP — フォントファミリー" data-vi="Đa ngữ — VI · JP — họ font">Multilingual — VI · JP — font families</span></div>
+    <div class="g2">
+      <div>
+        <div class="sub-label">Vietnamese — Be Vietnam Pro (--font-vi)</div>
+        <div style="font-family:var(--font-vi);font-size:24px;font-weight:700;color:var(--brand-navy);margin-bottom:8px">Logistics &amp; Kiều hối Nhật → Việt</div>
+        <div style="font-family:var(--font-vi);font-size:14px;color:var(--text-secondary);line-height:1.7">Tiximax kết nối thương mại xuyên biên giới trên hành lang Nhật Bản – Việt Nam, với mạng lưới 5 quốc gia châu Á.</div>
+      </div>
+      <div>
+        <div class="sub-label">Japanese — Noto Sans JP (--font-jp)</div>
+        <div style="font-family:var(--font-jp);font-size:24px;font-weight:700;color:var(--brand-navy);margin-bottom:8px">国際物流のパートナー</div>
+        <div style="font-family:var(--font-jp);font-size:14px;color:var(--text-secondary);line-height:1.9">航空・海上輸送、ルート最適化、フルトラッキング対応で、DDP/DDUにも柔軟に対応いたします。</div>
+      </div>
+    </div>
+    <table class="token-table">
+      <thead><tr><th><span data-i18n data-en="Token" data-ja="トークン" data-vi="Token">Token</span></th><th>Stack</th><th><span data-i18n data-en="Use" data-ja="用途" data-vi="Dùng cho">Use</span></th></tr></thead>
+      <tbody>
+        <tr><td>--font-display</td><td>Montserrat, Source Sans 3</td><td>見出し・display heading</td></tr>
+        <tr><td>--font-body</td><td>Inter, Noto Sans JP</td><td>本文・body / UI</td></tr>
+        <tr><td>--font-jp</td><td>Source Sans 3, Noto Sans JP</td><td>日本語・CJK</td></tr>
+        <tr><td>--font-vi</td><td>Be Vietnam Pro, Noto Sans JP, Source Sans 3</td><td>Tài liệu tiếng Việt</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+<script src="../showcase.js" defer></script>
+</body>
+</html>
