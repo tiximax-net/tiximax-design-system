@@ -1,0 +1,135 @@
+<!-- @dsCard group="Brand" name="Symbol &amp; Icon" subtitle="Logo tròn · App Icon · Avatar SNS" viewport="1040x880" -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card);color:var(--text-primary)}
+  .surface{padding:28px 32px 32px;display:flex;flex-direction:column;gap:28px}
+  .sec{display:flex;flex-direction:column;gap:14px}
+  .stitle{font-size:13px;font-weight:var(--fw-bold);letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary)}
+  .note{font-size:11.5px;color:var(--text-secondary);line-height:1.6}
+  .note b{color:var(--text-primary);font-weight:var(--fw-semibold)}
+
+  /* ---- generic tile ---- */
+  .tile{flex:1;background:var(--surface-sunken);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
+        padding:22px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:170px}
+  .cap{font-size:12.5px;font-weight:var(--fw-semibold);color:var(--text-primary)}
+  .sub{font-size:10.5px;color:var(--text-tertiary);font-family:ui-monospace,"SFMono-Regular",monospace}
+
+  /* ---- Panel 1: circle / symbol usage ---- */
+  .row-circle{display:flex;gap:16px}
+  /* nền sáng pin cố định (không theo theme) — demo quy tắc navy-trên-sáng phải luôn đúng */
+  .tile-light{background:#FDFCF9;border-color:#E9E4DB}
+  .tile-light .cap{color:#1C2635}
+  .tile-light .sub{color:#8F8A7E}
+  .tile-light img{width:112px;height:112px;display:block}
+  .tile-dark{background:var(--neutral-900);border-color:var(--neutral-900)}
+  .tile-dark img{width:112px;height:112px;display:block}
+  .tile-dark .cap{color:var(--neutral-100)}
+  .tile-dark .sub{color:var(--neutral-500)}
+  .tile-checker img{width:90px;height:90px;display:block;
+    background:conic-gradient(rgba(128,128,128,.28) 25%,transparent 0 50%,rgba(128,128,128,.28) 0 75%,transparent 0) 0 0/14px 14px}
+
+  /* ---- Panel 2: app icon ---- */
+  .row-appicon{display:flex;gap:16px}
+  .ico{width:76px;height:76px;position:relative;overflow:hidden;box-shadow:var(--shadow-md);flex:none}
+  .ico img{width:100%;height:100%;display:block;object-fit:cover}
+  .ico-squircle{border-radius:17px}
+  .ico-circle{border-radius:50%}
+  .ico-maskable{border-radius:12px}
+  .safe-ring{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .safe-ring::before{content:"";width:60px;height:60px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.55)}
+
+  /* ---- Panel 3: avatar sns ---- */
+  .row-avatar{display:flex;align-items:center;gap:24px;background:var(--surface-sunken);border:1px solid var(--border-subtle);
+              border-radius:var(--radius-lg);padding:20px 22px}
+  .av-sizes{display:flex;align-items:flex-end;gap:20px}
+  .av-it{display:flex;flex-direction:column;align-items:center;gap:7px}
+  .av-circle{display:block;border-radius:50%;object-fit:cover}
+  .px{font-size:10.5px;font-family:ui-monospace,"SFMono-Regular",monospace;color:var(--text-tertiary);font-weight:var(--fw-semibold)}
+  .divider{width:1px;align-self:stretch;background:var(--border-default)}
+  .profile-mock{display:flex;align-items:center;gap:12px;background:var(--surface-card);border:1px solid var(--border-default);
+                border-radius:var(--radius-md);padding:10px 16px;box-shadow:var(--shadow-xs)}
+  .pm-text{display:flex;flex-direction:column;gap:2px;line-height:1.2}
+  .pm-name{font-size:13px;font-weight:var(--fw-bold);color:var(--text-primary)}
+  .pm-handle{font-size:11.5px;color:var(--text-tertiary)}
+</style>
+</head>
+<body>
+  <div class="surface">
+
+    <!-- ===== PANEL 1 — Logo tròn ===== -->
+    <div class="sec">
+      <div class="stitle">Logo tròn — Symbol · Circle</div>
+      <div class="row-circle">
+        <div class="tile tile-light">
+          <img src="../assets/tiximax-symbol-circle-navy.svg" alt="Circle — navy">
+          <span class="cap">Circle · Navy</span>
+          <span class="sub">nền sáng</span>
+        </div>
+        <div class="tile tile-dark">
+          <img src="../assets/tiximax-symbol-circle-gold.svg" alt="Circle — gold">
+          <span class="cap">Circle · Gold</span>
+          <span class="sub">nền tối</span>
+        </div>
+        <div class="tile tile-checker">
+          <img src="../assets/tiximax-symbol-square.svg" alt="Lotus — trong suốt">
+          <span class="cap">Lotus trong suốt</span>
+          <span class="sub">nền tuỳ ý</span>
+        </div>
+      </div>
+      <div class="note">Nguyên tắc: <b>navy trên nền sáng</b> · <b>gold trên nền tối</b> — không đảo màu.</div>
+    </div>
+
+    <!-- ===== PANEL 2 — App Icon ===== -->
+    <div class="sec">
+      <div class="stitle">App Icon</div>
+      <div class="row-appicon">
+        <div class="tile">
+          <div class="ico ico-squircle"><img src="../assets/favicon.svg" alt="iOS app icon"></div>
+          <span class="cap">iOS · Squircle</span>
+          <span class="sub">radius 22.5%</span>
+        </div>
+        <div class="tile">
+          <div class="ico ico-circle"><img src="../assets/favicon.svg" alt="Android app icon"></div>
+          <span class="cap">Android · Circle</span>
+          <span class="sub">radius 50%</span>
+        </div>
+        <div class="tile">
+          <div class="ico ico-maskable">
+            <img src="../assets/tiximax-symbol-square-full-navy.svg" alt="Maskable icon — full-bleed">
+            <div class="safe-ring"></div>
+          </div>
+          <span class="cap">Maskable</span>
+          <span class="sub">nội dung trong 80% safe zone</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PANEL 3 — Avatar SNS ===== -->
+    <div class="sec">
+      <div class="stitle">Avatar SNS</div>
+      <div class="row-avatar">
+        <div class="av-sizes">
+          <div class="av-it"><img class="av-circle" src="../assets/tiximax-symbol-square-full-navy.svg" width="72" height="72" alt="Avatar 72px"><span class="px">72</span></div>
+          <div class="av-it"><img class="av-circle" src="../assets/tiximax-symbol-square-full-navy.svg" width="48" height="48" alt="Avatar 48px"><span class="px">48</span></div>
+          <div class="av-it"><img class="av-circle" src="../assets/tiximax-symbol-square-full-navy.svg" width="32" height="32" alt="Avatar 32px"><span class="px">32</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="profile-mock">
+          <img class="av-circle" src="../assets/tiximax-symbol-square-full-navy.svg" width="44" height="44" alt="Profile avatar">
+          <div class="pm-text">
+            <span class="pm-name">TIXIMAX</span>
+            <span class="pm-handle">@tiximax</span>
+          </div>
+        </div>
+      </div>
+      <div class="note">File upload là bản <b>vuông full-bleed</b> — nền tảng (X, Facebook, LinkedIn, Zalo…) tự crop tròn.</div>
+    </div>
+
+  </div>
+</body>
+</html>
