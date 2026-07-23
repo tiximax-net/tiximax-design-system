@@ -1,0 +1,441 @@
+<!-- @dsCard group="Components" name="Chat" subtitle="Bubbles · widget góc phải · full screen · mobile" viewport="1180x2400" -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>TIXIMAX — Chat</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card);color:var(--text-primary)}
+  .surface{padding:26px 28px;display:flex;flex-direction:column;gap:34px}
+  .sect{display:flex;flex-direction:column;gap:16px}
+  .sect-h{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary)}
+  .stitle{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
+  .hint{font-size:11px;color:var(--text-tertiary)}
+  .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:12px;min-width:0}
+
+  /* ─── Thread & bubbles ─── */
+  .thread{display:flex;flex-direction:column;gap:6px}
+  .row-in{display:flex;gap:8px;align-items:flex-end}
+  .row-out{display:flex;justify-content:flex-end}
+  .cavatar{width:28px;height:28px;border-radius:var(--radius-pill);background:var(--gold-100);color:var(--gold-700);
+    font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+  .msg{max-width:78%;padding:9px 13px;font-size:var(--fs-body-sm);line-height:1.45}
+  .msg-in{background:var(--surface-card);border:1px solid var(--border-subtle);color:var(--text-primary);border-radius:16px 16px 16px 4px}
+  .msg-in.mid{border-radius:16px}
+  .msg-out{background:var(--brand-gold);color:var(--navy-900);border-radius:16px 16px 4px 16px}
+  .meta{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-tertiary)}
+  .meta-out{justify-content:flex-end}
+  .meta svg{width:14px;height:14px}
+  .read{color:var(--brand-blue)}
+  .divider{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:600;color:var(--text-tertiary);margin:4px 0}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border-default)}
+  .sysmsg{align-self:center;font-size:11.5px;color:var(--text-tertiary);background:var(--surface-sunken);
+    border-radius:var(--radius-pill);padding:4px 12px}
+
+  /* ─── Typing ─── */
+  .typing{display:inline-flex;gap:4px;align-items:center;background:var(--surface-card);border:1px solid var(--border-subtle);
+    border-radius:16px 16px 16px 4px;padding:12px 14px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--text-tertiary);animation:tp 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}
+  .typing i:nth-child(3){animation-delay:.4s}
+  @keyframes tp{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+  /* ─── Attachments ─── */
+  .img-msg{width:200px;border-radius:16px 16px 16px 4px;overflow:hidden;border:1px solid var(--border-default)}
+  .img-ph{height:120px;background:var(--surface-sunken);display:flex;align-items:center;justify-content:center;color:var(--text-tertiary)}
+  .img-ph svg{width:22px;height:22px}
+  .img-cap{padding:8px 12px;font-size:var(--fs-caption);background:var(--surface-card);color:var(--text-primary)}
+  .file-msg{display:flex;align-items:center;gap:10px;background:var(--surface-card);border:1px solid var(--border-subtle);
+    border-radius:16px 16px 16px 4px;padding:10px 14px 10px 10px;max-width:78%}
+  .file-ico{width:36px;height:36px;border-radius:var(--radius-md);background:var(--gold-100);color:var(--gold-700);
+    display:flex;align-items:center;justify-content:center;flex:none}
+  .file-ico svg{width:18px;height:18px}
+  .file-n{font-size:13.5px;font-weight:600;color:var(--text-primary)}
+  .file-s{font-size:11.5px;color:var(--text-tertiary)}
+
+  /* ─── Order card ─── */
+  .order-card{max-width:320px;background:var(--surface-card);border:1px solid var(--border-default);
+    border-radius:16px 16px 16px 4px;overflow:hidden}
+  .oc-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border-subtle);
+    font-size:var(--fs-caption);font-weight:700;color:var(--text-primary)}
+  .oc-head svg{width:15px;height:15px;color:var(--text-brand)}
+  .oc-badge{margin-left:auto;font-size:10.5px;font-weight:700;background:var(--gold-100);color:var(--gold-700);
+    border-radius:var(--radius-pill);padding:2px 9px}
+  .oc-body{padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}
+  .oc-l{color:var(--text-tertiary)}
+  .oc-v{font-weight:700;color:var(--text-primary)}
+
+  /* ─── Quick replies ─── */
+  .qr{display:flex;flex-wrap:wrap;gap:8px}
+  .qr button{font-family:inherit;font-size:var(--fs-caption);font-weight:600;color:var(--text-brand);background:var(--surface-card);
+    border:1.5px solid var(--gold-300);border-radius:var(--radius-pill);padding:7px 14px;min-height:32px;cursor:pointer}
+  .qr button:hover{background:var(--gold-50)}
+
+  /* ─── Composer ─── */
+  .composer{display:flex;align-items:center;gap:8px;border:1.5px solid var(--border-default);border-radius:var(--radius-pill);
+    padding:6px 6px 6px 14px;background:var(--surface-card)}
+  .composer input{border:none;outline:none;flex:1;min-width:0;font-family:inherit;font-size:var(--fs-body-sm);
+    background:transparent;color:var(--text-primary)}
+  .composer .ic{width:20px;height:20px;color:var(--text-tertiary);flex:none;cursor:pointer}
+  .send{width:36px;height:36px;border-radius:var(--radius-pill);background:var(--brand-gold);border:none;display:flex;
+    align-items:center;justify-content:center;color:var(--navy-900);cursor:pointer;flex:none}
+  .send svg{width:17px;height:17px}
+  .composer.focus{border-color:var(--brand-gold);box-shadow:var(--shadow-focus)}
+  .composer.disabled{background:var(--surface-sunken)}
+  .composer.disabled input{color:var(--text-disabled)}
+  .composer.disabled .send{background:var(--neutral-200);color:var(--text-disabled);cursor:default}
+
+  /* ─── Widget góc phải ─── */
+  .widget-row{display:flex;gap:44px;align-items:flex-end;background:var(--surface-page);border:1px solid var(--border-subtle);
+    border-radius:var(--radius-lg);padding:26px}
+  .launcher{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  .teaser{position:relative;max-width:230px;padding:12px 16px;background:var(--surface-card);border:1px solid var(--border-default);
+    border-radius:16px 16px 4px 16px;box-shadow:var(--shadow-lg);font-size:13.5px;line-height:1.45;color:var(--text-primary)}
+  .teaser .x{position:absolute;top:-8px;left:-8px;width:20px;height:20px;border-radius:50%;background:var(--neutral-200);
+    color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .teaser .x svg{width:12px;height:12px}
+  .fab{width:56px;height:56px;border-radius:50%;background:var(--brand-gold);border:none;display:flex;align-items:center;
+    justify-content:center;color:var(--navy-900);cursor:pointer;box-shadow:var(--shadow-gold);position:relative}
+  .fab svg{width:26px;height:26px}
+  .nbadge{position:absolute;top:-2px;right:-2px;min-width:20px;height:20px;border-radius:var(--radius-pill);background:var(--brand-red);
+    color:var(--neutral-0);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;
+    border:2px solid var(--surface-page)}
+  .panel{width:340px;height:480px;background:var(--surface-card);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);
+    border:1px solid var(--border-default);display:flex;flex-direction:column;overflow:hidden}
+  /* Band navy giữ nguyên ở dark → chữ phải ghim trắng, KHÔNG dùng --text-inverse (đảo theo theme) */
+  .p-head{background:var(--surface-navy);color:var(--neutral-0);padding:14px 16px;display:flex;align-items:center;gap:10px}
+  .p-avatar{width:36px;height:36px;border-radius:50%;background:var(--brand-gold);color:var(--navy-900);font-size:13px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex:none;position:relative}
+  .p-avatar .dot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--green-400);
+    border:2px solid var(--surface-navy)}
+  .p-head > div{min-width:0}
+  .p-name{font-size:var(--fs-body-sm);font-weight:700}
+  .p-sub{font-size:11.5px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .p-actions{margin-left:auto;display:flex;gap:4px}
+  .p-actions button{width:30px;height:30px;border-radius:var(--radius-sm);border:none;background:transparent;color:var(--neutral-0);
+    opacity:.8;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .p-actions button:hover{background:rgba(255,255,255,.12);opacity:1}
+  .p-actions svg{width:16px;height:16px}
+  .p-body{flex:1;padding:14px;display:flex;flex-direction:column;gap:6px;overflow:hidden;background:var(--surface-page)}
+  .p-foot{padding:10px 12px;border-top:1px solid var(--border-subtle);background:var(--surface-card)}
+  .p-brand{text-align:center;font-size:10px;color:var(--text-disabled);padding-top:7px}
+
+  /* ─── Full screen ─── */
+  .app{display:flex;height:560px;background:var(--surface-card);border:1px solid var(--border-default);
+    border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-md)}
+  .side{width:300px;flex:none;border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;min-width:0}
+  .side-head{padding:16px 16px 12px}
+  .side-title{font-size:17px;font-weight:800;color:var(--text-primary);margin-bottom:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--surface-sunken);border-radius:var(--radius-pill);
+    padding:8px 12px;font-size:var(--fs-caption);color:var(--text-tertiary)}
+  .search svg{width:15px;height:15px;flex:none}
+  .convos{flex:1;overflow:hidden}
+  .convo{display:flex;gap:10px;padding:11px 16px;cursor:pointer;align-items:center}
+  .convo:hover{background:var(--surface-sunken)}
+  .convo.active{background:var(--gold-50);box-shadow:inset 3px 0 0 var(--brand-gold)}
+  .cv-avatar{width:42px;height:42px;border-radius:50%;background:var(--gold-100);color:var(--gold-700);font-size:14px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;flex:none;position:relative}
+  .cv-avatar.navy{background:var(--navy-100);color:var(--navy-600)}
+  .cv-avatar.blue{background:var(--blue-50);color:var(--blue-600)}
+  .cv-avatar .dot{position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;background:var(--green-400);
+    border:2px solid var(--surface-card)}
+  .cv-main{flex:1;min-width:0}
+  .cv-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .cv-name{font-size:var(--fs-body-sm);font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cv-time{font-size:11px;color:var(--text-tertiary);flex:none}
+  .cv-snippet{font-size:12.5px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .cv-snippet.unread{color:var(--text-primary);font-weight:600}
+  .cv-badge{min-width:18px;height:18px;border-radius:var(--radius-pill);background:var(--brand-red);color:var(--neutral-0);
+    font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;flex:none}
+  .chat{flex:1;display:flex;flex-direction:column;min-width:0}
+  .c-head{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border-subtle)}
+  .c-name{font-size:15px;font-weight:700;color:var(--text-primary)}
+  .c-status{font-size:12px;color:var(--text-success);display:flex;align-items:center;gap:5px}
+  .c-status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green-400)}
+  .c-actions{margin-left:auto;display:flex;gap:6px}
+  .c-actions button{width:34px;height:34px;border-radius:var(--radius-sm);border:1px solid var(--border-default);
+    background:var(--surface-card);color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .c-actions button:hover{background:var(--surface-sunken);color:var(--text-primary)}
+  .c-actions svg{width:16px;height:16px}
+  .c-body{flex:1;padding:18px 20px;background:var(--surface-page);display:flex;flex-direction:column;gap:6px;overflow:hidden}
+  .c-foot{padding:12px 20px;border-top:1px solid var(--border-subtle)}
+
+  /* ─── Mobile ─── */
+  .phones{display:flex;gap:36px;justify-content:center;background:var(--surface-page);border:1px solid var(--border-subtle);
+    border-radius:var(--radius-lg);padding:28px}
+  .phone-wrap{display:flex;flex-direction:column;gap:12px;align-items:center}
+  .phone{width:320px;height:640px;background:var(--surface-card);border-radius:32px;border:1px solid var(--border-strong);
+    box-shadow:var(--shadow-lg);overflow:hidden;display:flex;flex-direction:column}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 6px;font-size:12px;
+    font-weight:700;color:var(--text-primary)}
+  .statusbar .icons{display:flex;gap:5px;align-items:center}
+  .statusbar svg{width:14px;height:14px}
+  .l-head{padding:8px 18px 12px}
+  .l-title{font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:10px}
+  .m-fab{align-self:flex-end;margin:0 18px 18px 0;width:52px;height:52px;border-radius:50%;background:var(--brand-gold);border:none;
+    color:var(--navy-900);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-gold);cursor:pointer}
+  .m-fab svg{width:24px;height:24px}
+  .m-head{display:flex;align-items:center;gap:10px;padding:8px 12px 12px;border-bottom:1px solid var(--border-subtle)}
+  .back{width:44px;height:44px;border:none;background:none;color:var(--text-primary);display:flex;align-items:center;
+    justify-content:center;cursor:pointer;margin-left:-8px}
+  .back svg{width:22px;height:22px}
+  .c-more{margin-left:auto;width:44px;height:44px;border:none;background:none;color:var(--text-tertiary);display:flex;
+    align-items:center;justify-content:center;cursor:pointer}
+  .c-more svg{width:20px;height:20px}
+  .m-foot{padding:10px 12px 16px;border-top:1px solid var(--border-subtle);background:var(--surface-card)}
+
+  /* ─── Dark remap: bề mặt nổi trên nền tối ─── */
+  .dark .msg-in,.dark .typing,.dark .file-msg,.dark .img-cap,.dark .order-card,
+  .dark .composer,.dark .teaser,.dark .c-actions button{background:var(--surface-raised)}
+  .dark .composer.disabled{background:var(--surface-sunken)}
+  .dark .qr button{background:transparent}
+  .dark .qr button:hover{background:rgba(244,185,49,.12)}
+  .dark .convo.active{background:rgba(244,185,49,.10)}
+</style>
+</head>
+<body>
+
+<div class="ds-modes">
+ <div class="ds-mode"><span class="ds-mode__tag">Light</span><div class="surface" id="lightBody">
+
+  <!-- ══════════ 1 · Elements ══════════ -->
+  <section class="sect">
+    <div class="sect-h">Elements · bubbles, attachment, typing, quick replies, composer</div>
+    <div class="cols">
+
+      <div class="col">
+        <div class="stitle">Bubbles &amp; trạng thái</div>
+        <div class="thread">
+          <div class="divider">Hôm nay</div>
+          <div class="row-in"><div class="cavatar">TX</div><div class="msg msg-in">Chào anh/chị! TIXIMAX có thể hỗ trợ gì ạ?</div></div>
+          <div class="row-in"><div style="width:28px;flex:none"></div><div class="msg msg-in mid">Anh/chị có thể tra cứu đơn ngay tại đây.</div></div>
+          <div class="meta" style="padding-left:36px"><span>Hỗ trợ viên · 09:41</span></div>
+          <div class="row-out"><div class="msg msg-out">Cho mình hỏi đơn TX-48210 đang ở đâu?</div></div>
+          <div class="meta meta-out"><span>09:42</span><i data-lucide="check-check" class="read"></i></div>
+          <div class="row-out"><div class="msg msg-out">Cảm ơn bạn!</div></div>
+          <div class="meta meta-out"><span>09:42</span><i data-lucide="check"></i></div>
+          <div class="sysmsg">Nhân viên Lan Anh đã tham gia hội thoại</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="stitle">Attachment · order card · typing</div>
+        <div class="thread">
+          <div class="row-in"><div class="cavatar">TX</div>
+            <div class="img-msg"><div class="img-ph"><i data-lucide="image"></i></div><div class="img-cap">Ảnh kiện hàng tại kho Tokyo</div></div>
+          </div>
+          <div class="row-in"><div style="width:28px;flex:none"></div>
+            <div class="file-msg"><div class="file-ico"><i data-lucide="file-text"></i></div>
+              <div><div class="file-n">HoaDon_TX48210.pdf</div><div class="file-s">248 KB · PDF</div></div></div>
+          </div>
+          <div class="row-in"><div style="width:28px;flex:none"></div>
+            <div class="order-card">
+              <div class="oc-head"><i data-lucide="package"></i>TX-48210<span class="oc-badge">Đang vận chuyển</span></div>
+              <div class="oc-body">
+                <div><div class="oc-l">Tuyến</div><div class="oc-v">Tokyo → Hà Nội</div></div>
+                <div><div class="oc-l">Dự kiến giao</div><div class="oc-v">10/06/2026</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="row-in"><div class="cavatar">TX</div><div class="typing"><i></i><i></i><i></i></div></div>
+        </div>
+        <div>
+          <div class="hint" style="margin-bottom:6px">Quick replies</div>
+          <div class="qr"><button>Tra cứu đơn</button><button>Bảng giá</button><button>Gặp nhân viên</button></div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="stitle">Composer</div>
+        <div class="composer"><input placeholder="Nhập tin nhắn..." readonly><i data-lucide="paperclip" class="ic"></i><i data-lucide="smile" class="ic"></i><button class="send"><i data-lucide="send"></i></button></div>
+        <span class="hint">Default</span>
+        <div class="composer focus"><input value="Đơn hàng của mình" readonly><i data-lucide="paperclip" class="ic"></i><i data-lucide="smile" class="ic"></i><button class="send"><i data-lucide="send"></i></button></div>
+        <span class="hint">Focus · gold ring</span>
+        <div class="composer disabled"><input value="Hội thoại đã kết thúc" readonly><button class="send"><i data-lucide="send"></i></button></div>
+        <span class="hint">Disabled</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ 2 · Widget góc phải (web) ══════════ -->
+  <section class="sect">
+    <div class="sect-h">Widget góc phải (web) · launcher + panel</div>
+    <div class="widget-row">
+
+      <div class="col">
+        <div class="stitle">Đóng — launcher + teaser</div>
+        <div class="launcher">
+          <div class="teaser"><span class="x"><i data-lucide="x"></i></span>Xin chào! Cần TIXIMAX hỗ trợ tra cứu đơn hàng không ạ?</div>
+          <button class="fab"><i data-lucide="message-circle"></i><span class="nbadge">2</span></button>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="stitle">Mở — panel chat</div>
+        <div class="panel">
+          <div class="p-head">
+            <div class="p-avatar">TX<span class="dot"></span></div>
+            <div><div class="p-name">TIXIMAX Hỗ trợ</div><div class="p-sub">Trực tuyến · phản hồi ~1 phút</div></div>
+            <div class="p-actions"><button><i data-lucide="minus"></i></button><button><i data-lucide="x"></i></button></div>
+          </div>
+          <div class="p-body">
+            <div class="divider">Hôm nay</div>
+            <div class="row-in"><div class="cavatar">TX</div><div class="msg msg-in">Chào anh/chị! TIXIMAX có thể hỗ trợ gì ạ?</div></div>
+            <div class="qr" style="padding-left:36px"><button>Tra cứu đơn</button><button>Bảng giá</button></div>
+            <div class="row-out" style="margin-top:4px"><div class="msg msg-out">Đơn TX-48210 khi nào tới HN?</div></div>
+            <div class="meta meta-out"><span>09:42</span><i data-lucide="check-check" class="read"></i></div>
+            <div class="row-in"><div class="cavatar">TX</div><div class="msg msg-in">Đơn đang thông quan tại Nội Bài, dự kiến giao <b>10/06</b> ạ.</div></div>
+            <div class="meta" style="padding-left:36px">Lan Anh · 09:43</div>
+          </div>
+          <div class="p-foot">
+            <div class="composer"><input placeholder="Nhập tin nhắn..." readonly><i data-lucide="paperclip" class="ic"></i><i data-lucide="smile" class="ic"></i><button class="send"><i data-lucide="send"></i></button></div>
+            <div class="p-brand">Hỗ trợ bởi TIXIMAX</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════ 3 · Full screen (web) ══════════ -->
+  <section class="sect">
+    <div class="sect-h">Full screen (web) · danh sách hội thoại + khung chat</div>
+    <div class="app">
+      <div class="side">
+        <div class="side-head">
+          <div class="side-title">Tin nhắn</div>
+          <div class="search"><i data-lucide="search"></i>Tìm hội thoại...</div>
+        </div>
+        <div class="convos">
+          <div class="convo active">
+            <div class="cv-avatar">TX<span class="dot"></span></div>
+            <div class="cv-main"><div class="cv-top"><span class="cv-name">TIXIMAX Hỗ trợ</span><span class="cv-time">09:43</span></div><div class="cv-snippet">Đơn đang thông quan tại Nội Bài...</div></div>
+          </div>
+          <div class="convo">
+            <div class="cv-avatar navy">KT</div>
+            <div class="cv-main"><div class="cv-top"><span class="cv-name">Kho Tokyo</span><span class="cv-time">08:12</span></div><div class="cv-snippet unread">Kiện hàng 3.5kg đã nhập kho</div></div>
+            <span class="cv-badge">2</span>
+          </div>
+          <div class="convo">
+            <div class="cv-avatar blue">LA</div>
+            <div class="cv-main"><div class="cv-top"><span class="cv-name">Lan Anh — CSKH</span><span class="cv-time">T2</span></div><div class="cv-snippet">Dạ vâng, em đã cập nhật địa chỉ ạ</div></div>
+          </div>
+          <div class="convo">
+            <div class="cv-avatar navy">KJ</div>
+            <div class="cv-main"><div class="cv-top"><span class="cv-name">Kho Jakarta</span><span class="cv-time">31/05</span></div><div class="cv-snippet">Lịch gom hàng tuần này</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="chat">
+        <div class="c-head">
+          <div class="cv-avatar" style="width:38px;height:38px">TX<span class="dot"></span></div>
+          <div><div class="c-name">TIXIMAX Hỗ trợ</div><div class="c-status">Đang trực tuyến</div></div>
+          <div class="c-actions"><button><i data-lucide="search"></i></button><button><i data-lucide="info"></i></button><button><i data-lucide="more-vertical"></i></button></div>
+        </div>
+        <div class="c-body">
+          <div class="divider">Hôm nay</div>
+          <div class="row-out"><div class="msg msg-out">Cho mình hỏi tình trạng đơn TX-48210?</div></div>
+          <div class="meta meta-out"><span>09:41</span><i data-lucide="check-check" class="read"></i></div>
+          <div class="row-in"><div class="cavatar">TX</div>
+            <div class="order-card">
+              <div class="oc-head"><i data-lucide="package"></i>TX-48210<span class="oc-badge">Đang vận chuyển</span></div>
+              <div class="oc-body">
+                <div><div class="oc-l">Tuyến</div><div class="oc-v">Tokyo → Hà Nội</div></div>
+                <div><div class="oc-l">Dự kiến giao</div><div class="oc-v">10/06/2026</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="row-in"><div style="width:28px;flex:none"></div><div class="msg msg-in">Đơn đang thông quan tại Nội Bài, dự kiến giao <b>10/06</b> anh nhé.</div></div>
+          <div class="meta" style="padding-left:36px">Lan Anh · 09:43</div>
+          <div class="row-out"><div class="msg msg-out">Cảm ơn bạn, cho mình hỏi thêm về phí ship nội thành?</div></div>
+          <div class="meta meta-out"><span>09:44</span><i data-lucide="check"></i></div>
+          <div class="row-in"><div class="cavatar">TX</div><div class="typing"><i></i><i></i><i></i></div></div>
+        </div>
+        <div class="c-foot">
+          <div class="composer"><i data-lucide="plus" class="ic"></i><input placeholder="Nhập tin nhắn..." readonly><i data-lucide="paperclip" class="ic"></i><i data-lucide="smile" class="ic"></i><button class="send"><i data-lucide="send"></i></button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 4 · Mobile ══════════ -->
+  <section class="sect">
+    <div class="sect-h">Mobile · danh sách hội thoại + màn hình chat</div>
+    <div class="phones">
+
+      <div class="phone-wrap">
+        <div class="stitle">Danh sách hội thoại</div>
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span class="icons"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+          <div class="l-head">
+            <div class="l-title">Tin nhắn</div>
+            <div class="search"><i data-lucide="search"></i>Tìm hội thoại...</div>
+          </div>
+          <div class="convos">
+            <div class="convo active">
+              <div class="cv-avatar">TX<span class="dot"></span></div>
+              <div class="cv-main"><div class="cv-top"><span class="cv-name">TIXIMAX Hỗ trợ</span><span class="cv-time">09:43</span></div><div class="cv-snippet unread">Đơn đang thông quan tại Nội Bài...</div></div>
+              <span class="cv-badge">1</span>
+            </div>
+            <div class="convo">
+              <div class="cv-avatar navy">KT</div>
+              <div class="cv-main"><div class="cv-top"><span class="cv-name">Kho Tokyo</span><span class="cv-time">08:12</span></div><div class="cv-snippet unread">Kiện hàng 3.5kg đã nhập kho</div></div>
+              <span class="cv-badge">2</span>
+            </div>
+            <div class="convo">
+              <div class="cv-avatar blue">LA</div>
+              <div class="cv-main"><div class="cv-top"><span class="cv-name">Lan Anh — CSKH</span><span class="cv-time">T2</span></div><div class="cv-snippet">Dạ vâng, em đã cập nhật địa chỉ ạ</div></div>
+            </div>
+            <div class="convo">
+              <div class="cv-avatar navy">KJ</div>
+              <div class="cv-main"><div class="cv-top"><span class="cv-name">Kho Jakarta</span><span class="cv-time">31/05</span></div><div class="cv-snippet">Lịch gom hàng tuần này</div></div>
+            </div>
+          </div>
+          <button class="m-fab"><i data-lucide="message-circle-plus"></i></button>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="stitle">Màn hình chat</div>
+        <div class="phone">
+          <div class="statusbar"><span>9:41</span><span class="icons"><i data-lucide="signal"></i><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+          <div class="m-head">
+            <button class="back"><i data-lucide="chevron-left"></i></button>
+            <div class="cv-avatar" style="width:38px;height:38px;font-size:13px">TX<span class="dot"></span></div>
+            <div><div class="c-name">TIXIMAX Hỗ trợ</div><div class="c-status">Đang trực tuyến</div></div>
+            <button class="c-more"><i data-lucide="more-vertical"></i></button>
+          </div>
+          <div class="c-body">
+            <div class="divider">Hôm nay</div>
+            <div class="row-in"><div class="cavatar">TX</div><div class="msg msg-in">Chào anh/chị! TIXIMAX có thể hỗ trợ gì ạ?</div></div>
+            <div class="qr" style="padding-left:36px"><button>Tra cứu đơn</button><button>Bảng giá</button></div>
+            <div class="row-out" style="margin-top:4px"><div class="msg msg-out">Đơn TX-48210 khi nào tới Hà Nội?</div></div>
+            <div class="meta meta-out"><span>09:42</span><i data-lucide="check-check" class="read"></i></div>
+            <div class="row-in"><div class="cavatar">TX</div><div class="msg msg-in">Đơn đang thông quan tại Nội Bài, dự kiến giao <b>10/06</b> ạ.</div></div>
+            <div class="meta" style="padding-left:36px">Lan Anh · 09:43</div>
+          </div>
+          <div class="m-foot">
+            <div class="composer"><input placeholder="Nhập tin nhắn..." readonly><i data-lucide="paperclip" class="ic"></i><i data-lucide="mic" class="ic"></i><button class="send"><i data-lucide="send"></i></button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+ </div></div>
+ <div class="ds-mode dark"><span class="ds-mode__tag">Dark</span><div class="surface" id="darkBody"></div></div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+  document.getElementById('darkBody').innerHTML = document.getElementById('lightBody').innerHTML;
+  lucide.createIcons();
+</script>
+</body>
+</html>

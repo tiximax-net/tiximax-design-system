@@ -7,6 +7,37 @@ export type { BadgeProps } from './components/Badge';
 export { Card } from './components/Card';
 export type { CardProps } from './components/Card';
 
+export {
+  ChatAvatar,
+  ChatMessage,
+  ChatDivider,
+  ChatSystemMessage,
+  ChatTyping,
+  ChatAttachment,
+  ChatOrderCard,
+  ChatQuickReplies,
+  ChatComposer,
+  ChatHeader,
+  ChatLauncher,
+  ChatPanel,
+  ConversationItem,
+  ConversationList,
+} from './components/Chat';
+export type {
+  ChatAvatarProps,
+  ChatMessageProps,
+  ChatDividerProps,
+  ChatAttachmentProps,
+  ChatOrderCardProps,
+  ChatQuickRepliesProps,
+  ChatComposerProps,
+  ChatHeaderProps,
+  ChatLauncherProps,
+  ChatPanelProps,
+  ConversationItemProps,
+  ConversationListProps,
+} from './components/Chat';
+
 export { Heading } from './components/Heading';
 export type { HeadingProps } from './components/Heading';
 

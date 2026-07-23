@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiximax Express — Web app</title>
+<!-- Favicon chuẩn DS: nền trắng cho tab tối, nền navy cho tab sáng (xem preview/brand-favicon.html) -->
+<link rel="icon" type="image/svg+xml" href="../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* ============================================================
+     TIXIMAX EXPRESS — web app (desktop)
+     Nguồn: project claude.ai/design "Tiximax Express booking interface"
+     (Tiximax Express.dc.html) — dựng lại bằng token của design system,
+     không hardcode hex, nên chạy được cả light lẫn dark.
+     4 khu: Booking wizard (3 bước) · My shipments · Tracking · Chat
+     ============================================================ */
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--surface-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .view { animation: fadeUp 200ms ease-out; }
+  [hidden] { display: none !important; }
+
+  /* ---------- Header ---------- */
+  .app-head {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--surface-card); border-bottom: 1px solid var(--border-default);
+  }
+  .app-head__inner {
+    max-width: 1080px; margin: 0 auto; padding: 0 var(--space-6);
+    height: 64px; display: flex; align-items: center; gap: var(--space-8); flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: var(--space-3); cursor: pointer; }
+  .brand img { height: 30px; display: block; }
+  [data-theme="dark"] .brand__logo--light, [data-theme="light"] .brand__logo--dark { display: none; }
+  .brand__tag {
+    font-family: var(--font-display); font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-overline); text-transform: uppercase; color: var(--text-secondary);
+    border-left: 1px solid var(--border-default); padding-left: var(--space-3);
+  }
+  .nav { display: flex; gap: var(--space-8); margin-left: auto; align-items: stretch; height: 64px; }
+  .nav__btn {
+    border: none; background: none; cursor: pointer; font: inherit;
+    display: inline-flex; align-items: center; height: 64px; padding: 0 2px;
+    font-size: var(--fs-body-sm); font-weight: var(--fw-medium); white-space: nowrap;
+    color: var(--text-secondary); border-bottom: 2.5px solid transparent;
+  }
+  .nav__btn:hover { color: var(--text-primary); }
+  .nav__btn.is-active { color: var(--text-primary); font-weight: var(--fw-bold); border-bottom-color: var(--brand-gold); }
+  .nav__dot { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--brand-red); margin-left: 6px; }
+
+  .tools { display: flex; align-items: center; gap: var(--space-2); }
+  .tool {
+    display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 var(--space-3);
+    font: inherit; font-size: var(--fs-overline); font-weight: var(--fw-semibold);
+    color: var(--text-secondary); background: var(--surface-card);
+    border: 1px solid var(--border-default); border-radius: var(--radius-pill); cursor: pointer;
+  }
+  .tool:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+  /* ---------- Layout ---------- */
+  .main { max-width: 1080px; margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-16); }
+  .head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); flex-wrap: wrap; margin-bottom: var(--space-6); }
+  .h1 { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: var(--fw-bold); letter-spacing: var(--ls-tight); margin: 0 0 6px; }
+  .lead { margin: 0; font-size: var(--fs-body-sm); color: var(--text-secondary); }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-6); }
+  .grid2--tight { gap: var(--space-5); align-items: start; }
+  .col { display: flex; flex-direction: column; gap: var(--space-4); }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-6);
+  }
+  .card--raised { box-shadow: var(--shadow-md); padding: var(--space-8); }
+  .cap { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-brand); margin-bottom: var(--space-4); }
+  .lbl { display: block; font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-tertiary); margin-bottom: var(--space-2); }
+  .lbl--gold { font-size: var(--fs-overline); color: var(--text-brand); }
+
+  /* ---------- Stepper ---------- */
+  .steps { display: flex; align-items: center; }
+  .stp { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; background: none; border: 0; font: inherit; padding: 0; }
+  .stp__circle {
+    width: 26px; height: 26px; border-radius: var(--radius-pill); flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    background: var(--surface-card); color: var(--text-tertiary); border: 1.5px solid var(--border-strong);
+  }
+  .stp.is-done .stp__circle { background: var(--brand-navy); color: var(--neutral-0); border: none; }
+  .stp.is-cur .stp__circle { background: var(--brand-gold); color: var(--neutral-950); border: none; }
+  .stp__label { font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-tertiary); }
+  .stp.is-cur .stp__label { font-weight: var(--fw-semibold); color: var(--text-primary); }
+  .stp__line { width: 36px; height: 2px; background: var(--border-default); margin: 0 var(--space-3); }
+
+  /* ---------- Field ---------- */
+  .input, .textarea, .select {
+    width: 100%; font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    background: var(--surface-card); border: 1.5px solid var(--border-default);
+    border-radius: var(--radius-md); padding: 12px 14px; outline: none;
+  }
+  .textarea { resize: vertical; }
+  .select { cursor: pointer; padding-right: var(--space-10); }
+  .input:focus, .textarea:focus, .select:focus { border-color: var(--brand-gold); box-shadow: var(--shadow-focus); }
+  .input::placeholder, .textarea::placeholder { color: var(--text-tertiary); }
+  .field-wrap { position: relative; }
+  .field-wrap .lead-ic { position: absolute; left: 14px; top: 13px; color: var(--neutral-400); pointer-events: none; }
+  .field-wrap .input { padding-left: 40px; }
+  .unit { position: absolute; right: 14px; top: 13px; font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-tertiary); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+
+  /* ---------- Address search ---------- */
+  .party-h { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+  .party-h__ic { width: 24px; height: 24px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .party-h__ic--from { background: var(--gold-50); color: var(--text-brand); }
+  .party-h__ic--to { background: var(--navy-50); color: var(--brand-navy); }
+  .party-h__t { font-size: var(--fs-body); font-weight: var(--fw-semibold); }
+  .party-h__t span { color: var(--text-tertiary); font-weight: var(--fw-regular); }
+
+  .suggest {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30; overflow: hidden;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  }
+  .suggest__row {
+    display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left;
+    padding: 11px 14px; font: inherit; font-size: var(--fs-caption); color: var(--text-secondary);
+    background: none; border: 0; cursor: pointer;
+  }
+  .suggest__row:hover { background: var(--navy-50); color: var(--text-primary); }
+  .suggest__row .ic { color: var(--text-brand); flex: none; margin-top: 1px; }
+
+  .recents { display: flex; flex-direction: column; gap: 6px; }
+  .recent {
+    display: flex; align-items: center; gap: 10px; text-align: left; width: 100%;
+    padding: 10px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    background: var(--surface-sunken); font: inherit; font-size: var(--fs-caption); color: var(--text-secondary); cursor: pointer;
+  }
+  .recent:hover { border-color: var(--brand-gold); background: var(--gold-50); }
+  .recent span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---------- Hai cột người gửi / người nhận ----------
+     Địa chỉ dài ngắn khác nhau (1 dòng ↔ 2 dòng) làm mọi thứ bên dưới lệch theo.
+     Cho hai cột dùng CHUNG hàng bằng subgrid: mỗi phần (tiêu đề · địa chỉ · tên+SĐT
+     · ghi chú) là một hàng, chiều cao lấy theo cột cao hơn nên luôn thẳng hàng. */
+  .parties { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); column-gap: var(--space-6); row-gap: var(--space-5); }
+  .party { display: grid; grid-template-rows: subgrid; grid-row: span 4; align-content: start; }
+  .addr-slot { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; }
+  @supports not (grid-template-rows: subgrid) {
+    /* Dự phòng cho trình duyệt chưa có subgrid: chốt cứng chiều cao ô địa chỉ */
+    .party { display: flex; flex-direction: column; gap: var(--space-5); }
+    .addr-slot { min-height: 190px; }
+  }
+
+  .addr-picked {
+    display: flex; gap: var(--space-3); align-items: flex-start;
+    /* 2 dòng địa chỉ + padding + viền — để ô 1 dòng và ô 2 dòng cao bằng nhau */
+    min-height: 70px;
+    padding: 14px 16px; border: 1.5px solid var(--brand-gold); border-radius: var(--radius-lg); background: var(--gold-50);
+  }
+  .addr-picked__t { flex: 1; font-size: var(--fs-caption); color: var(--neutral-900); line-height: var(--lh-normal); }
+  .link-btn { border: none; background: none; color: var(--text-link); font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); cursor: pointer; padding: 0; }
+  .link-btn:hover { text-decoration: underline; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    font: inherit; font-size: var(--fs-body-sm); font-weight: var(--fw-bold);
+    padding: 13px 28px; border: none; border-radius: var(--radius-md); cursor: pointer;
+  }
+  .btn--primary { background: var(--brand-gold); color: var(--neutral-950); box-shadow: var(--shadow-gold); }
+  .btn--primary:hover { background: var(--gold-600); }
+  .btn--primary:active { transform: scale(.98); }
+  .btn--primary:disabled { background: var(--surface-sunken); color: var(--text-disabled); box-shadow: none; cursor: not-allowed; transform: none; }
+  .btn--ghost {
+    background: var(--surface-card); color: var(--text-secondary);
+    border: 1.5px solid var(--border-default); font-weight: var(--fw-semibold); padding: 12px 24px;
+  }
+  .btn--ghost:hover { border-color: var(--neutral-400); color: var(--text-primary); }
+  .btn--outline {
+    background: var(--surface-card); color: var(--brand-primary);
+    border: 1.5px solid var(--brand-primary); font-weight: var(--fw-semibold); padding: 11px 20px; font-size: var(--fs-caption);
+  }
+  .btn--outline:hover { background: var(--navy-50); }
+  .btn--dashed {
+    width: 100%; padding: 14px; border: 1.5px dashed var(--border-strong); border-radius: var(--radius-lg);
+    background: none; color: var(--brand-primary); font-weight: var(--fw-semibold);
+  }
+  .btn--dashed:hover { border-color: var(--brand-primary); background: var(--navy-50); }
+  .row-btns { display: flex; justify-content: space-between; gap: var(--space-3); }
+
+  /* ---------- Items (step 2) ---------- */
+  .item-head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: 18px; }
+  .item-num {
+    width: 28px; height: 28px; border-radius: var(--radius-pill); flex: none;
+    background: var(--brand-navy); color: var(--neutral-0);
+    display: flex; align-items: center; justify-content: center; font-size: var(--fs-caption); font-weight: var(--fw-bold);
+  }
+  .item-title { font-size: var(--fs-body); font-weight: var(--fw-semibold); flex: 1; }
+  .icon-btn { border: none; background: none; color: var(--neutral-400); cursor: pointer; padding: 6px; border-radius: var(--radius-sm); display: flex; }
+  .icon-btn:hover { color: var(--brand-red); background: var(--error-bg); }
+  .photos { display: flex; gap: 10px; flex-wrap: wrap; }
+  .photo { position: relative; width: 84px; height: 84px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-default); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo__x {
+    position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; padding: 0;
+    border-radius: var(--radius-pill); border: none; cursor: pointer;
+    background: rgba(12, 26, 49, .65); color: var(--neutral-0);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .photo__x:hover { background: var(--neutral-950); }
+  .photo-add {
+    width: 84px; height: 84px; border-radius: var(--radius-md);
+    border: 1.5px dashed var(--border-strong); background: var(--surface-sunken);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    cursor: pointer; color: var(--text-secondary); font-size: var(--fs-overline); font-weight: var(--fw-semibold);
+  }
+  .photo-add:hover { border-color: var(--brand-gold); color: var(--text-brand); background: var(--gold-50); }
+  .note { margin: 10px 0 0; font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: var(--radius-pill);
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); cursor: pointer;
+    border: 1.5px solid var(--border-default); background: var(--surface-card); color: var(--text-secondary);
+  }
+  .chip[aria-pressed="true"] { border-color: var(--brand-gold); background: var(--gold-50); color: var(--gold-700); }
+
+  /* ---------- Route rail (review + tracking) ---------- */
+  .rail { display: flex; gap: 14px; }
+  .rail__line { display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
+  .rail__dot { width: 10px; height: 10px; border-radius: var(--radius-pill); background: var(--brand-gold); }
+  .rail__dot--end { background: var(--surface-card); border: 2.5px solid var(--brand-navy); }
+  .rail__bar { width: 2px; flex: 1; background: var(--border-default); margin: 4px 0; }
+  .rail__body { display: flex; flex-direction: column; gap: var(--space-4); flex: 1; min-width: 0; }
+  .rail__who { font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+  .rail__addr { font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+  .rail__cap { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-tertiary); margin-bottom: 3px; }
+
+  .thumb {
+    width: 44px; height: 44px; border-radius: var(--radius-md); overflow: hidden; flex: none;
+    border: 1px solid var(--border-default); background: var(--surface-page); color: var(--neutral-400);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .li { display: flex; gap: var(--space-3); align-items: center; }
+  .li__t { font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+  .li__m { font-size: var(--fs-overline); color: var(--text-secondary); }
+  .stack { display: flex; flex-direction: column; gap: var(--space-3); }
+  .split { display: flex; justify-content: space-between; font-size: var(--fs-caption); color: var(--text-secondary); }
+  .divide { border-top: 1px solid var(--border-subtle); margin-top: var(--space-4); padding-top: 14px; display: flex; flex-direction: column; gap: var(--space-2); }
+
+  /* ---------- Estimate ---------- */
+  .estimate { background: var(--surface-navy); color: var(--neutral-0); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-lg); }
+  .estimate .cap { color: var(--navy-200); }
+  .estimate__line { display: flex; justify-content: space-between; font-size: var(--fs-caption); color: var(--navy-100); }
+  .estimate__total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid rgba(255,255,255,.18); padding-top: 14px; margin-top: 14px; }
+  .estimate__total b { font-family: var(--font-display); font-size: var(--fs-h3); font-weight: var(--fw-bold); color: var(--gold-300); }
+  .estimate p { margin: 12px 0 0; font-size: var(--fs-overline); color: var(--navy-200); line-height: var(--lh-relaxed); }
+  .info-note {
+    background: var(--info-bg); border: 1px solid var(--info-border); border-radius: var(--radius-md);
+    padding: 14px 16px; font-size: var(--fs-caption); color: var(--text-info); line-height: var(--lh-relaxed);
+  }
+
+  /* ---------- Done ---------- */
+  .done { max-width: 520px; margin: 48px auto 0; text-align: center; padding: 48px 40px; }
+  .done__ic {
+    width: 64px; height: 64px; border-radius: var(--radius-pill); margin: 0 auto var(--space-5);
+    background: var(--success-bg); color: var(--text-success); display: flex; align-items: center; justify-content: center;
+  }
+  .done h2 { font-family: var(--font-display); margin: 0 0 var(--space-2); font-size: var(--fs-h4); font-weight: var(--fw-bold); }
+  .done p { margin: 0 0 28px; font-size: var(--fs-body-sm); color: var(--text-secondary); line-height: var(--lh-relaxed); }
+
+  /* ---------- Orders ---------- */
+  .order {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap; width: 100%; text-align: left;
+    background: var(--surface-card); border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs); padding: 12px 18px; cursor: pointer; font: inherit;
+    /* <button> mặc định color:buttontext (đen) — không kế thừa, dark mode sẽ đen trên nền tối */
+    color: var(--text-primary);
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+  }
+  .order:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .order__ic {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); flex: none;
+    background: var(--navy-50); color: var(--brand-navy); display: flex; align-items: center; justify-content: center;
+  }
+  .order__id { font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+  .order__sub { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  .order__route { flex: 1; min-width: 170px; display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-caption); color: var(--text-secondary); }
+  .order__price { font-size: var(--fs-caption); font-weight: var(--fw-semibold); min-width: 64px; text-align: right; }
+  .order__bar { width: 70px; flex: none; height: 4px; border-radius: var(--radius-pill); background: var(--surface-sunken); overflow: hidden; }
+  .order__bar i { display: block; height: 100%; border-radius: var(--radius-pill); background: var(--brand-gold); transition: width 200ms ease-out; }
+  .order__bar i.is-done { background: var(--brand-green); }
+
+  .badge { padding: 6px 14px; border-radius: var(--radius-pill); font-size: var(--fs-overline); font-weight: var(--fw-semibold); white-space: nowrap; }
+  .badge--green { background: var(--success-bg); color: var(--text-success); }
+  .badge--blue { background: var(--info-bg); color: var(--text-info); }
+  .badge--gold { background: var(--gold-50); color: var(--gold-700); }
+  .badge--grey { background: var(--surface-sunken); color: var(--text-secondary); }
+
+  /* ---------- Tracking ---------- */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px; border: none; background: none;
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    color: var(--text-secondary); cursor: pointer; padding: 0; margin-bottom: var(--space-4);
+  }
+  .back-link:hover { color: var(--brand-primary); }
+  .tl { display: flex; gap: var(--space-4); }
+  .tl__gut { display: flex; flex-direction: column; align-items: center; }
+  .tl__dot {
+    width: 24px; height: 24px; border-radius: var(--radius-pill); flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface-card); border: 2px solid var(--border-default); color: var(--neutral-0);
+  }
+  .tl__dot.is-done { background: var(--brand-navy); border: none; }
+  .tl__dot.is-cur { background: var(--brand-gold); border: none; box-shadow: 0 0 0 4px rgba(244, 185, 49, .25); }
+  .tl__dot img { width: 14px; height: 14px; display: block; }
+  .tl__line { width: 2px; flex: 1; min-height: 20px; background: var(--border-default); }
+  .tl__line.is-done { background: var(--brand-navy); }
+  .tl__body { padding-bottom: var(--space-6); }
+  .tl__label { font-size: var(--fs-body-sm); font-weight: var(--fw-medium); color: var(--text-tertiary); line-height: 24px; }
+  .tl__label.is-on { font-weight: var(--fw-semibold); color: var(--text-primary); }
+  .tl__time { font-size: var(--fs-overline); color: var(--text-tertiary); margin-top: 2px; }
+  .pickup-note { margin-top: var(--space-4); padding: 10px 14px; background: var(--surface-page); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+  /* ---------- Chat ---------- */
+  .chat {
+    display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 520px; overflow: hidden;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+  }
+  .chat__head { display: flex; align-items: center; gap: var(--space-3); padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-sunken); }
+  .chat__avatar { position: relative; width: 40px; height: 40px; flex: none; border-radius: var(--radius-pill); background: var(--brand-navy); display: flex; align-items: center; justify-content: center; }
+  .chat__avatar img { width: 22px; height: 22px; display: block; filter: brightness(0) invert(1); }
+  .chat__avatar i { position: absolute; right: 0; bottom: 0; width: 11px; height: 11px; border-radius: var(--radius-pill); background: var(--green-400); border: 2px solid var(--surface-sunken); }
+  .chat__name { font-size: var(--fs-body); font-weight: var(--fw-bold); }
+  .chat__status { font-size: var(--fs-overline); color: var(--text-success); display: flex; align-items: center; gap: 5px; }
+  .chat__status i { width: 7px; height: 7px; border-radius: var(--radius-pill); background: currentColor; }
+  .chat__body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: var(--space-3); background: var(--surface-page); }
+
+  .sysmsg { align-self: center; background: var(--surface-sunken); color: var(--text-secondary); font-size: var(--fs-overline); font-weight: var(--fw-semibold); padding: 5px 12px; border-radius: var(--radius-pill); }
+  .msg-row { display: flex; }
+  .msg-row--me { justify-content: flex-end; }
+  .bubble {
+    max-width: 78%; padding: 8px; display: flex; flex-direction: column; gap: 6px;
+    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs); background: var(--surface-card);
+    border: 1px solid var(--border-default); color: var(--text-primary); box-shadow: var(--shadow-xs);
+  }
+  /* Tin mình gửi = NỀN VÀNG, chữ navy — giống ChatMessage side="out" của DS
+     (src/components/Chat.tsx) và .msg-out của prototype điện thoại. */
+  .bubble--me { border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg); background: var(--brand-gold); color: var(--navy-900); border: none; box-shadow: none; }
+  .bubble__t { font-size: var(--fs-caption); line-height: var(--lh-normal); padding: 3px 6px 0; }
+  .bubble__time { font-size: var(--fs-overline); color: var(--text-tertiary); text-align: right; padding: 0 6px 2px; }
+  .bubble--me .bubble__time { color: var(--navy-700); }
+  .att-img { width: 180px; max-width: 100%; height: 140px; border-radius: var(--radius-md); object-fit: cover; display: block; }
+  .att-file { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-page); border: 1px solid var(--border-default); }
+  /* Trên nền vàng thì phủ sắc navy mờ, không phủ trắng — trắng trên vàng gần như mất hình. */
+  .bubble--me .att-file { background: rgba(11, 23, 46, .10); border: none; }
+  .att-file__ic {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); flex: none; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: var(--fw-bold); background: var(--brand-navy); color: var(--neutral-0);
+  }
+  .att-file__n { font-size: var(--fs-caption); font-weight: var(--fw-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+  .att-file__s { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  .bubble--me .att-file__n { color: var(--navy-900); }
+  .bubble--me .att-file__s { color: var(--navy-700); }
+
+  .pending { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px 16px 0; background: var(--surface-card); }
+  .pending__item { position: relative; }
+  .pending__img { width: 56px; height: 56px; border-radius: var(--radius-sm); object-fit: cover; display: block; }
+  .pending__file { display: flex; align-items: center; gap: var(--space-2); height: 56px; padding: 0 14px 0 10px; border-radius: var(--radius-sm); background: var(--surface-page); border: 1px solid var(--border-default); }
+  .pending__x {
+    position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; padding: 0;
+    border-radius: var(--radius-pill); border: none; cursor: pointer;
+    background: var(--neutral-950); color: var(--neutral-0); display: flex; align-items: center; justify-content: center;
+  }
+  .composer { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--border-subtle); background: var(--surface-card); }
+  .composer__attach {
+    width: 44px; height: 44px; flex: none; border-radius: var(--radius-pill);
+    border: 1.5px solid var(--border-default); background: var(--surface-card); color: var(--brand-primary);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .composer__attach:hover { border-color: var(--brand-primary); background: var(--navy-50); }
+  .composer__input { flex: 1; padding: 12px 16px; border: 1.5px solid var(--border-default); border-radius: var(--radius-pill); font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary); background: var(--surface-card); outline: none; }
+  .composer__input:focus { border-color: var(--brand-gold); box-shadow: var(--shadow-focus); }
+  .composer__send {
+    width: 44px; height: 44px; flex: none; border-radius: var(--radius-pill); border: none; cursor: pointer;
+    background: var(--brand-gold); color: var(--neutral-950); box-shadow: var(--shadow-gold);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .composer__send:hover { background: var(--gold-600); }
+  .composer__send:active { transform: scale(.98); }
+
+  .ic { flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+  /* ---------- Focus ----------
+     Trình duyệt mặc định vẽ vòng xanh — không phải màu của DS. Dùng
+     --border-focus cho mọi thứ bấm được; ô nhập giữ viền vàng + --shadow-focus
+     sẵn có nên tắt outline để khỏi hai vòng chồng nhau. */
+  :focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+  .input:focus-visible, .textarea:focus-visible, .select:focus-visible,
+  .composer__input:focus-visible { outline: none; }
+
+  /* ---------- Vá dark mode ----------
+     --gold-50 / --navy-50 là thang màu thô: KHÔNG tự đảo theo theme, trong khi
+     --text-* thì có. Nền sáng + chữ sáng = mất chữ, nên các bề mặt này phải
+     retint riêng cho dark thay vì giữ nguyên nền kem. */
+  [data-theme="dark"] .addr-picked { background: rgba(244, 185, 49, .10); }
+  [data-theme="dark"] .addr-picked__t { color: var(--neutral-0); }
+  [data-theme="dark"] .recent:hover,
+  [data-theme="dark"] .photo-add:hover { background: rgba(244, 185, 49, .10); }
+  [data-theme="dark"] .chip[aria-pressed="true"] { background: rgba(244, 185, 49, .12); color: var(--brand-gold); }
+  [data-theme="dark"] .badge--gold { background: rgba(244, 185, 49, .14); color: var(--brand-gold); }
+  [data-theme="dark"] .party-h__ic--from { background: rgba(244, 185, 49, .12); }
+  [data-theme="dark"] .party-h__ic--to { background: rgba(31, 61, 110, .35); color: var(--navy-200); }
+  [data-theme="dark"] .order__ic { background: rgba(31, 61, 110, .35); color: var(--navy-200); }
+  [data-theme="dark"] .suggest__row:hover,
+  [data-theme="dark"] .btn--outline:hover,
+  [data-theme="dark"] .btn--dashed:hover,
+  [data-theme="dark"] .composer__attach:hover { background: var(--surface-sunken); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Icon sprite — Lucide outline 24×24, currentColor -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></symbol>
+    <symbol id="i-fragile" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/></symbol>
+    <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  </defs>
+</svg>
+
+<header class="app-head">
+  <div class="app-head__inner">
+    <div class="brand" id="brandHome">
+      <img class="brand__logo--light" src="../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
+      <img class="brand__logo--dark" src="../assets/tiximax-logo-white.svg" alt="TIXIMAX">
+      <span class="brand__tag">Express</span>
+    </div>
+    <nav class="nav">
+      <button class="nav__btn" type="button" data-view="book">New booking</button>
+      <button class="nav__btn" type="button" data-view="orders">My shipments</button>
+      <button class="nav__btn" type="button" data-view="chat">Chat<span class="nav__dot" id="navDot" hidden></span></button>
+    </nav>
+    <div class="tools">
+      <button class="tool" id="themeToggle" type="button" title="Đổi sáng / tối">
+        <svg class="ic" id="themeIcon" width="14" height="14"><use href="#i-moon"></use></svg><span id="themeLabel">Dark</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div id="viewBook" class="view"></div>
+  <div id="viewOrders" class="view" hidden></div>
+  <div id="viewTrack" class="view" hidden></div>
+  <div id="viewChat" class="view" hidden></div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     DỮ LIỆU
+     ============================================================ */
+  var ADDR = {
+    Indonesia: [
+      'Jl. Jend. Sudirman No. 52-53, SCBD, Jakarta Selatan 12190',
+      'Jl. Asia Afrika No. 8, Gelora, Jakarta Pusat 10270',
+      'Jl. Braga No. 99, Sumur Bandung, Bandung 40111',
+      'Jl. Malioboro No. 16, Gedong Tengen, Yogyakarta 55213',
+      'Jl. Raya Kuta No. 88, Badung, Bali 80361',
+      'Jl. Pemuda No. 118, Embong Kaliasin, Surabaya 60271'
+    ],
+    Japan: [
+      '2-11-3 Meguro, Meguro-ku, Tokyo 153-0063',
+      '1-9-1 Marunouchi, Chiyoda-ku, Tokyo 100-0005',
+      '4-2-8 Shibaura, Minato-ku, Tokyo 108-0023',
+      '3-1-3 Umeda, Kita-ku, Osaka 530-0001',
+      '3-22-2 Sakae, Naka-ku, Nagoya 460-0008',
+      '1-1-1 Hakata Ekimae, Hakata-ku, Fukuoka 812-0011'
+    ],
+    Vietnam: ['12 Nguyễn Huệ, Bến Nghé, District 1, Ho Chi Minh City', '36 Lý Thái Tổ, Hoàn Kiếm, Hà Nội'],
+    Philippines: ['6819 Ayala Ave, Makati, 1226 Metro Manila', '30th St, Bonifacio Global City, Taguig 1634'],
+    Korea: ['29 Seolleung-ro 152-gil, Gangnam-gu, Seoul 06792', '48 Haeun-daero, Haeundae-gu, Busan 48094'],
+    Singapore: ['10 Bayfront Ave, Singapore 018956', '313 Orchard Rd, Singapore 238895']
+  };
+  var COUNTRIES = Object.keys(ADDR);
+  var STAGES = ['Booking submitted', 'Confirmed via chat', 'Picked up', 'In transit', 'Customs clearance', 'Out for delivery', 'Delivered'];
+  var STAGE_TIMES = ['Jul 20, 09:12', 'Jul 20, 10:05', 'Jul 21, 14:30', 'Jul 22, 06:15', 'Jul 22, 18:40', 'Jul 23, 08:00', 'Jul 23, 11:25'];
+  var RATES = { USD: [1, '$', 2], JPY: [155, '¥', 0], IDR: [16300, 'Rp ', 0] };
+  var ISO = { Indonesia: 'ID', Japan: 'JP', Vietnam: 'VN', Philippines: 'PH', Korea: 'KR', Singapore: 'SG' };
+
+  var S = {
+    view: 'book', step: 1,
+    currency: 'USD',
+    originCountry: 'Indonesia', destCountry: 'Japan',
+    pickup: { query: '', selected: null, name: '', phone: '', note: '', focus: false },
+    drop: { query: '', selected: null, name: '', phone: '', focus: false },
+    items: [{ name: '', fragile: false, battery: false, photos: [], weight: '' }],
+    orders: [
+      { id: 'TX-2445', from: 'Jakarta, ID', to: 'Tokyo, JP', items: 2, date: 'Jul 02', stage: 6, price: 41, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+        fromAddr: 'Jl. Jend. Sudirman No. 52-53, SCBD, Jakarta Selatan 12190', sender: 'Dewi Lestari', senderPhone: '+62 812 5550 194', note: 'Lobby B, ask reception',
+        toAddr: '2-11-3 Meguro, Meguro-ku, Tokyo 153-0063', recipient: 'Kenta Mori', recipientPhone: '+81 90 5550 812',
+        itemList: [
+          { name: 'Batik fabric, 2 pieces', fragile: false, battery: false, photos: 2, estWeight: 1.2, actualWeight: 1.4 },
+          { name: 'Ceramic tea set', fragile: true, battery: false, photos: 1, estWeight: 2.5, actualWeight: 2.6 }
+        ] } },
+      { id: 'TX-2460', from: 'Bandung, ID', to: 'Osaka, JP', items: 1, date: 'Jul 14', stage: 3, price: 28, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+        fromAddr: 'Jl. Braga No. 99, Sumur Bandung, Bandung 40111', sender: 'Andi Pratama', senderPhone: '+62 813 5550 771', note: '',
+        toAddr: '3-1-3 Umeda, Kita-ku, Osaka 530-0001', recipient: 'Yuki Tanaka', recipientPhone: '+81 90 5550 233',
+        itemList: [{ name: 'Kopi Luwak beans, 1kg', fragile: false, battery: false, photos: 1, estWeight: 1.0, actualWeight: 1.1 }] } },
+      { id: 'TX-2473', from: 'Jakarta, ID', to: 'Fukuoka, JP', items: 3, date: 'Jul 20', stage: 1, price: 52, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+        fromAddr: 'Jl. Asia Afrika No. 8, Gelora, Jakarta Pusat 10270', sender: 'Sari Wijaya', senderPhone: '+62 811 5550 902', note: 'Call on arrival',
+        toAddr: '1-1-1 Hakata Ekimae, Hakata-ku, Fukuoka 812-0011', recipient: 'Haruto Sato', recipientPhone: '+81 90 5550 640',
+        itemList: [
+          { name: 'Rattan handbag', fragile: false, battery: false, photos: 1, estWeight: 0.8, actualWeight: null },
+          { name: 'Wood carving set', fragile: true, battery: false, photos: 2, estWeight: 3.0, actualWeight: null },
+          { name: 'Silver jewelry ×3', fragile: false, battery: false, photos: 0, estWeight: 0.3, actualWeight: null }
+        ] } }
+    ],
+    activeOrder: null, newOrderId: 'TX-2481', unread: 0,
+    messages: [{ who: 'agent', text: 'Hello! This is Rina from TIXIMAX Express. Submit a booking and we will confirm the price and pickup time with you right here.', time: '09:00' }],
+    chatInput: '', pending: []
+  };
+
+  /* ============================================================
+     TIỆN ÍCH
+     ============================================================ */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function icon(name, size) { return '<svg class="ic" width="' + (size || 16) + '" height="' + (size || 16) + '"><use href="#i-' + name + '"></use></svg>'; }
+  function fmt(usd) {
+    var r = RATES[S.currency] || RATES.USD;
+    return r[1] + (usd * r[0]).toLocaleString('en-US', { minimumFractionDigits: r[2], maximumFractionDigits: r[2] });
+  }
+  function now() { return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
+  function fmtSize(b) { return b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(0) + ' KB' : (b / 1048576).toFixed(1) + ' MB'; }
+  function plural(n, w) { return n + ' ' + w + (n > 1 ? 's' : ''); }
+
+  /* Giá tạm tính: nền 28$ + 9$/món thêm + 4$/món dễ vỡ + 2$/món có pin */
+  function estimateFrom(list) {
+    var n = list.length;
+    var fragile = list.filter(function (i) { return i.fragile; }).length;
+    var battery = list.filter(function (i) { return i.battery; }).length;
+    var lines = [{ label: 'Base international pickup', val: fmt(28) }];
+    if (n > 1) lines.push({ label: 'Additional items × ' + (n - 1), val: fmt((n - 1) * 9) });
+    if (fragile) lines.push({ label: 'Fragile handling × ' + fragile, val: fmt(fragile * 4) });
+    if (battery) lines.push({ label: 'Battery declaration × ' + battery, val: fmt(battery * 2) });
+    return { lines: lines, total: 28 + (n - 1) * 9 + fragile * 4 + battery * 2 };
+  }
+  function statusOf(stage) {
+    if (stage >= 6) return ['Delivered', 'green'];
+    if (stage >= 3) return ['In transit', 'blue'];
+    if (stage >= 2) return ['Picked up', 'blue'];
+    if (stage >= 1) return ['Confirmed', 'gold'];
+    return ['Awaiting confirmation', 'grey'];
+  }
+  function suggestions(key) {
+    var st = S[key];
+    var country = key === 'pickup' ? S.originCountry : S.destCountry;
+    var q = st.query.trim().toLowerCase();
+    if (!q) return [];
+    var list = (ADDR[country] || []).filter(function (a) { return a.toLowerCase().indexOf(q) >= 0; }).slice(0, 5)
+      .map(function (text) { return { text: text, value: text }; });
+    if (st.query.trim().length > 3) list.push({ text: 'Use exactly: "' + st.query.trim() + '"', value: st.query.trim() });
+    return list;
+  }
+  function recents(key) {
+    var country = key === 'pickup' ? S.originCountry : S.destCountry;
+    return (ADDR[country] || []).slice(0, 2);
+  }
+  var step1Ready = function () { return !!(S.pickup.selected && S.drop.selected); };
+  var step2Ready = function () { return S.items.length > 0 && S.items.every(function (i) { return i.name.trim(); }); };
+
+  /* ============================================================
+     RENDER — Booking wizard
+     ============================================================ */
+  function addressBlock(key) {
+    var st = S[key];
+    var isPickup = key === 'pickup';
+    var country = isPickup ? S.originCountry : S.destCountry;
+    var h = '<div class="party-h">' +
+      '<span class="party-h__ic party-h__ic--' + (isPickup ? 'from' : 'to') + '">' + icon('pin', 14) + '</span>' +
+      '<span class="party-h__t">' + (isPickup ? 'Pickup address' : 'Delivery address') +
+      ' <span>· ' + esc(country) + '</span></span></div>';
+
+    if (!st.selected) {
+      var sg = suggestions(key);
+      h += '<div class="addr-slot"><div class="field-wrap">' +
+        '<span class="lead-ic">' + icon('search', 16) + '</span>' +
+        '<input class="input" data-q="' + key + '" value="' + esc(st.query) + '" ' +
+        'placeholder="' + (isPickup ? 'Start typing a street, district or city…' : 'Start typing a street, ward or city…') + '">';
+      if (st.focus && st.query.trim() && sg.length) {
+        h += '<div class="suggest">' + sg.map(function (s, i) {
+          return '<button class="suggest__row" type="button" data-pick="' + key + '" data-i="' + i + '">' +
+            icon('pin', 14) + esc(s.text) + '</button>';
+        }).join('') + '</div>';
+      }
+      h += '</div>';
+      var rc = recents(key);
+      if (rc.length) {
+        h += '<div style="margin-top:20px"><div class="lbl">Recently used</div><div class="recents">' +
+          rc.map(function (t, i) {
+            return '<button class="recent" type="button" data-recent="' + key + '" data-i="' + i + '">' +
+              icon('clock', 14) + '<span>' + esc(t) + '</span></button>';
+          }).join('') + '</div></div>';
+      }
+      h += '</div>';
+    } else {
+      h += '<div class="addr-slot"><div class="addr-picked">' + icon('pin', 16) +
+        '<div class="addr-picked__t">' + esc(st.selected) + '</div>' +
+        '<button class="link-btn" type="button" data-clear="' + key + '">Change</button></div></div>';
+    }
+
+    h += '<div class="pair">' +
+      '<div><label class="lbl">' + (isPickup ? 'Sender name' : 'Recipient name') + '</label>' +
+      '<input class="input" data-name="' + key + '" value="' + esc(st.name) + '" placeholder="Full name"></div>' +
+      '<div><label class="lbl">Phone</label>' +
+      '<input class="input" data-phone="' + key + '" value="' + esc(st.phone) + '" placeholder="Contact number"></div></div>';
+
+    if (isPickup) {
+      h += '<div><label class="lbl">Pickup notes</label>' +
+        '<textarea class="textarea" rows="2" data-note="pickup" placeholder="Gate code, floor, best time to collect…">' + esc(st.note) + '</textarea></div>';
+    }
+    return h;
+  }
+
+  function renderStep1() {
+    var opts = function (sel) {
+      return COUNTRIES.map(function (c) {
+        return '<option value="' + esc(c) + '"' + (c === sel ? ' selected' : '') + '>' + esc(c) + '</option>';
+      }).join('');
+    };
+    return '<div class="card card--raised">' +
+      '<div style="display:flex;align-items:flex-end;gap:var(--space-6);flex-wrap:wrap;margin-bottom:28px">' +
+        '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Ship from</label>' +
+          '<select class="select" id="selOrigin">' + opts(S.originCountry) + '</select></div>' +
+        '<button class="tool" id="swapBtn" type="button" title="Swap direction" ' +
+          'style="width:44px;height:44px;justify-content:center;border-radius:var(--radius-pill);background:var(--surface-page);color:var(--brand-primary)">' +
+          icon('swap', 18) + '</button>' +
+        '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Deliver to</label>' +
+          '<select class="select" id="selDest">' + opts(S.destCountry) + '</select></div>' +
+      '</div>' +
+      '<div class="parties"><div class="party">' + addressBlock('pickup') + '</div>' +
+      '<div class="party">' + addressBlock('drop') + '</div></div>' +
+      '<div style="display:flex;justify-content:flex-end;margin-top:28px;padding-top:20px;border-top:1px solid var(--border-subtle)">' +
+        '<button class="btn btn--primary" id="toStep2" type="button"' + (step1Ready() ? '' : ' disabled') + '>' +
+        'Continue to items' + icon('arrow-right') + '</button></div></div>';
+  }
+
+  function renderStep2() {
+    var cards = S.items.map(function (it, i) {
+      var photos = it.photos.map(function (src, j) {
+        return '<div class="photo"><img src="' + esc(src) + '" alt="">' +
+          '<button class="photo__x" type="button" data-rmphoto="' + i + '" data-j="' + j + '">' + icon('x', 11) + '</button></div>';
+      }).join('');
+      return '<div class="card">' +
+        '<div class="item-head"><span class="item-num">' + (i + 1) + '</span>' +
+          '<span class="item-title">' + esc(it.name.trim() || 'Item ' + (i + 1)) + '</span>' +
+          (S.items.length > 1 ? '<button class="icon-btn" type="button" title="Remove item" data-rmitem="' + i + '">' + icon('trash') + '</button>' : '') +
+        '</div>' +
+        '<div class="grid2">' +
+          '<div><label class="lbl">Photos · before packing</label>' +
+            '<div class="photos">' + photos +
+              '<label class="photo-add">' + icon('camera', 20) + '<span>Add photo</span>' +
+              '<input type="file" accept="image/*" multiple hidden data-photos="' + i + '"></label></div>' +
+            '<p class="note">Photograph the item unpacked, from a couple of angles. This protects you if anything is disputed later.</p></div>' +
+          '<div><label class="lbl">What is inside?</label>' +
+            '<input class="input" data-iname="' + i + '" value="' + esc(it.name) + '" placeholder="e.g. Batik fabric, 2 pieces">' +
+            '<label class="lbl" style="margin-top:18px">Estimated weight</label>' +
+            '<div class="field-wrap" style="max-width:200px">' +
+              '<input class="input" type="number" min="0" step="0.1" data-iweight="' + i + '" value="' + esc(it.weight) + '" placeholder="0.0" style="padding-right:44px;padding-left:14px">' +
+              '<span class="unit">kg</span></div>' +
+            '<p class="note" style="margin-top:8px">A rough estimate is fine — we weigh everything precisely after pickup and update your booking.</p>' +
+            '<label class="lbl" style="margin-top:18px">Special handling</label>' +
+            '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+              '<button class="chip" type="button" data-fragile="' + i + '" aria-pressed="' + it.fragile + '">' + icon('fragile', 14) + 'Fragile</button>' +
+              '<button class="chip" type="button" data-battery="' + i + '" aria-pressed="' + it.battery + '">' + icon('battery', 14) + 'Contains battery</button>' +
+            '</div>' +
+            '<p class="note">Tag anything that needs extra care — we pack and declare it accordingly.</p></div>' +
+        '</div></div>';
+    }).join('');
+
+    return '<div style="display:flex;flex-direction:column;gap:var(--space-4)">' + cards +
+      '<button class="btn btn--dashed" id="addItem" type="button">' + icon('plus') + 'Add another item</button>' +
+      '<div class="row-btns" style="margin-top:8px">' +
+        '<button class="btn btn--ghost" id="toStep1" type="button">' + icon('chevron-left') + 'Back</button>' +
+        '<button class="btn btn--primary" id="toStep3" type="button"' + (step2Ready() ? '' : ' disabled') + '>' +
+        'Review booking' + icon('arrow-right') + '</button></div></div>';
+  }
+
+  function renderStep3() {
+    var est = estimateFrom(S.items);
+    var reviewItems = S.items.map(function (it) {
+      var tags = [it.fragile && 'Fragile', it.battery && 'Contains battery', it.weight && (it.weight + ' kg')].filter(Boolean).join(' · ');
+      var meta = (it.photos.length ? plural(it.photos.length, 'photo') : 'No photos') + (tags ? ' · ' + tags : '');
+      return '<div class="li"><div class="thumb">' +
+        (it.photos.length ? '<img src="' + esc(it.photos[0]) + '" alt="">' : icon('package', 18)) + '</div>' +
+        '<div style="flex:1"><div class="li__t">' + esc(it.name.trim() || 'Untitled item') + '</div>' +
+        '<div class="li__m">' + esc(meta) + '</div></div></div>';
+    }).join('');
+
+    var estimate = '<div class="estimate"><div class="cap">Estimated price</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px">' +
+        est.lines.map(function (l) { return '<div class="estimate__line"><span>' + esc(l.label) + '</span><span>' + esc(l.val) + '</span></div>'; }).join('') +
+      '</div>' +
+      '<div class="estimate__total"><span style="font-size:var(--fs-caption);color:var(--navy-100)">Estimated total</span><b>' + esc(fmt(est.total)) + '</b></div>' +
+      '<p>This is an estimate. Your final price is confirmed with you in chat after we review the booking — before pickup.</p></div>';
+
+    return '<div class="grid2 grid2--tight">' +
+      '<div class="col">' +
+        '<div class="card"><div class="cap">Route</div><div class="rail">' +
+          '<div class="rail__line"><span class="rail__dot"></span><span class="rail__bar"></span><span class="rail__dot rail__dot--end"></span></div>' +
+          '<div class="rail__body">' +
+            '<div><div class="rail__who">' + esc(S.pickup.name.trim() || 'Sender') + ' · ' + esc(S.originCountry) + '</div>' +
+            '<div class="rail__addr">' + esc(S.pickup.selected || '') + '</div></div>' +
+            '<div><div class="rail__who">' + esc(S.drop.name.trim() || 'Recipient') + ' · ' + esc(S.destCountry) + '</div>' +
+            '<div class="rail__addr">' + esc(S.drop.selected || '') + '</div></div>' +
+          '</div></div></div>' +
+        '<div class="card"><div class="cap">Items (' + S.items.length + ')</div><div class="stack">' + reviewItems + '</div></div>' +
+      '</div>' +
+      '<div class="col">' + estimate +
+        '<div class="info-note">After you submit, our team confirms the details with you in chat, then a courier collects the items at your pickup address.</div>' +
+        '<div class="row-btns">' +
+          '<button class="btn btn--ghost" id="backTo2" type="button">' + icon('chevron-left') + 'Back</button>' +
+          '<button class="btn btn--primary" id="submitBooking" type="button" style="flex:1">Submit booking</button>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function renderDone() {
+    return '<div class="card card--raised done"><div class="done__ic">' + icon('check', 30) + '</div>' +
+      '<h2>Booking ' + esc(S.newOrderId) + ' submitted</h2>' +
+      '<p>Thank you! Our team is reviewing your booking and will confirm the price and pickup time with you in chat.</p>' +
+      '<div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap">' +
+        '<button class="btn btn--primary" data-go="chat" type="button">' + icon('chat') + 'Open chat</button>' +
+        '<button class="btn btn--ghost" data-go="orders" type="button">View my shipments</button>' +
+      '</div></div>';
+  }
+
+  function renderBook() {
+    var h = '';
+    if (S.step < 4) {
+      var stepper = [['Route & addresses', 1], ['Items & photos', 2], ['Review', 3]].map(function (p) {
+        var label = p[0], n = p[1], done = S.step > n, cur = S.step === n;
+        return '<div style="display:flex;align-items:center">' +
+          '<button class="stp' + (done ? ' is-done' : '') + (cur ? ' is-cur' : '') + '" type="button" data-step="' + n + '">' +
+          '<span class="stp__circle">' + (done ? '✓' : n) + '</span><span class="stp__label">' + label + '</span></button>' +
+          (n < 3 ? '<span class="stp__line"></span>' : '') + '</div>';
+      }).join('');
+      h += '<div class="head-row"><div>' +
+        '<h1 class="h1">Book a pickup</h1>' +
+        '<p class="lead">We collect at your door and deliver across borders.</p></div>' +
+        '<div class="steps">' + stepper + '</div></div>';
+    }
+    if (S.step === 1) h += renderStep1();
+    else if (S.step === 2) h += renderStep2();
+    else if (S.step === 3) h += renderStep3();
+    else h += renderDone();
+    return h;
+  }
+
+  /* ============================================================
+     RENDER — My shipments
+     ============================================================ */
+  function renderOrders() {
+    var rows = S.orders.map(function (o) {
+      var st = statusOf(o.stage);
+      return '<button class="order" type="button" data-order="' + esc(o.id) + '">' +
+        '<span class="order__ic">' + icon('package') + '</span>' +
+        '<span style="min-width:140px"><span class="order__id" style="display:block">' + esc(o.id) + '</span>' +
+        '<span class="order__sub">Booked ' + esc(o.date) + ' · ' + plural(o.items, 'item') + '</span></span>' +
+        '<span class="order__route"><span style="font-weight:var(--fw-medium)">' + esc(o.from) + '</span>' +
+        icon('arrow-right', 13) + '<span style="font-weight:var(--fw-medium)">' + esc(o.to) + '</span></span>' +
+        '<span class="order__price">' + esc(fmt(o.price)) + '</span>' +
+        '<span class="badge badge--' + st[1] + '">' + st[0] + '</span>' +
+        '<span class="order__bar"><i class="' + (o.stage >= 6 ? 'is-done' : '') + '" style="width:' + Math.max(6, Math.round((o.stage / 6) * 100)) + '%"></i></span>' +
+        '</button>';
+    }).join('');
+    return '<div class="head-row"><div><h1 class="h1">My shipments</h1>' +
+      '<p class="lead">Track every booking from pickup to delivery.</p></div>' +
+      '<button class="btn btn--primary" data-go="book" type="button">' + icon('plus') + 'New booking</button></div>' +
+      '<div style="display:flex;flex-direction:column;gap:var(--space-3)">' + rows + '</div>';
+  }
+
+  /* ============================================================
+     RENDER — Tracking
+     ============================================================ */
+  function renderTrack() {
+    var active = S.orders.filter(function (o) { return o.id === S.activeOrder; })[0] || S.orders[0];
+    var d = active.detail || {};
+    var list = d.itemList || [];
+    var st = statusOf(active.stage);
+    var pickedUp = active.stage >= 2;
+    var estW = list.reduce(function (a, b) { return a + (b.estWeight || 0); }, 0);
+    var actW = list.reduce(function (a, b) { return a + (b.actualWeight || 0); }, 0);
+    var price = estimateFrom(list);
+
+    var items = list.map(function (it, i) {
+      var tags = [it.fragile && 'Fragile', it.battery && 'Contains battery'].filter(Boolean).join(' · ');
+      var meta = (it.photos ? plural(it.photos, 'photo') : 'No photos') + (tags ? ' · ' + tags : '');
+      var hasActual = pickedUp && it.actualWeight != null;
+      return '<div class="li" style="align-items:flex-start">' +
+        '<span class="item-num" style="width:26px;height:26px;font-size:var(--fs-overline)">' + (i + 1) + '</span>' +
+        '<div style="flex:1;min-width:0"><div class="li__t">' + esc(it.name) + '</div><div class="li__m">' + esc(meta) + '</div></div>' +
+        '<div style="text-align:right;flex:none;font-size:var(--fs-caption);font-weight:' + (hasActual ? 'var(--fw-bold)' : 'var(--fw-semibold)') + '">' +
+        esc(hasActual ? it.actualWeight + ' kg' : (it.estWeight ? it.estWeight + ' kg' : '—')) + '</div></div>';
+    }).join('');
+
+    var stages = STAGES.map(function (label, i) {
+      var done = i <= active.stage, cur = i === active.stage + 1;
+      var inner = done ? icon('check', 12) : (cur ? '<img src="../assets/airplane.svg" alt="">' : '');
+      return '<div class="tl"><div class="tl__gut">' +
+        '<span class="tl__dot' + (done ? ' is-done' : '') + (cur ? ' is-cur' : '') + '">' + inner + '</span>' +
+        (i < STAGES.length - 1 ? '<span class="tl__line' + (done ? ' is-done' : '') + '"></span>' : '') + '</div>' +
+        '<div class="tl__body"><div class="tl__label' + (done || cur ? ' is-on' : '') + '">' + esc(label) + '</div>' +
+        '<div class="tl__time">' + (done ? STAGE_TIMES[i] : (cur ? 'Up next' : '')) + '</div></div></div>';
+    }).join('');
+
+    return '<div style="max-width:1000px;margin:0 auto">' +
+      '<button class="back-link" data-go="orders" type="button">' + icon('chevron-left', 15) + 'All shipments</button>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin-bottom:6px">' +
+        '<h1 class="h1" style="font-size:var(--fs-h3);margin:0">' + esc(active.id) + '</h1>' +
+        '<span class="badge badge--' + st[1] + '">' + st[0] + '</span></div>' +
+      '<div style="font-size:var(--fs-body-sm);color:var(--text-secondary);margin-bottom:var(--space-6)">' +
+        esc(active.from) + ' → ' + esc(active.to) + ' · ' + plural(active.items, 'item') + ' · ' + esc(fmt(active.price)) + '</div>' +
+      '<div class="grid2 grid2--tight"><div class="col">' +
+        '<div class="card"><div class="cap">Route &amp; contacts</div><div class="rail">' +
+          '<div class="rail__line"><span class="rail__dot"></span><span class="rail__bar"></span><span class="rail__dot rail__dot--end"></span></div>' +
+          '<div class="rail__body">' +
+            '<div><div class="rail__cap">From · ' + esc(active.originCountry || '') + '</div>' +
+              '<div class="rail__who">' + esc(d.sender || 'Sender') + ' · ' + esc(d.senderPhone || '—') + '</div>' +
+              '<div class="rail__addr">' + esc(d.fromAddr || active.from) + '</div></div>' +
+            '<div><div class="rail__cap">To · ' + esc(active.destCountry || '') + '</div>' +
+              '<div class="rail__who">' + esc(d.recipient || 'Recipient') + ' · ' + esc(d.recipientPhone || '—') + '</div>' +
+              '<div class="rail__addr">' + esc(d.toAddr || active.to) + '</div></div>' +
+          '</div></div>' +
+          (d.note ? '<div class="pickup-note"><b>Pickup note: </b>' + esc(d.note) + '</div>' : '') +
+        '</div>' +
+        '<div class="card"><div class="cap">Items (' + plural(active.items, 'item') + ')</div>' +
+          '<div class="stack">' + items + '</div>' +
+          '<div class="divide">' +
+            (pickedUp
+              ? '<div class="split"><span>Total weight</span><span style="font-weight:var(--fw-bold);color:var(--text-primary)">' + actW.toFixed(1) + ' kg</span></div>'
+              : '<div class="split"><span>Estimated weight</span><span style="font-weight:var(--fw-semibold)">' + (estW ? estW.toFixed(1) : '0') + ' kg</span></div>' +
+                '<div style="font-size:var(--fs-overline);color:var(--text-tertiary);line-height:var(--lh-normal)">Actual weight is measured once our courier collects the items.</div>') +
+          '</div>' +
+          '<div class="divide">' +
+            price.lines.map(function (l) { return '<div class="split"><span>' + esc(l.label) + '</span><span>' + esc(l.val) + '</span></div>'; }).join('') +
+            '<div class="split" style="border-top:1px solid var(--border-subtle);padding-top:10px;margin-top:2px;align-items:baseline">' +
+              '<span>Total</span><span style="font-family:var(--font-display);font-size:var(--fs-h4);font-weight:var(--fw-bold);color:var(--text-primary)">' + esc(fmt(active.price)) + '</span></div>' +
+          '</div></div>' +
+      '</div>' +
+      '<div class="card card--raised" style="padding:var(--space-6)"><div class="cap">Tracking</div>' +
+        '<div style="display:flex;flex-direction:column">' + stages + '</div>' +
+        '<div style="border-top:1px solid var(--border-subtle);padding-top:20px;display:flex">' +
+          '<button class="btn btn--outline" data-go="chat" type="button" style="flex:1">' + icon('chat', 15) + 'Chat about this shipment</button>' +
+        '</div></div>' +
+      '</div></div>';
+  }
+
+  /* ============================================================
+     RENDER — Chat
+     ============================================================ */
+  function attachmentHTML(a, mine) {
+    if (a.isImage) return '<img class="att-img" src="' + esc(a.url) + '" alt="' + esc(a.name) + '">';
+    return '<div class="att-file"><span class="att-file__ic">' + esc(a.ext) + '</span>' +
+      '<div style="min-width:0"><div class="att-file__n">' + esc(a.name) + '</div>' +
+      '<div class="att-file__s">' + esc(a.size) + '</div></div></div>';
+  }
+
+  function renderChat() {
+    var msgs = S.messages.map(function (m) {
+      if (m.who === 'system') return '<div class="sysmsg">' + esc(m.text) + '</div>';
+      var mine = m.who === 'me';
+      var atts = (m.attachments || []).map(function (a) { return attachmentHTML(a, mine); }).join('');
+      return '<div class="msg-row' + (mine ? ' msg-row--me' : '') + '">' +
+        '<div class="bubble' + (mine ? ' bubble--me' : '') + '">' + atts +
+        (m.text && m.text.trim() ? '<div class="bubble__t">' + esc(m.text) + '</div>' : '') +
+        '<div class="bubble__time">' + esc(m.time || '') + '</div></div></div>';
+    }).join('');
+
+    var pending = S.pending.length ? '<div class="pending">' + S.pending.map(function (a, i) {
+      return '<div class="pending__item">' +
+        (a.isImage ? '<img class="pending__img" src="' + esc(a.url) + '" alt="">' :
+          '<div class="pending__file"><span class="att-file__ic">' + esc(a.ext) + '</span>' +
+          '<div style="min-width:0"><div class="att-file__n" style="max-width:120px;font-size:var(--fs-overline)">' + esc(a.name) + '</div>' +
+          '<div class="att-file__s" style="font-size:var(--fs-overline)">' + esc(a.size) + '</div></div></div>') +
+        '<button class="pending__x" type="button" data-rmpending="' + i + '">' + icon('x', 11) + '</button></div>';
+    }).join('') + '</div>' : '';
+
+    return '<div class="chat">' +
+      '<div class="chat__head">' +
+        '<span class="chat__avatar"><img src="../assets/tiximax-mark.svg" alt=""><i></i></span>' +
+        '<div style="flex:1;min-width:0"><div class="chat__name">TIXIMAX Support</div>' +
+        '<div class="chat__status"><i></i>Online · replies in minutes</div></div></div>' +
+      '<div class="chat__body" id="chatBody">' + msgs + '</div>' + pending +
+      '<div class="composer">' +
+        '<label class="composer__attach" title="Attach photo or file">' + icon('paperclip', 19) +
+          '<input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip" hidden id="attachInput"></label>' +
+        '<input class="composer__input" id="chatInput" placeholder="Type a message…" value="' + esc(S.chatInput) + '">' +
+        '<button class="composer__send" id="sendBtn" type="button">' + icon('send', 17) + '</button>' +
+      '</div></div>';
+  }
+
+  /* ============================================================
+     RENDER chung
+     ============================================================ */
+  function render() {
+    var isBook = S.view === 'book', isOrders = S.view === 'orders', isTrack = S.view === 'track', isChat = S.view === 'chat';
+    $('viewBook').hidden = !isBook;
+    $('viewOrders').hidden = !isOrders;
+    $('viewTrack').hidden = !isTrack;
+    $('viewChat').hidden = !isChat;
+    if (isBook) $('viewBook').innerHTML = renderBook();
+    if (isOrders) $('viewOrders').innerHTML = renderOrders();
+    if (isTrack) $('viewTrack').innerHTML = renderTrack();
+    if (isChat) {
+      $('viewChat').innerHTML = renderChat();
+      var body = $('chatBody');
+      if (body) body.scrollTop = body.scrollHeight;
+    }
+    document.querySelectorAll('.nav__btn').forEach(function (b) {
+      var on = b.dataset.view === S.view || (b.dataset.view === 'orders' && S.view === 'track');
+      b.classList.toggle('is-active', on);
+    });
+    $('navDot').hidden = S.unread === 0;
+  }
+
+  /* ============================================================
+     TƯƠNG TÁC
+     ============================================================ */
+  function go(view) {
+    if (view === 'book' && S.step >= 4) {
+      S.step = 1;
+      S.pickup = { query: '', selected: null, name: '', phone: '', note: '', focus: false };
+      S.drop = { query: '', selected: null, name: '', phone: '', focus: false };
+      S.items = [{ name: '', fragile: false, battery: false, photos: [], weight: '' }];
+      S.newOrderId = 'TX-' + (parseInt(S.newOrderId.slice(3), 10) + 1);
+    }
+    if (view === 'chat') S.unread = 0;
+    S.view = view;
+    render();
+  }
+
+  document.querySelectorAll('.nav__btn').forEach(function (b) {
+    b.addEventListener('click', function () { go(b.dataset.view); });
+  });
+  $('brandHome').addEventListener('click', function () { go('book'); });
+
+  /* Click uỷ quyền cho toàn bộ nội dung động */
+  document.querySelector('.main').addEventListener('click', function (e) {
+    var t = e.target;
+    var hit = function (attr) { var el = t.closest('[' + attr + ']'); return el ? el : null; };
+    var el;
+
+    if ((el = hit('data-go'))) { go(el.dataset.go); return; }
+    if ((el = hit('data-order'))) { S.activeOrder = el.dataset.order; S.view = 'track'; render(); return; }
+    if ((el = hit('data-step'))) { var n = +el.dataset.step; if (n < S.step) { S.step = n; render(); } return; }
+    if ((el = hit('data-recent'))) {
+      var k2 = el.dataset.recent;
+      S[k2].selected = recents(k2)[+el.dataset.i]; S[k2].query = ''; render(); return;
+    }
+    if ((el = hit('data-clear'))) { S[el.dataset.clear].selected = null; render(); return; }
+    if ((el = hit('data-rmitem'))) { S.items.splice(+el.dataset.rmitem, 1); render(); return; }
+    if ((el = hit('data-rmphoto'))) {
+      var it = S.items[+el.dataset.rmphoto];
+      URL.revokeObjectURL(it.photos[+el.dataset.j]);
+      it.photos.splice(+el.dataset.j, 1); render(); return;
+    }
+    if ((el = hit('data-fragile'))) { var f = S.items[+el.dataset.fragile]; f.fragile = !f.fragile; render(); return; }
+    if ((el = hit('data-battery'))) { var b2 = S.items[+el.dataset.battery]; b2.battery = !b2.battery; render(); return; }
+    if ((el = hit('data-rmpending'))) { S.pending.splice(+el.dataset.rmpending, 1); render(); return; }
+
+    switch (t.closest('button') && t.closest('button').id) {
+      case 'swapBtn':
+        var o = S.originCountry; S.originCountry = S.destCountry; S.destCountry = o;
+        S.pickup.selected = null; S.pickup.query = ''; S.drop.selected = null; S.drop.query = '';
+        render(); break;
+      case 'toStep2': if (step1Ready()) { S.step = 2; render(); } break;
+      case 'toStep1': S.step = 1; render(); break;
+      case 'toStep3': if (step2Ready()) { S.step = 3; render(); } break;
+      case 'backTo2': S.step = 2; render(); break;
+      case 'addItem': S.items.push({ name: '', fragile: false, battery: false, photos: [], weight: '' }); render(); break;
+      case 'submitBooking': submitBooking(); break;
+      case 'sendBtn': sendChat(); break;
+      default: break;
+    }
+  });
+
+  /* Chọn gợi ý: dùng mousedown để chạy TRƯỚC blur của ô nhập */
+  document.querySelector('.main').addEventListener('mousedown', function (e) {
+    var el = e.target.closest('[data-pick]');
+    if (!el) return;
+    e.preventDefault();
+    var key = el.dataset.pick, sg = suggestions(key)[+el.dataset.i];
+    if (sg) { S[key].selected = sg.value; S[key].query = ''; S[key].focus = false; render(); }
+  });
+
+  /* Nhập liệu (input/change) — cũng uỷ quyền, tránh mất listener khi render lại */
+  document.querySelector('.main').addEventListener('input', function (e) {
+    var t = e.target, d = t.dataset;
+    if (d.q != null) { S[d.q].query = t.value; updateSuggest(d.q); return; }
+    if (d.name != null) { S[d.name].name = t.value; return; }
+    if (d.phone != null) { S[d.phone].phone = t.value; return; }
+    if (d.note != null) { S[d.note].note = t.value; return; }
+    if (d.iname != null) { S.items[+d.iname].name = t.value; syncStep2Btn(); return; }
+    if (d.iweight != null) { S.items[+d.iweight].weight = t.value; return; }
+    if (t.id === 'chatInput') { S.chatInput = t.value; }
+  });
+
+  document.querySelector('.main').addEventListener('focusin', function (e) {
+    var d = e.target.dataset;
+    if (d && d.q != null) { S[d.q].focus = true; updateSuggest(d.q); }
+  });
+  document.querySelector('.main').addEventListener('focusout', function (e) {
+    var d = e.target.dataset;
+    if (d && d.q != null) {
+      var key = d.q;
+      setTimeout(function () { S[key].focus = false; updateSuggest(key); }, 150);
+    }
+  });
+
+  /* Chỉ dựng lại danh sách gợi ý ngay dưới ô đang gõ — không đụng tới node input,
+     nên con trỏ và focus giữ nguyên khi gõ. */
+  function updateSuggest(key) {
+    var input = document.querySelector('[data-q="' + key + '"]');
+    if (!input) return;
+    var wrap = input.closest('.field-wrap');
+    var old = wrap.querySelector('.suggest');
+    if (old) old.remove();
+    var st = S[key];
+    if (!st.focus || !st.query.trim() || st.selected) return;
+    var sg = suggestions(key);
+    if (!sg.length) return;
+    var box = document.createElement('div');
+    box.className = 'suggest';
+    box.innerHTML = sg.map(function (item, i) {
+      return '<button class="suggest__row" type="button" data-pick="' + key + '" data-i="' + i + '">' +
+        icon('pin', 14) + esc(item.text) + '</button>';
+    }).join('');
+    wrap.appendChild(box);
+  }
+  /* Đổi tên món chỉ cần bật/tắt nút, không vẽ lại cả màn (giữ nguyên con trỏ) */
+  function syncStep2Btn() {
+    var btn = $('toStep3');
+    if (btn) btn.disabled = !step2Ready();
+  }
+
+  document.querySelector('.main').addEventListener('change', function (e) {
+    var t = e.target, d = t.dataset;
+    if (t.id === 'selOrigin') { S.originCountry = t.value; S.pickup.selected = null; S.pickup.query = ''; render(); return; }
+    if (t.id === 'selDest') { S.destCountry = t.value; S.drop.selected = null; S.drop.query = ''; render(); return; }
+    if (d.photos != null) {
+      var it = S.items[+d.photos];
+      Array.prototype.forEach.call(t.files || [], function (f) { it.photos.push(URL.createObjectURL(f)); });
+      t.value = ''; render(); return;
+    }
+    if (t.id === 'attachInput') {
+      Array.prototype.forEach.call(t.files || [], function (f) {
+        S.pending.push({
+          name: f.name, size: fmtSize(f.size), isImage: f.type.indexOf('image/') === 0,
+          url: URL.createObjectURL(f), ext: (f.name.split('.').pop() || 'file').toUpperCase().slice(0, 4)
+        });
+      });
+      t.value = ''; render();
+    }
+  });
+
+  document.querySelector('.main').addEventListener('keydown', function (e) {
+    if (e.target.id === 'chatInput' && e.key === 'Enter') { e.preventDefault(); sendChat(); }
+  });
+
+  /* ---------- Gửi booking ---------- */
+  function cityOf(addr, country) {
+    var part = (addr.split(',').slice(-2)[0] || '').replace(/\d+/g, '').trim();
+    return (part || country) + ', ' + (ISO[country] || country);
+  }
+  function submitBooking() {
+    var est = estimateFrom(S.items);
+    var order = {
+      id: S.newOrderId,
+      from: cityOf(S.pickup.selected, S.originCountry),
+      to: cityOf(S.drop.selected, S.destCountry),
+      items: S.items.length, date: 'Jul 23', stage: 0, price: est.total,
+      originCountry: S.originCountry, destCountry: S.destCountry,
+      detail: {
+        fromAddr: S.pickup.selected, sender: S.pickup.name.trim() || 'Sender', senderPhone: S.pickup.phone || '—', note: S.pickup.note || '',
+        toAddr: S.drop.selected, recipient: S.drop.name.trim() || 'Recipient', recipientPhone: S.drop.phone || '—',
+        itemList: S.items.map(function (it) {
+          return { name: it.name.trim() || 'Untitled item', fragile: it.fragile, battery: it.battery,
+                   photos: it.photos.length, estWeight: parseFloat(it.weight) || 0, actualWeight: null };
+        })
+      }
+    };
+    S.orders.unshift(order);
+    S.step = 4; S.unread = 1;
+    S.messages.push({ who: 'system', text: 'Booking ' + S.newOrderId + ' submitted · ' + plural(S.items.length, 'item') });
+    S.messages.push({ who: 'agent', time: now(),
+      text: 'Thanks! We received booking ' + S.newOrderId + '. We are reviewing your items and will confirm the final price and a pickup window shortly. Anything we should know before the courier arrives?' });
+    render();
+  }
+
+  /* ---------- Chat ---------- */
+  var replyTimer = null;
+  function sendChat() {
+    var text = S.chatInput.trim(), atts = S.pending;
+    if (!text && !atts.length) return;
+    S.messages.push({ who: 'me', text: text, time: now(), attachments: atts });
+    S.chatInput = ''; S.pending = [];
+    render();
+    clearTimeout(replyTimer);
+    var reply = atts.length
+      ? 'Thanks, we received your ' + (atts.length > 1 ? atts.length + ' files' : 'file') + '. Our team will review it and get back to you shortly.'
+      : 'Got it! Our team will get back to you shortly with the confirmed details.';
+    replyTimer = setTimeout(function () {
+      S.messages.push({ who: 'agent', text: reply, time: now() });
+      if (S.view !== 'chat') S.unread = 1;
+      render();
+    }, 1400);
+  }
+
+  /* ---------- Sáng / tối ---------- */
+  var root = document.documentElement;
+  $('themeToggle').addEventListener('click', function () {
+    var dark = root.dataset.theme === 'dark';
+    root.dataset.theme = dark ? 'light' : 'dark';
+    $('themeIcon').querySelector('use').setAttribute('href', dark ? '#i-moon' : '#i-sun');
+    $('themeLabel').textContent = dark ? 'Dark' : 'Light';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

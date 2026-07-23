@@ -1,0 +1,2846 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-mode="mobile">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiximax Express — Prototype (Mobile + Website)</title>
+<!-- Favicon chuẩn DS: nền trắng cho tab tối, nền navy cho tab sáng -->
+<link rel="icon" type="image/svg+xml" href="../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* ============================================================
+     TIXIMAX EXPRESS — prototype gộp
+     Một file, hai bản dựng: app điện thoại (khung iOS, 6 màn) và web app
+     (booking wizard · my shipments · tracking · chat). Nút gạt trên thanh
+     shell chọn bản đang xem; sáng/tối áp cho cả hai.
+
+     Hai bản vốn là hai file riêng nên trùng nhiều tên class (.card, .btn,
+     .suggest, .tl, .composer…). Vì vậy CSS của mỗi bản được bọc trong
+     #mMobile / #mWeb, sprite icon bản web đổi tiền tố #i-* → #w-*.
+     File này được sinh ra từ express-booking-prototype.html và
+     express-web-prototype.html.
+     ============================================================ */
+
+  /* ---------- Nền chung ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--surface-page);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+  /* ---------- Thanh điều khiển chung ---------- */
+  .shell {
+    position: sticky; top: 0; z-index: 60;
+    background: var(--surface-card); border-bottom: 1px solid var(--border-default);
+  }
+  .shell__inner {
+    max-width: 1180px; margin: 0 auto; min-height: 52px;
+    padding: var(--space-2) var(--space-6);
+    display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap;
+  }
+  /* Chỉ dùng mark, không dùng wordmark: bản web đã có logo đầy đủ ở header
+     riêng của nó, để cả hai sẽ thành hai logo chồng nhau. */
+  .shell__mark { height: 20px; display: block; }
+  .shell__rule { width: 1px; height: 18px; background: var(--border-default); }
+  .shell__title {
+    font-family: var(--font-display); font-size: var(--fs-caption); font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-overline); text-transform: uppercase; color: var(--text-secondary);
+  }
+  .shell__ic { flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; width: 15px; height: 15px; }
+
+  /* Nút gạt Mobile ↔ Website */
+  .seg {
+    display: flex; gap: 2px; margin-left: auto; padding: 3px;
+    background: var(--surface-sunken); border: 1px solid var(--border-default);
+    border-radius: var(--radius-pill);
+  }
+  .seg__btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 30px; padding: 0 var(--space-4); border: 0; border-radius: var(--radius-pill);
+    background: none; color: var(--text-secondary);
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    cursor: pointer; white-space: nowrap;
+    transition: background .15s, color .15s;
+  }
+  .seg__btn:hover { color: var(--text-primary); }
+  .seg__btn[aria-selected="true"] {
+    background: var(--brand-gold); color: var(--neutral-950);
+    font-weight: var(--fw-bold); box-shadow: var(--shadow-xs);
+  }
+
+  .shell__btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 0 var(--space-4);
+    background: var(--surface-card); color: var(--text-secondary);
+    border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+    font: inherit; font-size: var(--fs-overline); font-weight: var(--fw-semibold);
+    cursor: pointer; white-space: nowrap;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .shell__btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  .shell__btn[aria-pressed="true"] { background: var(--gold-50); border-color: var(--brand-gold); color: var(--gold-800); }
+  /* Hotspots chỉ có nghĩa với prototype điện thoại */
+  [data-mode="web"] #hotspotToggle { display: none; }
+
+  /* ---------- Hai chế độ ---------- */
+  .mode { display: none; }
+  .mode.is-on { display: block; }
+  #mMobile { background: var(--surface-sunken); min-height: calc(100vh - 52px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+
+  /* ============================================================
+     BẢN ĐIỆN THOẠI — CSS gốc, scope vào #mMobile
+     ============================================================ */
+  :root {
+    --ease-ios: cubic-bezier(.32, .72, 0, 1);
+    --dur-push: 420ms;
+  }
+  #mMobile .page { max-width: 620px; margin: 0 auto; padding: var(--space-10) var(--space-8) var(--space-16); }
+  #mMobile .proto { display: flex; justify-content: center; }
+  #mMobile .device {
+    width: 426px; height: 898px; padding: 12px; flex: none;
+    background: linear-gradient(160deg, var(--neutral-700), var(--neutral-950));
+    border-radius: 62px; box-shadow: var(--shadow-xl);
+    position: relative;
+  }
+  #mMobile .device__screen {
+    width: 402px; height: 874px;
+    border-radius: 50px; overflow: hidden;
+    background: var(--surface-page);
+    position: relative;
+  }
+  #mMobile .device__island {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 124px; height: 34px; border-radius: var(--radius-pill);
+    background: var(--neutral-950); z-index: 30;
+  }
+  #mMobile .device__home {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 138px; height: 5px; border-radius: var(--radius-pill);
+    background: var(--text-primary); opacity: .28; z-index: 20;
+  }
+  #mMobile .statusbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 58px; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px 0;
+    font-size: var(--fs-body-sm); font-weight: var(--fw-semibold);
+    color: var(--text-primary);
+    pointer-events: none;
+  }
+  #mMobile .statusbar__icons { display: flex; align-items: center; gap: 6px; }
+  #mMobile .statusbar__icons svg { display: block; fill: currentColor; }
+  #mMobile .stage { position: absolute; inset: 0; overflow: hidden; }
+  #mMobile .screen {
+    position: absolute; inset: 0;
+    background: var(--surface-page);
+    transform: translateX(100%);
+    opacity: 0; pointer-events: none;
+    transition: transform var(--dur-push) var(--ease-ios), opacity var(--dur-push) var(--ease-ios);
+    will-change: transform;
+  }
+  #mMobile .screen.is-behind { transform: translateX(-26%); opacity: 0; }
+  #mMobile .screen.is-current { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  #mMobile .screen.no-anim { transition: none; }
+  #mMobile .scr {
+    height: 100%; overflow-y: auto; scrollbar-width: none;
+    display: flex; flex-direction: column; gap: var(--space-4);
+    padding: 68px var(--space-5) var(--space-8);
+  }
+  #mMobile .scr::-webkit-scrollbar { display: none; }
+  #mMobile .scr--flush { padding: 0; gap: 0; }
+  #mMobile .scr--center { align-items: center; text-align: center; }
+  #mMobile .spacer { flex: 1; }
+  #mMobile [data-goto],
+  #mMobile [data-back],
+  #mMobile [data-action] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  #mMobile .btn[data-goto]:active:not(.is-disabled) { transform: scale(.985); }
+  #mMobile .show-hotspots [data-goto],
+  #mMobile .show-hotspots [data-back],
+  #mMobile .show-hotspots [data-action] {
+    outline: 2px dashed var(--brand-gold); outline-offset: 3px; border-radius: var(--radius-md);
+  }
+  #mMobile .show-hotspots input,
+  #mMobile .show-hotspots textarea {
+    outline: 2px dashed var(--brand-blue); outline-offset: 3px;
+  }
+  #mMobile .ic { flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  #mMobile .ic--13 { width: 13px; height: 13px; }
+  #mMobile .ic--14 { width: 14px; height: 14px; }
+  #mMobile .ic--15 { width: 15px; height: 15px; }
+  #mMobile .ic--16 { width: 16px; height: 16px; }
+  #mMobile .ic--18 { width: 18px; height: 18px; }
+  #mMobile .ic--20 { width: 20px; height: 20px; }
+  #mMobile .ic--22 { width: 22px; height: 22px; }
+  #mMobile .ic--24 { width: 24px; height: 24px; }
+  #mMobile .ic--30 { width: 30px; height: 30px; }
+  #mMobile .ic--bold { stroke-width: 2.5; }
+  #mMobile .appbar { display: flex; align-items: center; justify-content: space-between; }
+  #mMobile .appbar__btn {
+    width: 40px; height: 40px; border-radius: var(--radius-pill); flex: none;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-primary); padding: 0; font: inherit; cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  #mMobile .appbar__btn:hover { background: var(--surface-sunken); border-color: var(--border-strong); }
+  #mMobile .appbar__btn:disabled { opacity: .35; cursor: default; }
+  #mMobile .appbar__mark { height: 22px; }
+  #mMobile .appbar__spacer { width: 40px; }
+  #mMobile .scr-title {
+    font-family: var(--font-display); margin: 0;
+    font-size: 24px; font-weight: var(--fw-bold);
+    letter-spacing: -0.01em; color: var(--text-primary);
+  }
+  #mMobile .scr-sub { font-size: var(--fs-caption); color: var(--text-secondary); margin: 2px 0 0; }
+  #mMobile .meter { display: flex; gap: 6px; }
+  #mMobile .meter__seg { flex: 1; height: 4px; border-radius: 2px; background: var(--neutral-200); overflow: hidden; }
+  #mMobile .meter__seg--on { background: var(--brand-gold); transform-origin: left center; }
+  #mMobile .is-current .meter__seg--fill { animation: meter-fill .5s var(--ease-ios) .12s backwards; }
+  @keyframes meter-fill { from { transform: scaleX(0); } }
+  #mMobile .group { display: flex; flex-direction: column; gap: var(--space-2); position: relative; }
+  #mMobile .group__label {
+    font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary);
+  }
+  #mMobile .group__label .opt { font-weight: var(--fw-regular); letter-spacing: 0; text-transform: none; color: var(--text-tertiary); }
+  #mMobile .hint { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mMobile .help { font-size: var(--fs-caption); color: var(--text-secondary); margin: -4px 0 0; }
+  #mMobile .field {
+    display: flex; align-items: center; gap: var(--space-3);
+    min-height: 48px; padding: var(--space-2) var(--space-4);
+    background: var(--surface-card);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    font-size: 15px; color: var(--text-primary);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  #mMobile .field:focus-within { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  #mMobile .field--area { align-items: flex-start; min-height: 68px; padding-top: var(--space-3); }
+  #mMobile .field__body { flex: 1; min-width: 0; }
+  #mMobile .field__sub { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mMobile .field__unit { font-size: var(--fs-body-sm); color: var(--text-tertiary); }
+  #mMobile .field__row { display: flex; gap: var(--space-3); }
+  #mMobile .field__row > .field { flex: 1; min-width: 0; }
+  #mMobile .field__ok { color: var(--text-success); opacity: 0; transition: opacity .2s; }
+  #mMobile .field.is-ok .field__ok { opacity: 1; }
+  #mMobile .field input,
+  #mMobile .field textarea {
+    flex: 1; min-width: 0; width: 100%;
+    font: inherit; font-size: 15px; color: inherit;
+    background: none; border: 0; outline: none; padding: 0; margin: 0;
+    resize: none;
+  }
+  #mMobile .field textarea { line-height: 1.45; }
+  #mMobile .field input::placeholder,
+  #mMobile .field textarea::placeholder { color: var(--text-tertiary); }
+  #mMobile .field input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  #mMobile .field input::-webkit-outer-spin-button,
+  #mMobile .field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #mMobile .party { display: flex; flex-direction: column; gap: var(--space-3); }
+  #mMobile .party__h {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-size: var(--fs-caption); font-weight: var(--fw-bold); color: var(--text-primary);
+    padding-bottom: var(--space-2); border-bottom: 1px solid var(--border-subtle);
+  }
+  #mMobile .party__dot { width: 8px; height: 8px; border-radius: var(--radius-pill); flex: none; }
+  #mMobile .party__dot--from { background: var(--brand-gold); }
+  #mMobile .party__dot--to { background: var(--brand-green); }
+  #mMobile .card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+  #mMobile .card--pad { padding: var(--space-4); }
+  #mMobile .card--gold { border-color: var(--gold-300); }
+  #mMobile .route { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); position: relative; }
+  #mMobile .route__side {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-1);
+    background: none; border: 0; padding: 0; font: inherit; text-align: left; cursor: pointer;
+    color: var(--text-primary); border-radius: var(--radius-sm);
+  }
+  #mMobile .route__side--to { align-items: flex-end; text-align: right; }
+  #mMobile .route__cap { font-size: 11px; font-weight: var(--fw-bold); letter-spacing: 0.1em; color: var(--text-tertiary); }
+  #mMobile .route__val { display: flex; align-items: center; gap: var(--space-2); font-size: 15px; font-weight: var(--fw-semibold); }
+  #mMobile .route__val .ic { color: var(--text-tertiary); transition: transform .2s; }
+  #mMobile .route__side[aria-expanded="true"] .route__val .ic { transform: rotate(180deg); }
+  #mMobile .route__swap {
+    width: 36px; height: 36px; border-radius: var(--radius-pill); flex: none; padding: 0;
+    background: var(--gold-50); border: 1px solid var(--gold-200); color: var(--gold-700);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: transform .35s var(--ease-ios);
+  }
+  #mMobile .route__swap:hover { transform: rotate(180deg); }
+  #mMobile .route__swap.is-spun { transform: rotate(360deg); }
+  #mMobile .picker {
+    position: absolute; top: calc(100% + 6px); z-index: 15; width: 190px;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow: hidden;
+  }
+  #mMobile .picker--from { left: var(--space-4); }
+  #mMobile .picker--to { right: var(--space-4); }
+  #mMobile .picker__item {
+    display: flex; align-items: center; gap: var(--space-3); width: 100%;
+    padding: var(--space-3) var(--space-4); background: none; border: 0;
+    font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    text-align: left; cursor: pointer;
+  }
+  #mMobile .picker__item:hover { background: var(--gold-50); }
+  #mMobile .picker__item[aria-selected="true"] { background: var(--surface-sunken); font-weight: var(--fw-semibold); }
+  #mMobile .picker__item .ic { margin-left: auto; color: var(--brand-gold); }
+  #mMobile .picker__city { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mMobile .flag { width: 22px; height: 16px; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-default); flex: none; position: relative; background: #FFFFFF; }
+  #mMobile .flag i { display: block; position: absolute; inset: 0; }
+  #mMobile .flag--id i:first-child { bottom: 50%; background: #E23A3A; }
+  #mMobile .flag--id i:last-child { top: 50%; background: #FFFFFF; }
+  #mMobile .flag--jp i { display: flex; align-items: center; justify-content: center; }
+  #mMobile .flag--jp i::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #D22F2F; }
+  #mMobile .flag--vn i { background: #DA251D; display: flex; align-items: center; justify-content: center; color: #FFCD00; font-size: 11px; line-height: 1; }
+  #mMobile .flag--vn i::after { content: "★"; }
+  #mMobile .flag--ph i:first-child { bottom: 50%; background: #0038A8; }
+  #mMobile .flag--ph i:last-child { top: 50%; background: #CE1126; }
+  #mMobile .flag--ph::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 10px;
+    background: #FFFFFF; clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+  #mMobile .suggest {
+    background: var(--surface-card);
+    border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md); overflow: hidden;
+  }
+  #mMobile .suggest__row {
+    display: flex; align-items: center; gap: var(--space-3); width: 100%;
+    padding: var(--space-3) var(--space-4); background: none; border: 0;
+    font: inherit; text-align: left; color: var(--text-tertiary); cursor: pointer;
+  }
+  #mMobile .suggest__row + .suggest__row { border-top: 1px solid var(--border-subtle); }
+  #mMobile .suggest__row:hover,
+  #mMobile .suggest__row.is-active { background: var(--gold-50); color: var(--gold-700); }
+  #mMobile .suggest__t { font-size: var(--fs-body-sm); color: var(--text-primary); }
+  #mMobile .suggest__s { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mMobile .suggest__row:hover .suggest__t,
+  #mMobile .suggest__row.is-active .suggest__t { color: var(--neutral-900); }
+  #mMobile .suggest__row:hover .suggest__s,
+  #mMobile .suggest__row.is-active .suggest__s { color: var(--neutral-600); }
+  #mMobile .btn {
+    height: 52px; border-radius: var(--radius-md); width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+    font: inherit; font-size: var(--fs-body); font-weight: var(--fw-semibold);
+    border: 0; cursor: pointer;
+    transition: transform .12s var(--ease-ios), filter .15s, opacity .15s;
+  }
+  #mMobile .btn--primary { background: var(--brand-gold); color: var(--neutral-950); box-shadow: var(--shadow-gold); }
+  #mMobile .btn--primary:hover:not(.is-disabled) { filter: brightness(1.04); }
+  #mMobile .btn--outline { background: var(--surface-card); color: var(--brand-primary); border: 1.5px solid var(--brand-primary); }
+  #mMobile .btn.is-disabled { opacity: .45; box-shadow: none; cursor: not-allowed; }
+  #mMobile .choices { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  #mMobile .choice {
+    display: flex; align-items: center; gap: var(--space-2);
+    height: 44px; padding: 0 var(--space-4); border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-strong); background: var(--surface-card);
+    font: inherit; font-size: var(--fs-body-sm); font-weight: var(--fw-medium); color: var(--text-secondary);
+    cursor: pointer; transition: border-color .15s, background .15s, color .15s;
+  }
+  #mMobile .choice .ic--check { display: none; }
+  #mMobile .choice[aria-pressed="true"] {
+    border-color: var(--brand-gold); background: var(--gold-50);
+    color: var(--gold-800); font-weight: var(--fw-semibold);
+  }
+  #mMobile .choice[aria-pressed="true"] .ic--check { display: block; }
+  #mMobile .photos { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  #mMobile .photo-slot {
+    width: 108px; height: 108px; border-radius: var(--radius-lg); flex: none;
+    background: var(--surface-sunken); border: 1.5px dashed var(--border-strong);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    color: var(--text-tertiary); font: inherit; font-size: var(--fs-overline); font-weight: var(--fw-medium);
+    cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+  }
+  #mMobile .photo-slot:hover { border-color: var(--brand-gold); color: var(--gold-700); background: var(--gold-50); }
+  #mMobile .photo-thumb {
+    width: 108px; height: 108px; border-radius: var(--radius-lg); flex: none;
+    position: relative; overflow: hidden; border: 1px solid var(--border-default);
+    background: var(--surface-sunken);
+    animation: pop .35s var(--ease-ios);
+  }
+  #mMobile .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #mMobile .photo-thumb__x {
+    position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; padding: 0;
+    border-radius: var(--radius-pill); border: 0; cursor: pointer;
+    background: rgba(11, 15, 21, .62); color: var(--neutral-0);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  #mMobile .photo-thumb__x:hover { background: var(--brand-red); }
+  #mMobile .band { background: var(--surface-navy); border-radius: var(--radius-lg); padding: var(--space-5); }
+  #mMobile .band__row { display: flex; align-items: center; gap: var(--space-3); }
+  #mMobile .band__city { font-family: var(--font-display); font-size: 20px; font-weight: var(--fw-bold); color: var(--neutral-0); }
+  #mMobile .band__code { font-family: var(--font-display); font-size: 17px; font-weight: var(--fw-bold); color: var(--neutral-0); }
+  #mMobile .band__code--dim { color: var(--navy-300); }
+  #mMobile .band__meta { font-size: 11px; color: var(--navy-200); white-space: nowrap; }
+  #mMobile .band__mid { flex: .9; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
+  #mMobile .band__line { width: 100%; height: 2px; border-radius: 1px; background: linear-gradient(90deg, var(--brand-gold), var(--gold-300)); transform-origin: left center; }
+  #mMobile .band__eta { font-size: 11px; font-weight: var(--fw-semibold); color: var(--gold-300); }
+  #mMobile .plane { color: var(--brand-gold); }
+  #mMobile .plane svg { display: block; fill: currentColor; }
+  #mMobile .is-current .band__line { animation: meter-fill .7s var(--ease-ios) .15s backwards; }
+  #mMobile .track { flex: 1; margin: 0 var(--space-4); position: relative; height: 22px; }
+  #mMobile .track__rail,
+  #mMobile .track__done { position: absolute; top: 10px; left: 0; height: 2px; border-radius: 1px; }
+  #mMobile .track__rail { right: 0; background: var(--navy-400); }
+  #mMobile .track__done { width: 30%; background: var(--brand-gold); transform-origin: left center; }
+  #mMobile .track__plane { position: absolute; left: 30%; top: 0; transform: translateX(-50%); }
+  #mMobile .is-current .track__done { animation: meter-fill .9s var(--ease-ios) .2s backwards; }
+  #mMobile .is-current .track__plane { animation: plane-fly .9s var(--ease-ios) .2s backwards; }
+  @keyframes plane-fly { from { left: 0; } }
+  #mMobile .rows { padding: 0 var(--space-4); }
+  #mMobile .rows__item { display: flex; gap: var(--space-3); padding: var(--space-3) 0; }
+  #mMobile .rows__item + .rows__item { border-top: 1px solid var(--border-subtle); }
+  #mMobile .rows__item .ic { margin-top: 2px; }
+  #mMobile .rows__t { font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); color: var(--text-primary); }
+  #mMobile .rows__s { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mMobile .thumb-pair { display: flex; gap: 6px; }
+  #mMobile .thumb {
+    width: 44px; height: 44px; border-radius: var(--radius-sm); flex: none; overflow: hidden;
+    background: var(--surface-sunken); border: 1px solid var(--border-default);
+    display: flex; align-items: center; justify-content: center; color: var(--text-tertiary);
+    font-size: var(--fs-overline); font-weight: var(--fw-semibold);
+  }
+  #mMobile .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  #mMobile .badge {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    font-size: 11px; font-weight: var(--fw-semibold);
+    border-radius: var(--radius-pill); padding: 3px 10px;
+  }
+  #mMobile .badge--gold { background: var(--gold-100); color: var(--gold-800); }
+  #mMobile .badge--neutral { background: var(--surface-sunken); color: var(--text-secondary); }
+  #mMobile .badge--status { background: var(--gold-100); color: var(--gold-800); border: 1px solid var(--gold-300); padding: 5px 12px; font-size: var(--fs-overline); font-weight: var(--fw-bold); }
+  #mMobile .price-row { display: flex; align-items: baseline; justify-content: space-between; }
+  #mMobile .price-row__label { font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); }
+  #mMobile .price-row__value { font-family: var(--font-display); font-size: 26px; font-weight: var(--fw-bold); color: var(--text-primary); }
+  #mMobile .alert {
+    display: flex; gap: var(--space-2); margin-top: var(--space-3);
+    padding: var(--space-3); border-radius: var(--radius-md);
+    background: var(--info-bg); border: 1px solid var(--info-border);
+  }
+  #mMobile .alert .ic { color: var(--info); margin-top: 1px; }
+  #mMobile .alert p { margin: 0; font-size: var(--fs-overline); color: var(--text-secondary); line-height: var(--lh-normal); }
+  #mMobile .success-halo {
+    width: 88px; height: 88px; border-radius: var(--radius-pill); background: var(--gold-100);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mMobile .success-dot {
+    width: 64px; height: 64px; border-radius: var(--radius-pill);
+    background: var(--brand-gold); box-shadow: var(--shadow-gold); color: var(--neutral-950);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mMobile .is-current .success-halo { animation: pop .55s var(--ease-ios) .1s backwards; }
+  #mMobile .is-current .success-dot .ic { animation: pop .45s var(--ease-ios) .32s backwards; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } }
+  #mMobile .success-title { font-family: var(--font-display); font-size: 26px; font-weight: var(--fw-bold); color: var(--text-primary); margin: 0; }
+  #mMobile .success-copy { font-size: var(--fs-body-sm); color: var(--text-secondary); margin: var(--space-2) 0 0; line-height: var(--lh-relaxed); max-width: 300px; }
+  #mMobile .ticket {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: var(--surface-card); border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md); color: var(--text-tertiary);
+    font: inherit; cursor: pointer;
+  }
+  #mMobile .ticket:hover { border-color: var(--brand-gold); }
+  #mMobile .ticket__label { font-size: var(--fs-overline); }
+  #mMobile .ticket__id { font-size: 15px; font-weight: var(--fw-bold); color: var(--brand-primary); letter-spacing: var(--ls-wide); }
+  #mMobile .next { width: 100%; text-align: left; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); }
+  #mMobile .next__cap { font-size: 11px; font-weight: var(--fw-bold); letter-spacing: 0.1em; color: var(--text-tertiary); text-transform: uppercase; }
+  #mMobile .next__row { display: flex; gap: var(--space-3); align-items: center; }
+  #mMobile .next__ico {
+    width: 32px; height: 32px; border-radius: var(--radius-pill); flex: none;
+    background: var(--gold-50); border: 1px solid var(--gold-200); color: var(--gold-700);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mMobile .next__txt { font-size: var(--fs-caption); color: var(--text-primary); }
+  #mMobile .split { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  #mMobile .money { display: flex; align-items: center; gap: var(--space-3); }
+  #mMobile .money__col { flex: 1; }
+  #mMobile .money__label { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mMobile .money__value { font-family: var(--font-display); font-size: 20px; font-weight: var(--fw-bold); color: var(--text-primary); }
+  #mMobile .money__div { width: 1px; align-self: stretch; background: var(--border-subtle); }
+  #mMobile .money__pending {
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-warning);
+    display: flex; align-items: center; gap: 6px; margin-top: 3px;
+  }
+  #mMobile .timeline { padding: var(--space-5) var(--space-4) 6px; }
+  #mMobile .tl { display: flex; gap: var(--space-4); }
+  #mMobile .tl__gutter { display: flex; flex-direction: column; align-items: center; width: 24px; flex: none; }
+  #mMobile .tl__dot {
+    width: 24px; height: 24px; border-radius: var(--radius-pill);
+    border: 2px solid var(--neutral-300); background: var(--surface-card);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mMobile .tl__dot--done { background: var(--brand-green); border-color: var(--brand-green); color: var(--neutral-0); }
+  #mMobile .tl__dot--now { background: var(--brand-gold); border-color: var(--brand-gold); }
+  #mMobile .tl__dot--now i { width: 8px; height: 8px; border-radius: 50%; background: var(--neutral-950); display: block; }
+  #mMobile .is-current .tl__dot--now { animation: ping 2s ease-out .8s infinite; }
+  @keyframes ping {
+    0%   { box-shadow: 0 0 0 0 rgba(244, 185, 49, .55); }
+    70%  { box-shadow: 0 0 0 10px rgba(244, 185, 49, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(244, 185, 49, 0); }
+  }
+  #mMobile .tl__line { width: 2px; flex: 1; min-height: 22px; background: var(--neutral-200); }
+  #mMobile .tl__line--done { background: var(--brand-green); }
+  #mMobile .tl__body { padding-bottom: var(--space-5); }
+  #mMobile .tl__t { font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); color: var(--text-primary); }
+  #mMobile .tl__t--todo { color: var(--text-tertiary); }
+  #mMobile .tl__s { font-size: var(--fs-overline); color: var(--text-tertiary); margin-top: 2px; }
+  #mMobile .fab {
+    position: absolute; right: var(--space-5); bottom: 44px; z-index: 10;
+    width: 56px; height: 56px; border-radius: var(--radius-pill); padding: 0; border: 0; cursor: pointer;
+    background: var(--brand-gold); box-shadow: var(--shadow-gold); color: var(--neutral-950);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .18s var(--ease-ios);
+  }
+  #mMobile .fab:hover { transform: scale(1.06); }
+  #mMobile .is-current .fab { animation: pop .4s var(--ease-ios) .35s backwards; }
+  #mMobile .chat-head {
+    padding: 62px var(--space-4) var(--space-3);
+    background: var(--surface-card); border-bottom: 1px solid var(--border-default);
+    display: flex; align-items: center; gap: var(--space-3); position: relative;
+  }
+  #mMobile .chat-head__back { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text-primary); display: flex; }
+  #mMobile .chat-head__avatar {
+    width: 40px; height: 40px; border-radius: var(--radius-pill); flex: none;
+    background: var(--brand-navy); display: flex; align-items: center; justify-content: center;
+  }
+  #mMobile .chat-head__avatar img { height: 18px; filter: brightness(0) invert(1); }
+  #mMobile .chat-head__name { font-size: 15px; font-weight: var(--fw-bold); color: var(--text-primary); }
+  #mMobile .chat-head__status { font-size: var(--fs-overline); color: var(--text-success); display: flex; align-items: center; gap: 5px; }
+  #mMobile .chat-head__status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: block; }
+  #mMobile .chat-head__more { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text-secondary); display: flex; }
+  #mMobile .menu {
+    position: absolute; right: var(--space-4); top: calc(100% - 4px); z-index: 25; width: 196px;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow: hidden;
+    animation: pop .18s var(--ease-ios);
+  }
+  #mMobile .menu__item {
+    display: flex; align-items: center; gap: var(--space-3); width: 100%;
+    padding: var(--space-3) var(--space-4); background: none; border: 0;
+    font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    text-align: left; cursor: pointer;
+  }
+  #mMobile .menu__item:hover { background: var(--gold-50); color: var(--gold-800); }
+  #mMobile .menu__item + .menu__item { border-top: 1px solid var(--border-subtle); }
+  #mMobile .chat-body { flex: 1; padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; overflow-y: auto; scrollbar-width: none; }
+  #mMobile .chat-body::-webkit-scrollbar { display: none; }
+  #mMobile .divider {
+    display: flex; align-items: center; gap: 10px; margin: 2px 0; flex: none;
+    font-size: 11px; font-weight: var(--fw-semibold); color: var(--text-tertiary);
+  }
+  #mMobile .divider::before,
+  #mMobile .divider::after { content: ""; flex: 1; height: 1px; background: var(--border-default); }
+  #mMobile .row-in { display: flex; gap: 8px; align-items: flex-end; flex: none; animation: msg-in .42s var(--ease-ios); }
+  #mMobile .row-out { display: flex; justify-content: flex-end; flex: none; animation: msg-in .42s var(--ease-ios); }
+  #mMobile .cavatar {
+    width: 28px; height: 28px; flex: none; border-radius: var(--radius-pill);
+    background: var(--gold-100); color: var(--gold-700);
+    font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+  }
+  #mMobile .msg { max-width: 82%; padding: 9px 13px; font-size: var(--fs-body-sm); line-height: 1.45; }
+  #mMobile .msg p { margin: 0; }
+  #mMobile .msg-in { background: var(--surface-card); border: 1px solid var(--border-subtle); color: var(--text-primary); border-radius: 16px 16px 16px 4px; }
+  #mMobile .msg-out { background: var(--brand-gold); color: var(--neutral-950); border-radius: 16px 16px 4px 16px; }
+  #mMobile .meta { display: flex; align-items: center; gap: 4px; flex: none; font-size: 11px; color: var(--text-tertiary); }
+  #mMobile .meta-out { justify-content: flex-end; }
+  #mMobile .meta .ic { width: 13px; height: 13px; }
+  #mMobile .read { color: var(--brand-blue); }
+  @keyframes msg-in { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+  #mMobile .order-card {
+    max-width: 82%; background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: 16px 16px 16px 4px; overflow: hidden;
+  }
+  #mMobile .oc-head {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: var(--fs-caption); font-weight: var(--fw-bold); color: var(--text-primary);
+  }
+  #mMobile .oc-head .ic { width: 15px; height: 15px; color: var(--text-brand); }
+  #mMobile .oc-badge {
+    margin-left: auto; font-size: 10.5px; font-weight: var(--fw-bold);
+    background: var(--gold-100); color: var(--gold-700);
+    border-radius: var(--radius-pill); padding: 2px 9px;
+  }
+  #mMobile .oc-body { padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; }
+  #mMobile .oc-l { color: var(--text-tertiary); }
+  #mMobile .oc-v { font-weight: var(--fw-bold); color: var(--text-primary); }
+  #mMobile .typing {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--surface-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px 16px 16px 4px; padding: 12px 14px;
+  }
+  #mMobile .typing i { width: 6px; height: 6px; border-radius: 50%; display: block; background: var(--text-tertiary); animation: blink 1.2s ease-in-out infinite; }
+  #mMobile .typing i:nth-child(2) { animation-delay: .18s; }
+  #mMobile .typing i:nth-child(3) { animation-delay: .36s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: .35; } 30% { opacity: 1; } }
+  #mMobile .qr { display: flex; gap: var(--space-2); flex-wrap: wrap; flex: none; padding: 0 var(--space-4) var(--space-3); }
+  #mMobile .qr button {
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-brand);
+    border: 1.5px solid var(--gold-300); border-radius: var(--radius-pill);
+    padding: 7px 14px; min-height: 32px; background: var(--surface-card); cursor: pointer;
+  }
+  #mMobile .qr button:hover { background: var(--gold-50); }
+  #mMobile .composer {
+    padding: var(--space-3) var(--space-4) 40px; flex: none;
+    background: var(--surface-card); border-top: 1px solid var(--border-default);
+    display: flex; align-items: center; gap: var(--space-3);
+  }
+  #mMobile .composer__input {
+    flex: 1; min-width: 0; height: 42px; border-radius: var(--radius-pill);
+    background: var(--surface-sunken); border: 1px solid var(--border-default);
+    padding: 0 var(--space-4); font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  #mMobile .composer__input::placeholder { color: var(--text-tertiary); }
+  #mMobile .composer__input:focus { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  #mMobile .composer__send {
+    width: 42px; height: 42px; border-radius: var(--radius-pill); flex: none; padding: 0; border: 0; cursor: pointer;
+    background: var(--brand-gold); color: var(--neutral-950);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mMobile .composer__send:hover { filter: brightness(1.05); }
+  #mMobile strong { font-weight: var(--fw-semibold); }
+
+  /* ============================================================
+     BẢN WEB — CSS gốc, scope vào #mWeb
+     ============================================================ */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  #mWeb .view { animation: fadeUp 200ms ease-out; }
+  [hidden] { display: none !important; }
+  #mWeb .app-head {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--surface-card); border-bottom: 1px solid var(--border-default);
+  }
+  #mWeb .app-head__inner {
+    max-width: 1080px; margin: 0 auto; padding: 0 var(--space-6);
+    height: 64px; display: flex; align-items: center; gap: var(--space-8); flex-wrap: wrap;
+  }
+  #mWeb .brand { display: flex; align-items: center; gap: var(--space-3); cursor: pointer; }
+  #mWeb .brand img { height: 30px; display: block; }
+  [data-theme="dark"] #mWeb .brand__logo--light,
+  [data-theme="light"] #mWeb .brand__logo--dark { display: none; }
+  #mWeb .brand__tag {
+    font-family: var(--font-display); font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    letter-spacing: var(--ls-overline); text-transform: uppercase; color: var(--text-secondary);
+    border-left: 1px solid var(--border-default); padding-left: var(--space-3);
+  }
+  #mWeb .nav { display: flex; gap: var(--space-8); margin-left: auto; align-items: stretch; height: 64px; }
+  #mWeb .nav__btn {
+    border: none; background: none; cursor: pointer; font: inherit;
+    display: inline-flex; align-items: center; height: 64px; padding: 0 2px;
+    font-size: var(--fs-body-sm); font-weight: var(--fw-medium); white-space: nowrap;
+    color: var(--text-secondary); border-bottom: 2.5px solid transparent;
+  }
+  #mWeb .nav__btn:hover { color: var(--text-primary); }
+  #mWeb .nav__btn.is-active { color: var(--text-primary); font-weight: var(--fw-bold); border-bottom-color: var(--brand-gold); }
+  #mWeb .nav__dot { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--brand-red); margin-left: 6px; }
+  #mWeb .tools { display: flex; align-items: center; gap: var(--space-2); }
+  #mWeb .tool {
+    display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 var(--space-3);
+    font: inherit; font-size: var(--fs-overline); font-weight: var(--fw-semibold);
+    color: var(--text-secondary); background: var(--surface-card);
+    border: 1px solid var(--border-default); border-radius: var(--radius-pill); cursor: pointer;
+  }
+  #mWeb .tool:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  #mWeb .main { max-width: 1080px; margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-16); }
+  #mWeb .head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); flex-wrap: wrap; margin-bottom: var(--space-6); }
+  #mWeb .h1 { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: var(--fw-bold); letter-spacing: var(--ls-tight); margin: 0 0 6px; }
+  #mWeb .lead { margin: 0; font-size: var(--fs-body-sm); color: var(--text-secondary); }
+  #mWeb .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-6); }
+  #mWeb .grid2--tight { gap: var(--space-5); align-items: start; }
+  #mWeb .col { display: flex; flex-direction: column; gap: var(--space-4); }
+  #mWeb .card {
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-6);
+  }
+  #mWeb .card--raised { box-shadow: var(--shadow-md); padding: var(--space-8); }
+  #mWeb .cap { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-brand); margin-bottom: var(--space-4); }
+  #mWeb .lbl { display: block; font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-tertiary); margin-bottom: var(--space-2); }
+  #mWeb .lbl--gold { font-size: var(--fs-overline); color: var(--text-brand); }
+  #mWeb .steps { display: flex; align-items: center; }
+  #mWeb .stp { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; background: none; border: 0; font: inherit; padding: 0; }
+  #mWeb .stp__circle {
+    width: 26px; height: 26px; border-radius: var(--radius-pill); flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    background: var(--surface-card); color: var(--text-tertiary); border: 1.5px solid var(--border-strong);
+  }
+  #mWeb .stp.is-done .stp__circle { background: var(--brand-navy); color: var(--neutral-0); border: none; }
+  #mWeb .stp.is-cur .stp__circle { background: var(--brand-gold); color: var(--neutral-950); border: none; }
+  #mWeb .stp__label { font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-tertiary); }
+  #mWeb .stp.is-cur .stp__label { font-weight: var(--fw-semibold); color: var(--text-primary); }
+  #mWeb .stp__line { width: 36px; height: 2px; background: var(--border-default); margin: 0 var(--space-3); }
+  #mWeb .input,
+  #mWeb .textarea,
+  #mWeb .select {
+    width: 100%; font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    background: var(--surface-card); border: 1.5px solid var(--border-default);
+    border-radius: var(--radius-md); padding: 12px 14px; outline: none;
+  }
+  #mWeb .textarea { resize: vertical; }
+  #mWeb .select { cursor: pointer; padding-right: var(--space-10); }
+  #mWeb .input:focus,
+  #mWeb .textarea:focus,
+  #mWeb .select:focus { border-color: var(--brand-gold); box-shadow: var(--shadow-focus); }
+  #mWeb .input::placeholder,
+  #mWeb .textarea::placeholder { color: var(--text-tertiary); }
+  #mWeb .field-wrap { position: relative; }
+  #mWeb .field-wrap .lead-ic { position: absolute; left: 14px; top: 13px; color: var(--neutral-400); pointer-events: none; }
+  #mWeb .field-wrap .input { padding-left: 40px; }
+  #mWeb .unit { position: absolute; right: 14px; top: 13px; font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-tertiary); }
+  #mWeb .pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  #mWeb .party-h { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+  #mWeb .party-h__ic { width: 24px; height: 24px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  #mWeb .party-h__ic--from { background: var(--gold-50); color: var(--text-brand); }
+  #mWeb .party-h__ic--to { background: var(--navy-50); color: var(--brand-navy); }
+  #mWeb .party-h__t { font-size: var(--fs-body); font-weight: var(--fw-semibold); }
+  #mWeb .party-h__t span { color: var(--text-tertiary); font-weight: var(--fw-regular); }
+  #mWeb .suggest {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30; overflow: hidden;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  }
+  #mWeb .suggest__row {
+    display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left;
+    padding: 11px 14px; font: inherit; font-size: var(--fs-caption); color: var(--text-secondary);
+    background: none; border: 0; cursor: pointer;
+  }
+  #mWeb .suggest__row:hover { background: var(--navy-50); color: var(--text-primary); }
+  #mWeb .suggest__row .ic { color: var(--text-brand); flex: none; margin-top: 1px; }
+  #mWeb .recents { display: flex; flex-direction: column; gap: 6px; }
+  #mWeb .recent {
+    display: flex; align-items: center; gap: 10px; text-align: left; width: 100%;
+    padding: 10px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    background: var(--surface-sunken); font: inherit; font-size: var(--fs-caption); color: var(--text-secondary); cursor: pointer;
+  }
+  #mWeb .recent:hover { border-color: var(--brand-gold); background: var(--gold-50); }
+  #mWeb .recent span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #mWeb .parties { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); column-gap: var(--space-6); row-gap: var(--space-5); }
+  #mWeb .party { display: grid; grid-template-rows: subgrid; grid-row: span 4; align-content: start; }
+  #mWeb .addr-slot { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; }
+  @supports not (grid-template-rows: subgrid) {
+    #mWeb .party { display: flex; flex-direction: column; gap: var(--space-5); }
+    #mWeb .addr-slot { min-height: 190px; }
+  }
+  #mWeb .addr-picked {
+    display: flex; gap: var(--space-3); align-items: flex-start;
+    /* 2 dòng địa chỉ + padding + viền — để ô 1 dòng và ô 2 dòng cao bằng nhau */
+    min-height: 70px;
+    padding: 14px 16px; border: 1.5px solid var(--brand-gold); border-radius: var(--radius-lg); background: var(--gold-50);
+  }
+  #mWeb .addr-picked__t { flex: 1; font-size: var(--fs-caption); color: var(--neutral-900); line-height: var(--lh-normal); }
+  #mWeb .link-btn { border: none; background: none; color: var(--text-link); font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); cursor: pointer; padding: 0; }
+  #mWeb .link-btn:hover { text-decoration: underline; }
+  #mWeb .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    font: inherit; font-size: var(--fs-body-sm); font-weight: var(--fw-bold);
+    padding: 13px 28px; border: none; border-radius: var(--radius-md); cursor: pointer;
+  }
+  #mWeb .btn--primary { background: var(--brand-gold); color: var(--neutral-950); box-shadow: var(--shadow-gold); }
+  #mWeb .btn--primary:hover { background: var(--gold-600); }
+  #mWeb .btn--primary:active { transform: scale(.98); }
+  #mWeb .btn--primary:disabled { background: var(--surface-sunken); color: var(--text-disabled); box-shadow: none; cursor: not-allowed; transform: none; }
+  #mWeb .btn--ghost {
+    background: var(--surface-card); color: var(--text-secondary);
+    border: 1.5px solid var(--border-default); font-weight: var(--fw-semibold); padding: 12px 24px;
+  }
+  #mWeb .btn--ghost:hover { border-color: var(--neutral-400); color: var(--text-primary); }
+  #mWeb .btn--outline {
+    background: var(--surface-card); color: var(--brand-primary);
+    border: 1.5px solid var(--brand-primary); font-weight: var(--fw-semibold); padding: 11px 20px; font-size: var(--fs-caption);
+  }
+  #mWeb .btn--outline:hover { background: var(--navy-50); }
+  #mWeb .btn--dashed {
+    width: 100%; padding: 14px; border: 1.5px dashed var(--border-strong); border-radius: var(--radius-lg);
+    background: none; color: var(--brand-primary); font-weight: var(--fw-semibold);
+  }
+  #mWeb .btn--dashed:hover { border-color: var(--brand-primary); background: var(--navy-50); }
+  #mWeb .row-btns { display: flex; justify-content: space-between; gap: var(--space-3); }
+  #mWeb .item-head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: 18px; }
+  #mWeb .item-num {
+    width: 28px; height: 28px; border-radius: var(--radius-pill); flex: none;
+    background: var(--brand-navy); color: var(--neutral-0);
+    display: flex; align-items: center; justify-content: center; font-size: var(--fs-caption); font-weight: var(--fw-bold);
+  }
+  #mWeb .item-title { font-size: var(--fs-body); font-weight: var(--fw-semibold); flex: 1; }
+  #mWeb .icon-btn { border: none; background: none; color: var(--neutral-400); cursor: pointer; padding: 6px; border-radius: var(--radius-sm); display: flex; }
+  #mWeb .icon-btn:hover { color: var(--brand-red); background: var(--error-bg); }
+  #mWeb .photos { display: flex; gap: 10px; flex-wrap: wrap; }
+  #mWeb .photo { position: relative; width: 84px; height: 84px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-default); }
+  #mWeb .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #mWeb .photo__x {
+    position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; padding: 0;
+    border-radius: var(--radius-pill); border: none; cursor: pointer;
+    background: rgba(12, 26, 49, .65); color: var(--neutral-0);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mWeb .photo__x:hover { background: var(--neutral-950); }
+  #mWeb .photo-add {
+    width: 84px; height: 84px; border-radius: var(--radius-md);
+    border: 1.5px dashed var(--border-strong); background: var(--surface-sunken);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    cursor: pointer; color: var(--text-secondary); font-size: var(--fs-overline); font-weight: var(--fw-semibold);
+  }
+  #mWeb .photo-add:hover { border-color: var(--brand-gold); color: var(--text-brand); background: var(--gold-50); }
+  #mWeb .note { margin: 10px 0 0; font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+  #mWeb .chip {
+    display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: var(--radius-pill);
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); cursor: pointer;
+    border: 1.5px solid var(--border-default); background: var(--surface-card); color: var(--text-secondary);
+  }
+  #mWeb .chip[aria-pressed="true"] { border-color: var(--brand-gold); background: var(--gold-50); color: var(--gold-700); }
+  #mWeb .rail { display: flex; gap: 14px; }
+  #mWeb .rail__line { display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
+  #mWeb .rail__dot { width: 10px; height: 10px; border-radius: var(--radius-pill); background: var(--brand-gold); }
+  #mWeb .rail__dot--end { background: var(--surface-card); border: 2.5px solid var(--brand-navy); }
+  #mWeb .rail__bar { width: 2px; flex: 1; background: var(--border-default); margin: 4px 0; }
+  #mWeb .rail__body { display: flex; flex-direction: column; gap: var(--space-4); flex: 1; min-width: 0; }
+  #mWeb .rail__who { font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+  #mWeb .rail__addr { font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+  #mWeb .rail__cap { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-tertiary); margin-bottom: 3px; }
+  #mWeb .thumb {
+    width: 44px; height: 44px; border-radius: var(--radius-md); overflow: hidden; flex: none;
+    border: 1px solid var(--border-default); background: var(--surface-page); color: var(--neutral-400);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mWeb .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  #mWeb .li { display: flex; gap: var(--space-3); align-items: center; }
+  #mWeb .li__t { font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+  #mWeb .li__m { font-size: var(--fs-overline); color: var(--text-secondary); }
+  #mWeb .stack { display: flex; flex-direction: column; gap: var(--space-3); }
+  #mWeb .split { display: flex; justify-content: space-between; font-size: var(--fs-caption); color: var(--text-secondary); }
+  #mWeb .divide { border-top: 1px solid var(--border-subtle); margin-top: var(--space-4); padding-top: 14px; display: flex; flex-direction: column; gap: var(--space-2); }
+  #mWeb .estimate { background: var(--surface-navy); color: var(--neutral-0); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-lg); }
+  #mWeb .estimate .cap { color: var(--navy-200); }
+  #mWeb .estimate__line { display: flex; justify-content: space-between; font-size: var(--fs-caption); color: var(--navy-100); }
+  #mWeb .estimate__total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid rgba(255,255,255,.18); padding-top: 14px; margin-top: 14px; }
+  #mWeb .estimate__total b { font-family: var(--font-display); font-size: var(--fs-h3); font-weight: var(--fw-bold); color: var(--gold-300); }
+  #mWeb .estimate p { margin: 12px 0 0; font-size: var(--fs-overline); color: var(--navy-200); line-height: var(--lh-relaxed); }
+  #mWeb .info-note {
+    background: var(--info-bg); border: 1px solid var(--info-border); border-radius: var(--radius-md);
+    padding: 14px 16px; font-size: var(--fs-caption); color: var(--text-info); line-height: var(--lh-relaxed);
+  }
+  #mWeb .done { max-width: 520px; margin: 48px auto 0; text-align: center; padding: 48px 40px; }
+  #mWeb .done__ic {
+    width: 64px; height: 64px; border-radius: var(--radius-pill); margin: 0 auto var(--space-5);
+    background: var(--success-bg); color: var(--text-success); display: flex; align-items: center; justify-content: center;
+  }
+  #mWeb .done h2 { font-family: var(--font-display); margin: 0 0 var(--space-2); font-size: var(--fs-h4); font-weight: var(--fw-bold); }
+  #mWeb .done p { margin: 0 0 28px; font-size: var(--fs-body-sm); color: var(--text-secondary); line-height: var(--lh-relaxed); }
+  #mWeb .order {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap; width: 100%; text-align: left;
+    background: var(--surface-card); border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs); padding: 12px 18px; cursor: pointer; font: inherit;
+    /* <button> mặc định color:buttontext (đen) — không kế thừa, dark mode sẽ đen trên nền tối */
+    color: var(--text-primary);
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+  }
+  #mWeb .order:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  #mWeb .order__ic {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); flex: none;
+    background: var(--navy-50); color: var(--brand-navy); display: flex; align-items: center; justify-content: center;
+  }
+  #mWeb .order__id { font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+  #mWeb .order__sub { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mWeb .order__route { flex: 1; min-width: 170px; display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-caption); color: var(--text-secondary); }
+  #mWeb .order__price { font-size: var(--fs-caption); font-weight: var(--fw-semibold); min-width: 64px; text-align: right; }
+  #mWeb .order__bar { width: 70px; flex: none; height: 4px; border-radius: var(--radius-pill); background: var(--surface-sunken); overflow: hidden; }
+  #mWeb .order__bar i { display: block; height: 100%; border-radius: var(--radius-pill); background: var(--brand-gold); transition: width 200ms ease-out; }
+  #mWeb .order__bar i.is-done { background: var(--brand-green); }
+  #mWeb .badge { padding: 6px 14px; border-radius: var(--radius-pill); font-size: var(--fs-overline); font-weight: var(--fw-semibold); white-space: nowrap; }
+  #mWeb .badge--green { background: var(--success-bg); color: var(--text-success); }
+  #mWeb .badge--blue { background: var(--info-bg); color: var(--text-info); }
+  #mWeb .badge--gold { background: var(--gold-50); color: var(--gold-700); }
+  #mWeb .badge--grey { background: var(--surface-sunken); color: var(--text-secondary); }
+  #mWeb .back-link {
+    display: inline-flex; align-items: center; gap: 6px; border: none; background: none;
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    color: var(--text-secondary); cursor: pointer; padding: 0; margin-bottom: var(--space-4);
+  }
+  #mWeb .back-link:hover { color: var(--brand-primary); }
+  #mWeb .tl { display: flex; gap: var(--space-4); }
+  #mWeb .tl__gut { display: flex; flex-direction: column; align-items: center; }
+  #mWeb .tl__dot {
+    width: 24px; height: 24px; border-radius: var(--radius-pill); flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface-card); border: 2px solid var(--border-default); color: var(--neutral-0);
+  }
+  #mWeb .tl__dot.is-done { background: var(--brand-navy); border: none; }
+  #mWeb .tl__dot.is-cur { background: var(--brand-gold); border: none; box-shadow: 0 0 0 4px rgba(244, 185, 49, .25); }
+  #mWeb .tl__dot img { width: 14px; height: 14px; display: block; }
+  #mWeb .tl__line { width: 2px; flex: 1; min-height: 20px; background: var(--border-default); }
+  #mWeb .tl__line.is-done { background: var(--brand-navy); }
+  #mWeb .tl__body { padding-bottom: var(--space-6); }
+  #mWeb .tl__label { font-size: var(--fs-body-sm); font-weight: var(--fw-medium); color: var(--text-tertiary); line-height: 24px; }
+  #mWeb .tl__label.is-on { font-weight: var(--fw-semibold); color: var(--text-primary); }
+  #mWeb .tl__time { font-size: var(--fs-overline); color: var(--text-tertiary); margin-top: 2px; }
+  #mWeb .pickup-note { margin-top: var(--space-4); padding: 10px 14px; background: var(--surface-page); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+  #mWeb .chat {
+    display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 520px; overflow: hidden;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+  }
+  #mWeb .chat__head { display: flex; align-items: center; gap: var(--space-3); padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-sunken); }
+  #mWeb .chat__avatar { position: relative; width: 40px; height: 40px; flex: none; border-radius: var(--radius-pill); background: var(--brand-navy); display: flex; align-items: center; justify-content: center; }
+  #mWeb .chat__avatar img { width: 22px; height: 22px; display: block; filter: brightness(0) invert(1); }
+  #mWeb .chat__avatar i { position: absolute; right: 0; bottom: 0; width: 11px; height: 11px; border-radius: var(--radius-pill); background: var(--green-400); border: 2px solid var(--surface-sunken); }
+  #mWeb .chat__name { font-size: var(--fs-body); font-weight: var(--fw-bold); }
+  #mWeb .chat__status { font-size: var(--fs-overline); color: var(--text-success); display: flex; align-items: center; gap: 5px; }
+  #mWeb .chat__status i { width: 7px; height: 7px; border-radius: var(--radius-pill); background: currentColor; }
+  #mWeb .chat__body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: var(--space-3); background: var(--surface-page); }
+  #mWeb .sysmsg { align-self: center; background: var(--surface-sunken); color: var(--text-secondary); font-size: var(--fs-overline); font-weight: var(--fw-semibold); padding: 5px 12px; border-radius: var(--radius-pill); }
+  #mWeb .msg-row { display: flex; }
+  #mWeb .msg-row--me { justify-content: flex-end; }
+  #mWeb .bubble {
+    max-width: 78%; padding: 8px; display: flex; flex-direction: column; gap: 6px;
+    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs); background: var(--surface-card);
+    border: 1px solid var(--border-default); color: var(--text-primary); box-shadow: var(--shadow-xs);
+  }
+  #mWeb .bubble--me { border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg); background: var(--brand-gold); color: var(--navy-900); border: none; box-shadow: none; }
+  #mWeb .bubble__t { font-size: var(--fs-caption); line-height: var(--lh-normal); padding: 3px 6px 0; }
+  #mWeb .bubble__time { font-size: var(--fs-overline); color: var(--text-tertiary); text-align: right; padding: 0 6px 2px; }
+  #mWeb .bubble--me .bubble__time { color: var(--navy-700); }
+  #mWeb .att-img { width: 180px; max-width: 100%; height: 140px; border-radius: var(--radius-md); object-fit: cover; display: block; }
+  #mWeb .att-file { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-page); border: 1px solid var(--border-default); }
+  #mWeb .bubble--me .att-file { background: rgba(11, 23, 46, .10); border: none; }
+  #mWeb .att-file__ic {
+    width: 32px; height: 32px; border-radius: var(--radius-sm); flex: none; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: var(--fw-bold); background: var(--brand-navy); color: var(--neutral-0);
+  }
+  #mWeb .att-file__n { font-size: var(--fs-caption); font-weight: var(--fw-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+  #mWeb .att-file__s { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  #mWeb .bubble--me .att-file__n { color: var(--navy-900); }
+  #mWeb .bubble--me .att-file__s { color: var(--navy-700); }
+  #mWeb .pending { display: flex; gap: 10px; flex-wrap: wrap; padding: 12px 16px 0; background: var(--surface-card); }
+  #mWeb .pending__item { position: relative; }
+  #mWeb .pending__img { width: 56px; height: 56px; border-radius: var(--radius-sm); object-fit: cover; display: block; }
+  #mWeb .pending__file { display: flex; align-items: center; gap: var(--space-2); height: 56px; padding: 0 14px 0 10px; border-radius: var(--radius-sm); background: var(--surface-page); border: 1px solid var(--border-default); }
+  #mWeb .pending__x {
+    position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; padding: 0;
+    border-radius: var(--radius-pill); border: none; cursor: pointer;
+    background: var(--neutral-950); color: var(--neutral-0); display: flex; align-items: center; justify-content: center;
+  }
+  #mWeb .composer { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-top: 1px solid var(--border-subtle); background: var(--surface-card); }
+  #mWeb .composer__attach {
+    width: 44px; height: 44px; flex: none; border-radius: var(--radius-pill);
+    border: 1.5px solid var(--border-default); background: var(--surface-card); color: var(--brand-primary);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  #mWeb .composer__attach:hover { border-color: var(--brand-primary); background: var(--navy-50); }
+  #mWeb .composer__input { flex: 1; padding: 12px 16px; border: 1.5px solid var(--border-default); border-radius: var(--radius-pill); font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary); background: var(--surface-card); outline: none; }
+  #mWeb .composer__input:focus { border-color: var(--brand-gold); box-shadow: var(--shadow-focus); }
+  #mWeb .composer__send {
+    width: 44px; height: 44px; flex: none; border-radius: var(--radius-pill); border: none; cursor: pointer;
+    background: var(--brand-gold); color: var(--neutral-950); box-shadow: var(--shadow-gold);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #mWeb .composer__send:hover { background: var(--gold-600); }
+  #mWeb .composer__send:active { transform: scale(.98); }
+  #mWeb .ic { flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+  #mWeb :focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+  #mWeb .input:focus-visible,
+  #mWeb .textarea:focus-visible,
+  #mWeb .select:focus-visible,
+  #mWeb .composer__input:focus-visible { outline: none; }
+  [data-theme="dark"] #mWeb .addr-picked { background: rgba(244, 185, 49, .10); }
+  [data-theme="dark"] #mWeb .addr-picked__t { color: var(--neutral-0); }
+  [data-theme="dark"] #mWeb .recent:hover,
+  [data-theme="dark"] #mWeb .photo-add:hover { background: rgba(244, 185, 49, .10); }
+  [data-theme="dark"] #mWeb .chip[aria-pressed="true"] { background: rgba(244, 185, 49, .12); color: var(--brand-gold); }
+  [data-theme="dark"] #mWeb .badge--gold { background: rgba(244, 185, 49, .14); color: var(--brand-gold); }
+  [data-theme="dark"] #mWeb .party-h__ic--from { background: rgba(244, 185, 49, .12); }
+  [data-theme="dark"] #mWeb .party-h__ic--to { background: rgba(31, 61, 110, .35); color: var(--navy-200); }
+  [data-theme="dark"] #mWeb .order__ic { background: rgba(31, 61, 110, .35); color: var(--navy-200); }
+  [data-theme="dark"] #mWeb .suggest__row:hover,
+  [data-theme="dark"] #mWeb .btn--outline:hover,
+  [data-theme="dark"] #mWeb .btn--dashed:hover,
+  [data-theme="dark"] #mWeb .composer__attach:hover { background: var(--surface-sunken); }
+
+  /* ============================================================
+     Điều chỉnh sau khi gộp
+     ============================================================ */
+
+  /* Thanh tiêu đề riêng của mỗi bản đã bị gỡ nên bớt khoảng đệm trên. */
+  #mMobile .page { padding-top: var(--space-8); }
+  /* .app-head của bản web cũng sticky — đẩy xuống dưới thanh shell. */
+  #mWeb .app-head { top: 52px; z-index: 50; }
+
+</style>
+</head>
+<body>
+
+<!-- Sprite bản điện thoại — Lucide outline 24×24, currentColor -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+    <symbol id="i-check-check" viewBox="0 0 24 24"><path d="M18 6L7 17l-5-5"/><path d="M22 10l-7.5 7.5L13 16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-weight" viewBox="0 0 24 24"><path d="M3 6h18l-2 13H5L3 6z"/><path d="M8 6a4 4 0 0 1 8 0"/></symbol>
+    <symbol id="i-fragile" viewBox="0 0 24 24"><path d="M12 2l3 7h-6l3 7"/><path d="M12 16v3"/><path d="M8 22h8"/><path d="M12 19v3"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M6 11v2"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.29 7 12 12l8.71-5"/><path d="M12 22V12"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <!-- Tiximax airplane mark (brand asset, path-inlined so it picks up currentColor) -->
+    <symbol id="i-plane" viewBox="0 0 512 512"><path d="M 153.50 462.63 C147.73,459.99 143.99,454.09 144.01,447.68 C144.02,445.66 155.95,418.17 176.87,372.00 L 209.71 299.50 L 191.11 298.88 C180.87,298.54 159.16,297.95 142.87,297.57 L 113.23 296.89 L 94.40 319.69 C73.44,345.07 71.23,347.41 66.08,349.71 C62.17,351.46 35.99,352.78 29.47,351.56 C22.62,350.27 16.00,342.14 16.00,335.01 C16.00,333.32 20.77,314.82 26.61,293.89 L 37.22 255.83 L 26.50 217.22 C18.48,188.30 15.92,177.66 16.30,174.83 C17.05,169.19 20.47,164.43 25.54,161.98 C29.63,160.00 31.27,159.85 45.28,160.16 C60.24,160.49 60.69,160.57 67.29,163.82 C73.77,167.01 74.76,168.04 93.26,190.68 L 112.50 214.23 L 140.91 213.62 C156.54,213.28 178.25,213.00 189.16,213.00 C203.66,213.00 209.00,212.68 209.00,211.83 C209.00,211.18 194.32,178.30 176.38,138.76 C145.63,71.00 143.78,66.60 144.27,62.32 C144.82,57.43 146.99,53.84 151.39,50.56 C153.96,48.64 155.51,48.50 173.82,48.50 C192.30,48.50 193.76,48.64 197.70,50.74 C202.89,53.52 201.04,51.35 272.50,138.35 L 331.50 210.19 L 341.50 209.62 C366.30,208.20 416.87,207.79 428.00,208.93 C461.62,212.35 484.29,223.48 492.59,240.65 C495.04,245.71 495.42,247.72 495.46,255.50 C495.50,263.54 495.17,265.20 492.40,271.05 C485.09,286.47 468.36,296.40 440.74,301.72 C432.79,303.25 426.13,303.48 393.00,303.37 C371.83,303.30 349.33,302.95 343.00,302.59 L 331.50 301.93 L 267.19 379.96 C215.51,442.66 201.95,458.53 198.19,460.75 C193.58,463.45 193.18,463.50 175.00,463.75 C161.00,463.94 155.77,463.67 153.50,462.63 Z"/></symbol>
+  
+    <!-- dùng cho nút gạt Mobile / Website trên thanh shell -->
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></symbol>
+  </defs>
+</svg>
+
+<!-- Sprite bản web — cùng bộ Lucide nhưng vài nét khác, nên để riêng #w-* -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="w-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="w-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="w-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="w-swap" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></symbol>
+    <symbol id="w-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="w-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="w-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="w-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="w-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+    <symbol id="w-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="w-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="w-package" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></symbol>
+    <symbol id="w-fragile" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="w-battery" viewBox="0 0 24 24"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/></symbol>
+    <symbol id="w-paperclip" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+    <symbol id="w-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="w-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="w-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="w-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+  </defs>
+</svg>
+
+<header class="shell">
+  <div class="shell__inner">
+    <img class="shell__mark" src="../assets/tiximax-mark.svg" alt="TIXIMAX">
+    <span class="shell__rule"></span>
+    <span class="shell__title">Express — prototype</span>
+
+    <div class="seg" role="tablist" aria-label="Chọn nền tảng">
+      <button class="seg__btn" type="button" role="tab" data-mode="mobile" aria-selected="true">
+        <svg class="shell__ic"><use href="#i-phone"></use></svg> Mobile
+      </button>
+      <button class="seg__btn" type="button" role="tab" data-mode="web" aria-selected="false">
+        <svg class="shell__ic"><use href="#i-monitor"></use></svg> Website
+      </button>
+    </div>
+
+    <button class="shell__btn" id="hotspotToggle" type="button" aria-pressed="false">
+      <svg class="shell__ic"><use href="#i-target"></use></svg> Hotspots
+    </button>
+    <button class="shell__btn" id="themeToggle" type="button" title="Đổi sáng / tối">
+      <svg class="shell__ic" id="themeIcon"><use href="#i-moon"></use></svg>
+      <span id="themeLabel">Dark</span>
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════ BẢN ĐIỆN THOẠI ══════════════════ -->
+<div class="mode is-on" id="mMobile">
+  <main class="page">
+
+  <div class="proto">
+
+    <!-- ══════════════════ DEVICE ══════════════════ -->
+    <div class="device">
+      <div class="device__island"></div>
+      <div class="device__screen">
+
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="statusbar__icons">
+            <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.7" y="5" width="3" height="6" rx="1"/><rect x="9.4" y="2.5" width="3" height="8.5" rx="1"/><rect x="14" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.2 5.6 8.6a3.4 3.4 0 0 1 4.8 0zM8 6.1c-1.6 0-3 .6-4.1 1.7L2.4 6.4A8 8 0 0 1 13.6 6.4l-1.5 1.4A5.7 5.7 0 0 0 8 6.1zM8 2.4c-2.6 0-5 1-6.8 2.7L0 3.7A11.6 11.6 0 0 1 16 3.7l-1.2 1.4A9.6 9.6 0 0 0 8 2.4z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2"/><path d="M23 4.2v3.6a2 2 0 0 0 0-3.6z" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="stage" id="stage">
+
+          <!-- ══════════ 1 · Route & addresses ══════════ -->
+          <section class="screen is-current" id="s1">
+            <div class="scr">
+              <div class="appbar">
+                <button class="appbar__btn" type="button" disabled><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
+                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <span class="appbar__spacer"></span>
+              </div>
+
+              <div>
+                <h1 class="scr-title">New shipment</h1>
+                <p class="scr-sub">Step 1 of 3 · Route &amp; addresses</p>
+              </div>
+              <div class="meter">
+                <span class="meter__seg meter__seg--on meter__seg--fill"></span>
+                <span class="meter__seg"></span>
+                <span class="meter__seg"></span>
+              </div>
+
+              <!-- Route: pick countries with the picker -->
+              <div class="card route">
+                <button class="route__side" type="button" id="pickFrom" aria-expanded="false">
+                  <span class="route__cap">FROM</span>
+                  <span class="route__val" id="fromVal"></span>
+                </button>
+                <button class="route__swap" type="button" id="swapBtn" title="Swap route direction">
+                  <svg class="ic ic--16"><use href="#i-swap"></use></svg>
+                </button>
+                <button class="route__side route__side--to" type="button" id="pickTo" aria-expanded="false">
+                  <span class="route__cap">TO</span>
+                  <span class="route__val" id="toVal"></span>
+                </button>
+                <div class="picker picker--from" id="pickerFrom" hidden></div>
+                <div class="picker picker--to" id="pickerTo" hidden></div>
+              </div>
+
+              <!-- ── Sender: contact details kept separate from the address ── -->
+              <div class="party">
+                <div class="party__h"><span class="party__dot party__dot--from"></span><span id="senderLabel">Sender · pickup</span></div>
+                <div class="group">
+                  <span class="group__label">Contact</span>
+                  <div class="field__row">
+                    <label class="field" style="flex:1.1"><input id="inName" type="text" placeholder="Sender full name"></label>
+                    <label class="field"><input id="inPhone" type="tel" placeholder="Phone number"></label>
+                  </div>
+                </div>
+                <div class="group">
+                  <span class="group__label">Pickup address</span>
+                  <label class="field" id="fieldPickup">
+                    <svg class="ic ic--18" style="color:var(--gold-700)"><use href="#i-search"></use></svg>
+                    <input id="inPickup" type="text" autocomplete="off" placeholder="House number, street…">
+                    <svg class="ic ic--18 ic--bold field__ok"><use href="#i-check"></use></svg>
+                  </label>
+                  <span class="hint" id="pickupSub" hidden></span>
+                  <div class="suggest" id="sugPickup" hidden></div>
+                </div>
+              </div>
+
+              <!-- ── Recipient ── -->
+              <div class="party">
+                <div class="party__h"><span class="party__dot party__dot--to"></span><span id="deliverLabel">Recipient · delivery</span></div>
+                <div class="group">
+                  <span class="group__label">Contact</span>
+                  <div class="field__row">
+                    <label class="field" style="flex:1.1"><input id="inRcvName" type="text" placeholder="Recipient full name"></label>
+                    <label class="field"><input id="inRcvPhone" type="tel" placeholder="Phone number"></label>
+                  </div>
+                </div>
+                <div class="group">
+                  <span class="group__label">Delivery address</span>
+                  <label class="field" id="fieldDeliver">
+                    <svg class="ic ic--18" style="color:var(--text-success)"><use href="#i-pin"></use></svg>
+                    <input id="inDeliver" type="text" autocomplete="off" placeholder="Recipient address…">
+                    <svg class="ic ic--18 ic--bold field__ok"><use href="#i-check"></use></svg>
+                  </label>
+                  <span class="hint" id="deliverSub" hidden></span>
+                  <div class="suggest" id="sugDeliver" hidden></div>
+                </div>
+                <span class="hint" id="gate1" hidden>Enter contact details and addresses for both sender and recipient to continue.</span>
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" id="cta1" data-goto="1">
+                Continue <svg class="ic ic--18"><use href="#i-arrow-right"></use></svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- ══════════ 2 · Package details ══════════ -->
+          <section class="screen" id="s2">
+            <div class="scr">
+              <div class="appbar">
+                <button class="appbar__btn" type="button" data-back="0"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
+                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <span class="appbar__spacer"></span>
+              </div>
+
+              <div>
+                <h1 class="scr-title">Package details</h1>
+                <p class="scr-sub">Step 2 of 3 · What are we shipping?</p>
+              </div>
+              <div class="meter">
+                <span class="meter__seg meter__seg--on"></span>
+                <span class="meter__seg meter__seg--on meter__seg--fill"></span>
+                <span class="meter__seg"></span>
+              </div>
+
+              <!-- Real photo upload -->
+              <div class="group">
+                <div class="split">
+                  <span class="group__label">Item photos</span>
+                  <span class="hint" id="photoCount">No photo</span>
+                </div>
+                <p class="help">Photograph your item before packing so we can verify it at pickup.</p>
+                <div class="photos" id="photoRow">
+                  <button class="photo-slot" type="button" id="addPhoto">
+                    <svg class="ic ic--24"><use href="#i-camera"></use></svg>
+                    Add photo
+                  </button>
+                </div>
+                <input type="file" id="photoInput" accept="image/*" multiple hidden>
+              </div>
+
+              <div class="group">
+                <span class="group__label">What’s inside?</span>
+                <label class="field field--area">
+                  <textarea id="inContents" rows="2" placeholder="Describe your item…"></textarea>
+                </label>
+              </div>
+
+              <div class="group">
+                <span class="group__label">Estimated weight <span class="opt">(optional)</span></span>
+                <label class="field">
+                  <svg class="ic ic--18" style="color:var(--text-tertiary)"><use href="#i-weight"></use></svg>
+                  <input id="inWeight" type="number" min="0.1" step="0.1" placeholder="1.0">
+                  <span class="field__unit">kg</span>
+                </label>
+                <span class="hint">Used for your first estimate — we weigh it precisely at pickup.</span>
+              </div>
+
+              <div class="group">
+                <span class="group__label">Special handling</span>
+                <div class="choices">
+                  <button class="choice" type="button" data-flag="fragile" aria-pressed="false">
+                    <svg class="ic ic--16"><use href="#i-fragile"></use></svg>
+                    Fragile
+                    <svg class="ic ic--15 ic--bold ic--check"><use href="#i-check"></use></svg>
+                  </button>
+                  <button class="choice" type="button" data-flag="battery" aria-pressed="false">
+                    <svg class="ic ic--16"><use href="#i-battery"></use></svg>
+                    Contains battery
+                    <svg class="ic ic--15 ic--bold ic--check"><use href="#i-check"></use></svg>
+                  </button>
+                </div>
+                <span class="hint">Select all that apply — it changes how we pack and declare your item.</span>
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" id="cta2" data-goto="2">
+                Continue <svg class="ic ic--18"><use href="#i-arrow-right"></use></svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- ══════════ 3 · Review & estimate ══════════ -->
+          <section class="screen" id="s3">
+            <div class="scr">
+              <div class="appbar">
+                <button class="appbar__btn" type="button" data-back="1"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
+                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <span class="appbar__spacer"></span>
+              </div>
+
+              <div>
+                <h1 class="scr-title">Review booking</h1>
+                <p class="scr-sub">Step 3 of 3 · Check everything looks right</p>
+              </div>
+              <div class="meter">
+                <span class="meter__seg meter__seg--on"></span>
+                <span class="meter__seg meter__seg--on"></span>
+                <span class="meter__seg meter__seg--on meter__seg--fill"></span>
+              </div>
+
+              <div class="band band__row">
+                <div style="flex:1">
+                  <div class="band__city" id="rvFromCity"></div>
+                  <div class="band__meta" id="rvFromMeta"></div>
+                </div>
+                <div class="band__mid">
+                  <span class="plane"><svg width="20" height="20" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
+                  <span class="band__line"></span>
+                  <span class="band__eta">5–7 days</span>
+                </div>
+                <div style="flex:1;text-align:right">
+                  <div class="band__city" id="rvToCity"></div>
+                  <div class="band__meta" id="rvToMeta"></div>
+                </div>
+              </div>
+
+              <div class="card rows">
+                <div class="rows__item">
+                  <svg class="ic ic--18" style="color:var(--gold-700)"><use href="#i-pin"></use></svg>
+                  <div>
+                    <div class="rows__t" id="rvPickup"></div>
+                    <div class="rows__s" id="rvContact"></div>
+                  </div>
+                </div>
+                <div class="rows__item">
+                  <svg class="ic ic--18" style="color:var(--text-success)"><use href="#i-pin"></use></svg>
+                  <div>
+                    <div class="rows__t" id="rvDeliver"></div>
+                    <div class="rows__s" id="rvDeliverSub"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card card--pad" style="display:flex;gap:var(--space-3);align-items:center">
+                <div class="thumb-pair" id="rvThumbs"></div>
+                <div style="flex:1;min-width:0">
+                  <div class="rows__t" id="rvContents"></div>
+                  <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap" id="rvBadges"></div>
+                </div>
+              </div>
+
+              <div class="card card--gold card--pad">
+                <div class="price-row">
+                  <span class="price-row__label">Estimated total</span>
+                  <span class="price-row__value" id="rvPrice"></span>
+                </div>
+                <div class="alert">
+                  <svg class="ic ic--15"><use href="#i-info"></use></svg>
+                  <p id="rvNote"></p>
+                </div>
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" id="cta3" data-goto="3">
+                Book pickup <svg class="ic ic--18"><use href="#i-check"></use></svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- ══════════ 4 · Confirmation ══════════ -->
+          <section class="screen" id="s4">
+            <div class="scr scr--center">
+              <div class="spacer" style="flex:.6"></div>
+              <div class="success-halo">
+                <span class="success-dot"><svg class="ic ic--30 ic--bold"><use href="#i-check"></use></svg></span>
+              </div>
+              <div>
+                <h1 class="success-title">Booking received!</h1>
+                <p class="success-copy">Our team will message you in chat shortly to confirm your pickup time and details.</p>
+              </div>
+
+              <button class="ticket" type="button" id="copyId" title="Copy shipment ID">
+                <span class="ticket__label" id="copyLabel">Shipment ID</span>
+                <span class="ticket__id" id="cfId"></span>
+                <svg class="ic ic--15"><use href="#i-copy"></use></svg>
+              </button>
+
+              <div class="card next">
+                <span class="next__cap">What happens next</span>
+                <div class="next__row">
+                  <span class="next__ico"><svg class="ic ic--15"><use href="#i-chat"></use></svg></span>
+                  <span class="next__txt"><strong>We confirm via chat</strong> — pickup time &amp; any questions</span>
+                </div>
+                <div class="next__row">
+                  <span class="next__ico"><svg class="ic ic--15"><use href="#i-package"></use></svg></span>
+                  <span class="next__txt"><strong>We pick up &amp; weigh</strong> — final price confirmed at your door</span>
+                </div>
+                <div class="next__row">
+                  <span class="next__ico plane"><svg width="16" height="16" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
+                  <span class="next__txt" id="cfShipTo"></span>
+                </div>
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" data-goto="5"><svg class="ic ic--18"><use href="#i-chat"></use></svg> Open chat</button>
+              <button class="btn btn--outline" type="button" data-goto="4">Track shipment</button>
+            </div>
+          </section>
+
+          <!-- ══════════ 5 · Tracking ══════════ -->
+          <section class="screen" id="s5">
+            <div class="scr">
+              <div class="appbar">
+                <span class="appbar__spacer"></span>
+                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <!-- Way back to the first Booking screen -->
+                <button class="appbar__btn" type="button" data-action="new" title="New shipment">
+                  <svg class="ic ic--18"><use href="#i-plus"></use></svg>
+                </button>
+              </div>
+
+              <div class="split">
+                <div>
+                  <h1 class="scr-title" id="tkId"></h1>
+                  <p class="scr-sub" id="tkSub"></p>
+                </div>
+                <span class="badge badge--status">Pickup scheduled</span>
+              </div>
+
+              <div class="band">
+                <div class="band__row">
+                  <span class="band__code" id="tkFromCode"></span>
+                  <div class="track">
+                    <span class="track__rail"></span>
+                    <span class="track__done"></span>
+                    <span class="track__plane plane"><svg width="20" height="20" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
+                  </div>
+                  <span class="band__code band__code--dim" id="tkToCode"></span>
+                </div>
+                <div class="split" style="margin-top:4px">
+                  <span class="band__meta" id="tkFromMeta"></span>
+                  <span class="band__meta" id="tkToMeta"></span>
+                </div>
+              </div>
+
+              <div class="card card--pad money">
+                <div class="money__col">
+                  <div class="money__label">Estimated price</div>
+                  <div class="money__value" id="tkPrice"></div>
+                </div>
+                <span class="money__div"></span>
+                <div class="money__col" style="flex:1.4">
+                  <div class="money__label">Final price</div>
+                  <div class="money__pending">
+                    <svg class="ic ic--14"><use href="#i-clock"></use></svg>
+                    Confirmed after weighing
+                  </div>
+                </div>
+              </div>
+
+              <div class="card timeline">
+                <div class="tl">
+                  <div class="tl__gutter">
+                    <span class="tl__dot tl__dot--done"><svg class="ic ic--14" style="stroke-width:3"><use href="#i-check"></use></svg></span>
+                    <span class="tl__line tl__line--done"></span>
+                  </div>
+                  <div class="tl__body">
+                    <div class="tl__t">Booking received</div>
+                    <div class="tl__s" id="tkBooked"></div>
+                  </div>
+                </div>
+                <div class="tl">
+                  <div class="tl__gutter">
+                    <span class="tl__dot tl__dot--done"><svg class="ic ic--14" style="stroke-width:3"><use href="#i-check"></use></svg></span>
+                    <span class="tl__line tl__line--done"></span>
+                  </div>
+                  <div class="tl__body">
+                    <div class="tl__t">Confirmed via chat</div>
+                    <div class="tl__s">Pickup details agreed with you</div>
+                  </div>
+                </div>
+                <div class="tl">
+                  <div class="tl__gutter">
+                    <span class="tl__dot tl__dot--now"><i></i></span>
+                    <span class="tl__line"></span>
+                  </div>
+                  <div class="tl__body">
+                    <div class="tl__t">Pickup scheduled</div>
+                    <div class="tl__s">Tomorrow, 9:00–12:00 · courier will call</div>
+                  </div>
+                </div>
+                <div class="tl">
+                  <div class="tl__gutter"><span class="tl__dot"></span><span class="tl__line"></span></div>
+                  <div class="tl__body">
+                    <div class="tl__t tl__t--todo">Picked up &amp; weighed</div>
+                    <div class="tl__s">Final price confirmed at your door</div>
+                  </div>
+                </div>
+                <div class="tl">
+                  <div class="tl__gutter"><span class="tl__dot"></span><span class="tl__line"></span></div>
+                  <div class="tl__body">
+                    <div class="tl__t tl__t--todo" id="tkShipping"></div>
+                    <div class="tl__s" id="tkShippingSub"></div>
+                  </div>
+                </div>
+                <div class="tl">
+                  <div class="tl__gutter"><span class="tl__dot"></span></div>
+                  <div class="tl__body">
+                    <div class="tl__t tl__t--todo">Delivered</div>
+                    <div class="tl__s">Signed for by recipient</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="spacer"></div>
+            </div>
+            <button class="fab" type="button" data-goto="5"><svg class="ic ic--24"><use href="#i-chat"></use></svg></button>
+          </section>
+
+          <!-- ══════════ 6 · Chat ══════════ -->
+          <section class="screen" id="s6">
+            <div class="scr scr--flush">
+              <div class="chat-head">
+                <button class="chat-head__back" type="button" data-back="4"><svg class="ic ic--20"><use href="#i-chevron-left"></use></svg></button>
+                <span class="chat-head__avatar"><img src="../assets/tiximax-mark.svg" alt=""></span>
+                <div style="flex:1">
+                  <div class="chat-head__name">Tiximax Express</div>
+                  <div class="chat-head__status"><i></i>Online · replies in minutes</div>
+                </div>
+                <button class="chat-head__more" type="button" id="chatMenuBtn" aria-expanded="false">
+                  <svg class="ic ic--20"><use href="#i-more"></use></svg>
+                </button>
+                <!-- Way back to the first Booking screen -->
+                <div class="menu" id="chatMenu" hidden>
+                  <button class="menu__item" type="button" data-goto="4">
+                    <svg class="ic ic--16"><use href="#i-package"></use></svg> Track shipment
+                  </button>
+                  <button class="menu__item" type="button" data-action="new">
+                    <svg class="ic ic--16"><use href="#i-plus"></use></svg> New shipment
+                  </button>
+                </div>
+              </div>
+
+              <div class="chat-body" id="chatBody"></div>
+
+              <div class="qr">
+                <button type="button" data-quick="Could we move the pickup to the afternoon, please?">Change pickup time</button>
+                <button type="button" data-goto="4">Track shipment</button>
+              </div>
+
+              <form class="composer" id="composer">
+                <svg class="ic ic--22" style="color:var(--text-tertiary)"><use href="#i-plus"></use></svg>
+                <input class="composer__input" id="msgInput" type="text" placeholder="Message Tiximax…" autocomplete="off">
+                <button class="composer__send" type="submit" title="Send"><svg class="ic ic--18"><use href="#i-send"></use></svg></button>
+              </form>
+            </div>
+          </section>
+
+        </div>
+        <div class="device__home"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<!-- ══════════════════ BẢN WEB ══════════════════ -->
+<div class="mode" id="mWeb">
+<header class="app-head">
+  <div class="app-head__inner">
+    <div class="brand" id="brandHome">
+      <img class="brand__logo--light" src="../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
+      <img class="brand__logo--dark" src="../assets/tiximax-logo-white.svg" alt="TIXIMAX">
+      <span class="brand__tag">Express</span>
+    </div>
+    <nav class="nav">
+      <button class="nav__btn" type="button" data-view="book">New booking</button>
+      <button class="nav__btn" type="button" data-view="orders">My shipments</button>
+      <button class="nav__btn" type="button" data-view="chat">Chat<span class="nav__dot" id="navDot" hidden></span></button>
+    </nav>
+    </div>
+</header>
+
+<main class="main">
+  <div id="viewBook" class="view"></div>
+  <div id="viewOrders" class="view" hidden></div>
+  <div id="viewTrack" class="view" hidden></div>
+  <div id="viewChat" class="view" hidden></div>
+</main>
+</div>
+
+<script>
+/* Thanh shell: đổi Mobile ↔ Website và sáng ↔ tối, nhớ lựa chọn qua localStorage. */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var LS_MODE = 'txm-express-mode', LS_THEME = 'txm-express-theme';
+
+  function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+  /* ---------- Mobile ↔ Website ---------- */
+  var panes = { mobile: document.getElementById('mMobile'), web: document.getElementById('mWeb') };
+  var tabs = [].slice.call(document.querySelectorAll('.seg__btn'));
+
+  function setMode(mode) {
+    if (!panes[mode]) mode = 'mobile';
+    root.dataset.mode = mode;
+    Object.keys(panes).forEach(function (k) { panes[k].classList.toggle('is-on', k === mode); });
+    tabs.forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.mode === mode)); });
+    window.scrollTo(0, 0);
+    store(LS_MODE, mode);
+  }
+  tabs.forEach(function (b) { b.addEventListener('click', function () { setMode(b.dataset.mode); }); });
+
+  /* ---------- Sáng ↔ tối ---------- */
+  var tIcon = document.getElementById('themeIcon').querySelector('use');
+  var tLabel = document.getElementById('themeLabel');
+
+  function setTheme(theme) {
+    var dark = theme === 'dark';
+    root.dataset.theme = dark ? 'dark' : 'light';
+    /* nhãn cho biết bấm vào sẽ chuyển sang chế độ nào */
+    tIcon.setAttribute('href', dark ? '#i-sun' : '#i-moon');
+    tLabel.textContent = dark ? 'Light' : 'Dark';
+    store(LS_THEME, root.dataset.theme);
+  }
+  document.getElementById('themeToggle').addEventListener('click', function () {
+    setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  setMode(load(LS_MODE) || 'mobile');
+  setTheme(load(LS_THEME) || 'light');
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     DATA
+     ============================================================ */
+  var COUNTRIES = {
+    ID: { name: 'Indonesia',   city: 'Jakarta', code: 'CGK' },
+    JP: { name: 'Japan',       city: 'Tokyo',   code: 'NRT' },
+    VN: { name: 'Vietnam',     city: 'Hanoi',   code: 'HAN' },
+    PH: { name: 'Philippines', city: 'Manila',  code: 'MNL' }
+  };
+  var ORDER = ['ID', 'JP', 'VN', 'PH'];
+
+  /* Suggested address book, per country */
+  var BOOK = {
+    ID: [
+      ['Jl. Kemang Raya 48, Bangka', 'Mampang Prapatan, Jakarta Selatan 12730'],
+      ['Jl. Kemang Raya 42A', 'Bangka, Jakarta Selatan 12730'],
+      ['Jl. Kemang Raya No.5, Kemang Village', 'Jakarta Selatan 12150'],
+      ['Jl. Senopati 64', 'Kebayoran Baru, Jakarta Selatan 12110'],
+      ['Jl. Panglima Polim IX 12', 'Melawai, Jakarta Selatan 12160']
+    ],
+    JP: [
+      ['2-11-3 Meguro, Meguro City', 'Tokyo 153-0063, Japan'],
+      ['1-5-8 Shibuya, Shibuya City', 'Tokyo 150-0002, Japan'],
+      ['3-2-1 Nihonbashi, Chuo City', 'Tokyo 103-0027, Japan'],
+      ['4-12-7 Shinsaibashi, Chuo Ward', 'Osaka 542-0085, Japan']
+    ],
+    VN: [
+      ['25 Ly Thuong Kiet, Hoan Kiem', 'Hanoi 100000, Vietnam'],
+      ['128 Nguyen Trai, Thanh Xuan', 'Hanoi 100000, Vietnam'],
+      ['72 Le Thanh Ton, District 1', 'Ho Chi Minh City 700000, Vietnam'],
+      ['15 Tran Phu, Hai Chau', 'Da Nang 550000, Vietnam']
+    ],
+    PH: [
+      ['118 Legazpi St, Legazpi Village', 'Makati, Metro Manila 1229'],
+      ['45 Bonifacio Global City, Taguig', 'Metro Manila 1634'],
+      ['210 Ortigas Ave, Pasig', 'Metro Manila 1605']
+    ]
+  };
+
+  /* Initial state: empty form, the user types everything.
+     from/to are just the route picker defaults, not pre-filled data. */
+  var EMPTY = {
+    from: 'ID', to: 'JP',
+    pickup: '', pickupSub: '', deliver: '', deliverSub: '',
+    name: '', phone: '',                 // sender
+    rcvName: '', rcvPhone: '',           // recipient
+    contents: '', weight: '',
+    fragile: false, battery: false, photos: [], id: '', bookedAt: null
+  };
+
+  /* Order of the 6 screens inside the device frame */
+  var SCREEN_IDS = ['s1', 's2', 's3', 's4', 's5', 's6'];
+
+  var state = clone(EMPTY);
+
+  /* ============================================================
+     UTILITIES
+     ============================================================ */
+  function $(id) { return document.getElementById(id); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function flagHTML(cc) {
+    var inner = (cc === 'ID' || cc === 'PH') ? '<i></i><i></i>' : '<i></i>';
+    return '<span class="flag flag--' + cc.toLowerCase() + '">' + inner + '</span>';
+  }
+  /* Estimated price: ¥2,000 base fee + ¥1,200/kg (1.5 kg → ¥3,800) */
+  function price() {
+    var w = parseFloat(state.weight) || 1;
+    return Math.round((2000 + 1200 * w) / 100) * 100;
+  }
+  function yen(n) { return '¥' + n.toLocaleString('en-US'); }
+  function weightLabel() { return (parseFloat(state.weight) || 1).toFixed(1).replace(/\.0$/, '') + ' kg'; }
+  function timeNow() {
+    var d = new Date();
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  function dateLabel(d) { return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); }
+
+  /* ============================================================
+     SCREEN 1 — route, addresses, contacts
+     ============================================================ */
+  function renderRoute() {
+    $('fromVal').innerHTML = flagHTML(state.from) + '<span>' + esc(COUNTRIES[state.from].name) + '</span>' +
+      '<svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>';
+    $('toVal').innerHTML = flagHTML(state.to) + '<span>' + esc(COUNTRIES[state.to].name) + '</span>' +
+      '<svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>';
+    $('senderLabel').textContent = 'Sender · pickup (' + COUNTRIES[state.from].name + ')';
+    $('deliverLabel').textContent = 'Recipient · delivery (' + COUNTRIES[state.to].name + ')';
+  }
+
+  function buildPicker(el, which) {
+    el.innerHTML = ORDER.map(function (cc) {
+      var sel = state[which] === cc;
+      return '<button class="picker__item" type="button" data-cc="' + cc + '" aria-selected="' + sel + '">' +
+        flagHTML(cc) +
+        '<span><span>' + esc(COUNTRIES[cc].name) + '</span><br><span class="picker__city">' + esc(COUNTRIES[cc].city) + ' · ' + COUNTRIES[cc].code + '</span></span>' +
+        (sel ? '<svg class="ic ic--16"><use href="#i-check"></use></svg>' : '') +
+        '</button>';
+    }).join('');
+    el.querySelectorAll('.picker__item').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var cc = b.dataset.cc, other = which === 'from' ? 'to' : 'from';
+        if (state[other] === cc) state[other] = state[which];   // don't allow the same country twice
+        state[which] = cc;
+        closePickers();
+        renderRoute();
+        refreshSuggest();
+        gate();
+      });
+    });
+  }
+  function closePickers() {
+    $('pickerFrom').hidden = true; $('pickerTo').hidden = true;
+    $('pickFrom').setAttribute('aria-expanded', 'false');
+    $('pickTo').setAttribute('aria-expanded', 'false');
+  }
+  function togglePicker(which) {
+    var el = which === 'from' ? $('pickerFrom') : $('pickerTo');
+    var btn = which === 'from' ? $('pickFrom') : $('pickTo');
+    var open = el.hidden;
+    closePickers();
+    if (open) { buildPicker(el, which); el.hidden = false; btn.setAttribute('aria-expanded', 'true'); }
+  }
+  $('pickFrom').addEventListener('click', function (e) { e.stopPropagation(); togglePicker('from'); });
+  $('pickTo').addEventListener('click', function (e) { e.stopPropagation(); togglePicker('to'); });
+  document.addEventListener('click', function () { closePickers(); closeChatMenu(); });
+
+  $('swapBtn').addEventListener('click', function () {
+    var f = state.from; state.from = state.to; state.to = f;
+    var p = state.pickup, ps = state.pickupSub;
+    state.pickup = state.deliver; state.pickupSub = state.deliverSub;
+    state.deliver = p; state.deliverSub = ps;
+    this.classList.add('is-spun');
+    var btn = this;
+    setTimeout(function () { btn.classList.remove('is-spun'); }, 360);
+    renderRoute(); syncInputs(); refreshSuggest(); gate();
+  });
+
+  /* ---------- Autocomplete shared by both address fields ---------- */
+  function attachSuggest(input, list, subEl, poolKey, storeKey) {
+    function pool() { return BOOK[state[poolKey]] || []; }
+    function close() { list.hidden = true; }
+    function open() {
+      var q = input.value.trim().toLowerCase();
+      var hits = pool().filter(function (r) { return !q || (r[0] + ' ' + r[1]).toLowerCase().indexOf(q) >= 0; }).slice(0, 3);
+      if (!hits.length) { close(); return; }
+      list.innerHTML = hits.map(function (r, i) {
+        var t = esc(r[0]);
+        if (q) {
+          var at = r[0].toLowerCase().indexOf(q);
+          if (at >= 0) t = esc(r[0].slice(0, at)) + '<strong>' + esc(r[0].slice(at, at + q.length)) + '</strong>' + esc(r[0].slice(at + q.length));
+        }
+        return '<button class="suggest__row' + (i === 0 ? ' is-active' : '') + '" type="button" data-i="' + i + '">' +
+          '<svg class="ic ic--18"><use href="#i-pin"></use></svg>' +
+          '<span class="field__body"><span class="suggest__t">' + t + '</span><br><span class="suggest__s">' + esc(r[1]) + '</span></span>' +
+          '</button>';
+      }).join('');
+      list.querySelectorAll('.suggest__row').forEach(function (b) {
+        b.addEventListener('mousedown', function (e) {   // mousedown: fires before blur
+          e.preventDefault();
+          var r = hits[parseInt(b.dataset.i, 10)];
+          input.value = r[0];
+          state[storeKey] = r[0];
+          state[storeKey + 'Sub'] = r[1];
+          subEl.textContent = r[1]; subEl.hidden = false;
+          input.closest('.field').classList.add('is-ok');
+          close(); gate();
+        });
+      });
+      list.hidden = false;
+    }
+    input.addEventListener('focus', open);
+    input.addEventListener('input', function () {
+      state[storeKey] = input.value;
+      state[storeKey + 'Sub'] = '';
+      subEl.hidden = true;
+      input.closest('.field').classList.toggle('is-ok', !!input.value.trim());
+      open(); gate();
+    });
+    input.addEventListener('blur', function () { setTimeout(close, 120); });
+    return { close: close };
+  }
+  var sugP = attachSuggest($('inPickup'), $('sugPickup'), $('pickupSub'), 'from', 'pickup');
+  var sugD = attachSuggest($('inDeliver'), $('sugDeliver'), $('deliverSub'), 'to', 'deliver');
+  function refreshSuggest() { sugP.close(); sugD.close(); }
+
+  var CONTACT_FIELDS = { inName: 'name', inPhone: 'phone', inRcvName: 'rcvName', inRcvPhone: 'rcvPhone' };
+  Object.keys(CONTACT_FIELDS).forEach(function (id) {
+    $(id).addEventListener('input', function () {
+      state[CONTACT_FIELDS[id]] = this.value; gate();
+    });
+  });
+
+  /* ============================================================
+     SCREEN 2 — photos, description, weight, chips
+     ============================================================ */
+  $('addPhoto').addEventListener('click', function () { $('photoInput').click(); });
+  $('photoInput').addEventListener('change', function () {
+    [].slice.call(this.files).forEach(function (f) {
+      if (state.photos.length >= 4) return;              // cap at 4 photos so the row still fits
+      state.photos.push({ url: URL.createObjectURL(f), name: f.name });
+    });
+    this.value = '';
+    renderPhotos();
+  });
+  function renderPhotos() {
+    var row = $('photoRow');
+    row.querySelectorAll('.photo-thumb').forEach(function (n) { n.remove(); });
+    var slot = $('addPhoto');
+    state.photos.forEach(function (p, i) {
+      var d = document.createElement('div');
+      d.className = 'photo-thumb';
+      d.innerHTML = '<img src="' + esc(p.url) + '" alt="' + esc(p.name) + '">' +
+        '<button class="photo-thumb__x" type="button" title="Remove photo"><svg class="ic ic--13"><use href="#i-x"></use></svg></button>';
+      d.querySelector('button').addEventListener('click', function () {
+        URL.revokeObjectURL(state.photos[i].url);
+        state.photos.splice(i, 1);
+        renderPhotos();
+      });
+      row.insertBefore(d, slot);
+    });
+    slot.hidden = state.photos.length >= 4;
+    var n = state.photos.length;
+    $('photoCount').textContent = n === 0 ? 'No photo' : n + (n === 1 ? ' photo' : ' photos');
+  }
+
+  $('inContents').addEventListener('input', function () { state.contents = this.value; gate(); });
+  $('inWeight').addEventListener('input', function () { state.weight = this.value; });
+  document.querySelectorAll('.choice').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.dataset.flag;
+      state[k] = !state[k];
+      b.setAttribute('aria-pressed', String(state[k]));
+    });
+  });
+
+  /* ---------- Conditions that unlock the Continue button ---------- */
+  function gate() {
+    var ok1 = state.pickup.trim() && state.name.trim() && state.phone.trim()
+           && state.deliver.trim() && state.rcvName.trim() && state.rcvPhone.trim();
+    $('cta1').classList.toggle('is-disabled', !ok1);
+    $('gate1').hidden = !!ok1;
+    var ok2 = state.contents.trim();
+    $('cta2').classList.toggle('is-disabled', !ok2);
+  }
+
+  /* ---------- Push state back into the inputs (reset / demo / swap) ---------- */
+  function syncInputs() {
+    $('inPickup').value = state.pickup;
+    $('inDeliver').value = state.deliver;
+    $('inName').value = state.name;
+    $('inPhone').value = state.phone;
+    $('inRcvName').value = state.rcvName;
+    $('inRcvPhone').value = state.rcvPhone;
+    $('inContents').value = state.contents;
+    $('inWeight').value = state.weight;
+    $('pickupSub').textContent = state.pickupSub; $('pickupSub').hidden = !state.pickupSub;
+    $('deliverSub').textContent = state.deliverSub; $('deliverSub').hidden = !state.deliverSub;
+    $('fieldPickup').classList.toggle('is-ok', !!state.pickup.trim());
+    $('fieldDeliver').classList.toggle('is-ok', !!state.deliver.trim());
+    document.querySelectorAll('.choice').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(!!state[b.dataset.flag]));
+    });
+    renderRoute(); renderPhotos(); gate();
+  }
+
+  /* ============================================================
+     SCREEN 3 — Review
+     ============================================================ */
+  function renderReview() {
+    var F = COUNTRIES[state.from], T = COUNTRIES[state.to];
+    $('rvFromCity').textContent = F.city;
+    $('rvFromMeta').textContent = F.name + ' · pickup';
+    $('rvToCity').textContent = T.city;
+    $('rvToMeta').textContent = T.name + ' · door delivery';
+    $('rvPickup').textContent = state.pickup + (state.pickupSub ? ', ' + state.pickupSub : '');
+    $('rvContact').textContent = [state.name, state.phone].filter(Boolean).join(' · ');
+    $('rvDeliver').textContent = state.deliver + (state.deliverSub ? ', ' + state.deliverSub : '');
+    $('rvDeliverSub').textContent = [state.rcvName, state.rcvPhone].filter(Boolean).join(' · ') || (T.name + ' · door delivery');
+    $('rvContents').textContent = state.contents || '—';
+
+    var badges = [];
+    if (state.fragile) badges.push('<span class="badge badge--gold">Fragile</span>');
+    if (state.battery) badges.push('<span class="badge badge--gold">Battery</span>');
+    badges.push('<span class="badge badge--neutral">~' + weightLabel() + '</span>');
+    $('rvBadges').innerHTML = badges.join('');
+
+    var t = state.photos.slice(0, 2).map(function (p) {
+      return '<span class="thumb"><img src="' + esc(p.url) + '" alt=""></span>';
+    });
+    if (state.photos.length > 2) t.push('<span class="thumb">+' + (state.photos.length - 2) + '</span>');
+    if (!t.length) t = ['<span class="thumb"><svg class="ic ic--18"><use href="#i-image"></use></svg></span>'];
+    $('rvThumbs').innerHTML = t.join('');
+
+    $('rvPrice').textContent = yen(price());
+    $('rvNote').textContent = 'Based on your ' + weightLabel() +
+      ' estimate. The final price is confirmed after we weigh your parcel at pickup.';
+  }
+
+  /* ============================================================
+     SCREENS 4 · 5 — Confirmation & Tracking
+     ============================================================ */
+  function ensureBooking() {
+    if (!state.id) {
+      state.id = 'TXM-' + Math.floor(10000 + Math.random() * 89999);
+      state.bookedAt = new Date().toISOString();
+    }
+  }
+  function renderConfirm() {
+    ensureBooking();
+    $('cfId').textContent = state.id;
+    $('cfShipTo').innerHTML = '<strong>Ships to ' + esc(COUNTRIES[state.to].name) + '</strong> — tracked door to door, 5–7 days';
+  }
+  function renderTracking() {
+    ensureBooking();
+    var F = COUNTRIES[state.from], T = COUNTRIES[state.to];
+    var d = new Date(state.bookedAt);
+    $('tkId').textContent = state.id;
+    $('tkSub').textContent = F.city + ' → ' + T.city + ' · booked ' + dateLabel(d);
+    $('tkFromCode').textContent = F.code;
+    $('tkToCode').textContent = T.code;
+    $('tkFromMeta').textContent = F.city + ', ' + F.name;
+    var eta = new Date(d.getTime() + 6 * 864e5);
+    $('tkToMeta').textContent = T.city + ', ' + T.name + ' · ETA ' + dateLabel(eta);
+    $('tkPrice').textContent = yen(price());
+    $('tkBooked').textContent = 'Request submitted · ' + dateLabel(d) + ', ' +
+      String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    $('tkShipping').textContent = 'Shipping to ' + T.name;
+    $('tkShippingSub').textContent = F.city + ' → ' + T.city + ' · 5–7 days';
+  }
+
+  /* Copy the shipment ID */
+  $('copyId').addEventListener('click', function () {
+    var done = function () {
+      $('copyLabel').textContent = 'Copied!';
+      setTimeout(function () { $('copyLabel').textContent = 'Shipment ID'; }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(state.id).then(done, done);
+    } else { done(); }
+  });
+
+  /* ============================================================
+     SCREEN 6 — Chat with real message sending
+     ============================================================ */
+  var REPLIES = [
+    'Noted, thank you! We’ll update the pickup schedule and get back to you shortly.',
+    'Thanks! The courier will call you 15 minutes before arriving.',
+    'I’ve added that to your booking. Anything else I can help with?'
+  ];
+  var replyIdx = 0, chatSeeded = false;
+
+  /* Mirrors the DS Chat component structure: row + bubble, with the meta line kept separate */
+  function el(cls, html) {
+    var d = document.createElement('div');
+    d.className = cls;
+    if (html != null) d.innerHTML = html;
+    return d;
+  }
+  function bubble(side, html) {
+    var avatar = side === 'in' ? '<span class="cavatar">TX</span>' : '';
+    return el('row-' + side, avatar + '<div class="msg msg-' + side + '"><p>' + html + '</p></div>');
+  }
+  /* status: 'sent' → single tick · 'read' → double blue tick */
+  function meta(side, text, status) {
+    var tick = '';
+    if (side === 'out') {
+      var read = status === 'read';
+      tick = '<svg class="ic' + (read ? ' read' : '') + '"><use href="' + (read ? '#i-check-check' : '#i-check') + '"></use></svg>';
+    }
+    var m = el('meta' + (side === 'out' ? ' meta-out' : ''), '<span>' + esc(text) + '</span>' + tick);
+    if (side === 'in') m.style.paddingLeft = '36px';
+    return m;
+  }
+  function orderCard() {
+    return el('row-in',
+      '<span style="width:28px;flex:none"></span>' +
+      '<div class="order-card">' +
+        '<div class="oc-head"><svg class="ic"><use href="#i-package"></use></svg>' + esc(state.id) +
+        '<span class="oc-badge">Pickup scheduled</span></div>' +
+        '<div class="oc-body">' +
+          '<div><div class="oc-l">Route</div><div class="oc-v">' +
+            esc(COUNTRIES[state.from].city) + ' → ' + esc(COUNTRIES[state.to].city) + '</div></div>' +
+          '<div><div class="oc-l">Pickup</div><div class="oc-v">Tomorrow 9:00–12:00</div></div>' +
+        '</div>' +
+      '</div>');
+  }
+  function chatScroll() { var b = $('chatBody'); b.scrollTop = b.scrollHeight; }
+
+  function seedChat() {
+    ensureBooking();
+    var body = $('chatBody');
+    body.innerHTML = '';
+    body.appendChild(el('divider', 'Today'));
+
+    /* Keep proper-name capitalisation — no lowercasing, no truncation */
+    var what = state.contents || 'your parcel';
+    var tags = state.fragile ? ', fragile' : '';
+    body.appendChild(bubble('in',
+      'Hi ' + esc(state.name || 'there') + '! We’ve received your booking <strong>' + esc(state.id) +
+      '</strong> (' + esc(what) + esc(tags) + '). Can we pick it up <strong>tomorrow between 9:00–12:00</strong>?'));
+    body.appendChild(orderCard());
+    body.appendChild(meta('in', 'Rina · Tiximax · 14:06'));
+
+    body.appendChild(bubble('out', 'Yes, 9–12 works! Please call when you arrive — the gate is usually closed.'));
+    body.appendChild(meta('out', '14:09', 'read'));
+
+    body.appendChild(bubble('in',
+      'Pickup confirmed. Our courier will weigh the parcel at your door and confirm the final price before taking it.' +
+      (state.fragile ? ' Since it’s fragile, we’ll bring extra padding.' : '')));
+    body.appendChild(meta('in', 'Rina · Tiximax · 14:10'));
+
+    chatSeeded = true;
+    chatScroll();
+  }
+
+  function sendMessage(text) {
+    if (!text.trim()) return;
+    var body = $('chatBody');
+    body.appendChild(bubble('out', esc(text)));
+    var sentMeta = meta('out', timeNow(), 'sent');
+    body.appendChild(sentMeta);
+    chatScroll();
+
+    var typing = el('row-in', '<span class="cavatar">TX</span><div class="typing"><i></i><i></i><i></i></div>');
+    setTimeout(function () { body.appendChild(typing); chatScroll(); }, 400);
+    setTimeout(function () {
+      typing.remove();
+      /* The message is read once Tiximax replies → swap the single tick for a double blue tick */
+      sentMeta.replaceWith(meta('out', timeNow(), 'read'));
+      body.appendChild(bubble('in', esc(REPLIES[replyIdx % REPLIES.length])));
+      body.appendChild(meta('in', 'Rina · Tiximax · ' + timeNow()));
+      replyIdx++;
+      chatScroll();
+    }, 1700);
+  }
+
+  $('composer').addEventListener('submit', function (e) {
+    e.preventDefault();
+    sendMessage($('msgInput').value);
+    $('msgInput').value = '';
+  });
+  document.querySelectorAll('[data-quick]').forEach(function (b) {
+    b.addEventListener('click', function () { sendMessage(b.dataset.quick); });
+  });
+
+  /* The ⋯ menu inside the chat */
+  function closeChatMenu() { $('chatMenu').hidden = true; $('chatMenuBtn').setAttribute('aria-expanded', 'false'); }
+  $('chatMenuBtn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = $('chatMenu').hidden;
+    closeChatMenu();
+    if (open) { $('chatMenu').hidden = false; this.setAttribute('aria-expanded', 'true'); }
+  });
+
+  /* ============================================================
+     NAVIGATION + TRANSITIONS
+     ============================================================ */
+  var screens = SCREEN_IDS.map(function (id) { return $(id); });
+  var stage = $('stage');
+  var cur = 0, busy = false;
+  /* Navigation history: back returns to the EXACT screen you came from,
+     no hard-coded target — entering Chat from Tracking goes back to Tracking.
+     CONFIRM is the point of no return: once the booking is placed, nothing
+     goes back to Confirmation or to the form flow ahead of it. */
+  var CONFIRM = 3;
+  var hist = [];
+
+  var RENDER = { 2: renderReview, 3: renderConfirm, 4: renderTracking, 5: function () { if (!chatSeeded) seedChat(); } };
+
+  /* viaBack = true → don't append to the history (we're going backwards) */
+  function go(next, viaBack) {
+    if (busy || next === cur || next < 0 || next >= screens.length) return;
+    if (viaBack && next === CONFIRM) return;   // hard stop: never go back to Confirmation
+    busy = true;
+    if (!viaBack) {
+      if (cur === CONFIRM) hist.length = 0;   // leaving Confirmation → clear the form-flow history
+      else hist.push(cur);
+      if (hist.length > 50) hist.shift();
+    }
+    if (RENDER[next]) RENDER[next]();
+
+    // Only the 2 screens taking part in the transition animate; the rest jump into place
+    screens.forEach(function (el, i) { el.classList.toggle('no-anim', i !== cur && i !== next); });
+    void stage.offsetWidth;                       // force a reflow so no-anim takes effect
+
+    screens.forEach(function (el, i) {
+      el.classList.remove('is-current', 'is-behind');
+      if (i === next) el.classList.add('is-current');
+      else if (i < next) el.classList.add('is-behind');   // already visited → sits on the left
+    });
+    var sc = screens[next].querySelector('.scr');
+    if (sc) sc.scrollTop = 0;
+
+    cur = next;
+    setTimeout(function () {
+      screens.forEach(function (el) { el.classList.remove('no-anim'); });
+      busy = false;
+    }, 440);
+  }
+
+  /* Go back through the history; with no history, fall back to the screen named in data-back */
+  function goBack(fallback) {
+    var prev = null;
+    while (hist.length) {
+      var p = hist.pop();
+      if (p !== CONFIRM) { prev = p; break; }
+    }
+    if (prev == null) prev = fallback;
+    if (prev != null && !Number.isNaN(prev) && prev !== CONFIRM) go(prev, true);
+  }
+
+  /* Hotspots + actions inside the device */
+  stage.addEventListener('click', function (e) {
+    var act = e.target.closest('[data-action]');
+    if (act) { doAction(act.dataset.action); return; }
+    var back = e.target.closest('[data-back]');
+    if (back) { goBack(Number.parseInt(back.dataset.back, 10)); return; }
+    var hit = e.target.closest('[data-goto]');
+    if (!hit || hit.classList.contains('is-disabled')) return;
+    go(Number.parseInt(hit.dataset.goto, 10));
+  });
+
+  function doAction(name) {
+    if (name === 'new') newShipment();
+  }
+
+  /* Back to the first Booking screen — the + button on Tracking and the ⋯ menu in Chat */
+  function newShipment() {
+    state.photos.forEach(function (p) { URL.revokeObjectURL(p.url); });
+    state = clone(EMPTY);
+    chatSeeded = false; replyIdx = 0;
+    hist = [];
+    syncInputs(); closeChatMenu();
+    go(0);
+  }
+  /* ---------- Keyboard (disabled while typing in an input) ---------- */
+  document.addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (document.documentElement.dataset.mode !== 'mobile') return;   // đang xem bản web thì bỏ qua
+    if (e.key === 'ArrowRight') go(cur + 1);
+    else if (e.key === 'ArrowLeft' && cur - 1 !== CONFIRM) go(cur - 1);
+    else if (e.key === 'Escape') { closePickers(); closeChatMenu(); }
+  });
+
+  /* ---------- Hotspots + theme ---------- */
+  var hs = $('hotspotToggle');
+  hs.addEventListener('click', function () {
+    var on = hs.getAttribute('aria-pressed') === 'true';
+    hs.setAttribute('aria-pressed', String(!on));
+    document.querySelector('#mMobile .page').classList.toggle('show-hotspots', !on);
+  });
+
+  /* ---------- Boot ---------- */
+  syncInputs();
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     DỮ LIỆU
+     ============================================================ */
+  var ADDR = {
+    Indonesia: [
+      'Jl. Jend. Sudirman No. 52-53, SCBD, Jakarta Selatan 12190',
+      'Jl. Asia Afrika No. 8, Gelora, Jakarta Pusat 10270',
+      'Jl. Braga No. 99, Sumur Bandung, Bandung 40111',
+      'Jl. Malioboro No. 16, Gedong Tengen, Yogyakarta 55213',
+      'Jl. Raya Kuta No. 88, Badung, Bali 80361',
+      'Jl. Pemuda No. 118, Embong Kaliasin, Surabaya 60271'
+    ],
+    Japan: [
+      '2-11-3 Meguro, Meguro-ku, Tokyo 153-0063',
+      '1-9-1 Marunouchi, Chiyoda-ku, Tokyo 100-0005',
+      '4-2-8 Shibaura, Minato-ku, Tokyo 108-0023',
+      '3-1-3 Umeda, Kita-ku, Osaka 530-0001',
+      '3-22-2 Sakae, Naka-ku, Nagoya 460-0008',
+      '1-1-1 Hakata Ekimae, Hakata-ku, Fukuoka 812-0011'
+    ],
+    Vietnam: ['12 Nguyễn Huệ, Bến Nghé, District 1, Ho Chi Minh City', '36 Lý Thái Tổ, Hoàn Kiếm, Hà Nội'],
+    Philippines: ['6819 Ayala Ave, Makati, 1226 Metro Manila', '30th St, Bonifacio Global City, Taguig 1634'],
+    Korea: ['29 Seolleung-ro 152-gil, Gangnam-gu, Seoul 06792', '48 Haeun-daero, Haeundae-gu, Busan 48094'],
+    Singapore: ['10 Bayfront Ave, Singapore 018956', '313 Orchard Rd, Singapore 238895']
+  };
+  var COUNTRIES = Object.keys(ADDR);
+  var STAGES = ['Booking submitted', 'Confirmed via chat', 'Picked up', 'In transit', 'Customs clearance', 'Out for delivery', 'Delivered'];
+  var STAGE_TIMES = ['Jul 20, 09:12', 'Jul 20, 10:05', 'Jul 21, 14:30', 'Jul 22, 06:15', 'Jul 22, 18:40', 'Jul 23, 08:00', 'Jul 23, 11:25'];
+  var RATES = { USD: [1, '$', 2], JPY: [155, '¥', 0], IDR: [16300, 'Rp ', 0] };
+  var ISO = { Indonesia: 'ID', Japan: 'JP', Vietnam: 'VN', Philippines: 'PH', Korea: 'KR', Singapore: 'SG' };
+
+  var S = {
+    view: 'book', step: 1,
+    currency: 'USD',
+    originCountry: 'Indonesia', destCountry: 'Japan',
+    pickup: { query: '', selected: null, name: '', phone: '', note: '', focus: false },
+    drop: { query: '', selected: null, name: '', phone: '', focus: false },
+    items: [{ name: '', fragile: false, battery: false, photos: [], weight: '' }],
+    orders: [
+      { id: 'TX-2445', from: 'Jakarta, ID', to: 'Tokyo, JP', items: 2, date: 'Jul 02', stage: 6, price: 41, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+        fromAddr: 'Jl. Jend. Sudirman No. 52-53, SCBD, Jakarta Selatan 12190', sender: 'Dewi Lestari', senderPhone: '+62 812 5550 194', note: 'Lobby B, ask reception',
+        toAddr: '2-11-3 Meguro, Meguro-ku, Tokyo 153-0063', recipient: 'Kenta Mori', recipientPhone: '+81 90 5550 812',
+        itemList: [
+          { name: 'Batik fabric, 2 pieces', fragile: false, battery: false, photos: 2, estWeight: 1.2, actualWeight: 1.4 },
+          { name: 'Ceramic tea set', fragile: true, battery: false, photos: 1, estWeight: 2.5, actualWeight: 2.6 }
+        ] } },
+      { id: 'TX-2460', from: 'Bandung, ID', to: 'Osaka, JP', items: 1, date: 'Jul 14', stage: 3, price: 28, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+        fromAddr: 'Jl. Braga No. 99, Sumur Bandung, Bandung 40111', sender: 'Andi Pratama', senderPhone: '+62 813 5550 771', note: '',
+        toAddr: '3-1-3 Umeda, Kita-ku, Osaka 530-0001', recipient: 'Yuki Tanaka', recipientPhone: '+81 90 5550 233',
+        itemList: [{ name: 'Kopi Luwak beans, 1kg', fragile: false, battery: false, photos: 1, estWeight: 1.0, actualWeight: 1.1 }] } },
+      { id: 'TX-2473', from: 'Jakarta, ID', to: 'Fukuoka, JP', items: 3, date: 'Jul 20', stage: 1, price: 52, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+        fromAddr: 'Jl. Asia Afrika No. 8, Gelora, Jakarta Pusat 10270', sender: 'Sari Wijaya', senderPhone: '+62 811 5550 902', note: 'Call on arrival',
+        toAddr: '1-1-1 Hakata Ekimae, Hakata-ku, Fukuoka 812-0011', recipient: 'Haruto Sato', recipientPhone: '+81 90 5550 640',
+        itemList: [
+          { name: 'Rattan handbag', fragile: false, battery: false, photos: 1, estWeight: 0.8, actualWeight: null },
+          { name: 'Wood carving set', fragile: true, battery: false, photos: 2, estWeight: 3.0, actualWeight: null },
+          { name: 'Silver jewelry ×3', fragile: false, battery: false, photos: 0, estWeight: 0.3, actualWeight: null }
+        ] } }
+    ],
+    activeOrder: null, newOrderId: 'TX-2481', unread: 0,
+    messages: [{ who: 'agent', text: 'Hello! This is Rina from TIXIMAX Express. Submit a booking and we will confirm the price and pickup time with you right here.', time: '09:00' }],
+    chatInput: '', pending: []
+  };
+
+  /* ============================================================
+     TIỆN ÍCH
+     ============================================================ */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function icon(name, size) { return '<svg class="ic" width="' + (size || 16) + '" height="' + (size || 16) + '"><use href="#w-' + name + '"></use></svg>'; }
+  function fmt(usd) {
+    var r = RATES[S.currency] || RATES.USD;
+    return r[1] + (usd * r[0]).toLocaleString('en-US', { minimumFractionDigits: r[2], maximumFractionDigits: r[2] });
+  }
+  function now() { return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }); }
+  function fmtSize(b) { return b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(0) + ' KB' : (b / 1048576).toFixed(1) + ' MB'; }
+  function plural(n, w) { return n + ' ' + w + (n > 1 ? 's' : ''); }
+
+  /* Giá tạm tính: nền 28$ + 9$/món thêm + 4$/món dễ vỡ + 2$/món có pin */
+  function estimateFrom(list) {
+    var n = list.length;
+    var fragile = list.filter(function (i) { return i.fragile; }).length;
+    var battery = list.filter(function (i) { return i.battery; }).length;
+    var lines = [{ label: 'Base international pickup', val: fmt(28) }];
+    if (n > 1) lines.push({ label: 'Additional items × ' + (n - 1), val: fmt((n - 1) * 9) });
+    if (fragile) lines.push({ label: 'Fragile handling × ' + fragile, val: fmt(fragile * 4) });
+    if (battery) lines.push({ label: 'Battery declaration × ' + battery, val: fmt(battery * 2) });
+    return { lines: lines, total: 28 + (n - 1) * 9 + fragile * 4 + battery * 2 };
+  }
+  function statusOf(stage) {
+    if (stage >= 6) return ['Delivered', 'green'];
+    if (stage >= 3) return ['In transit', 'blue'];
+    if (stage >= 2) return ['Picked up', 'blue'];
+    if (stage >= 1) return ['Confirmed', 'gold'];
+    return ['Awaiting confirmation', 'grey'];
+  }
+  function suggestions(key) {
+    var st = S[key];
+    var country = key === 'pickup' ? S.originCountry : S.destCountry;
+    var q = st.query.trim().toLowerCase();
+    if (!q) return [];
+    var list = (ADDR[country] || []).filter(function (a) { return a.toLowerCase().indexOf(q) >= 0; }).slice(0, 5)
+      .map(function (text) { return { text: text, value: text }; });
+    if (st.query.trim().length > 3) list.push({ text: 'Use exactly: "' + st.query.trim() + '"', value: st.query.trim() });
+    return list;
+  }
+  function recents(key) {
+    var country = key === 'pickup' ? S.originCountry : S.destCountry;
+    return (ADDR[country] || []).slice(0, 2);
+  }
+  var step1Ready = function () { return !!(S.pickup.selected && S.drop.selected); };
+  var step2Ready = function () { return S.items.length > 0 && S.items.every(function (i) { return i.name.trim(); }); };
+
+  /* ============================================================
+     RENDER — Booking wizard
+     ============================================================ */
+  function addressBlock(key) {
+    var st = S[key];
+    var isPickup = key === 'pickup';
+    var country = isPickup ? S.originCountry : S.destCountry;
+    var h = '<div class="party-h">' +
+      '<span class="party-h__ic party-h__ic--' + (isPickup ? 'from' : 'to') + '">' + icon('pin', 14) + '</span>' +
+      '<span class="party-h__t">' + (isPickup ? 'Pickup address' : 'Delivery address') +
+      ' <span>· ' + esc(country) + '</span></span></div>';
+
+    if (!st.selected) {
+      var sg = suggestions(key);
+      h += '<div class="addr-slot"><div class="field-wrap">' +
+        '<span class="lead-ic">' + icon('search', 16) + '</span>' +
+        '<input class="input" data-q="' + key + '" value="' + esc(st.query) + '" ' +
+        'placeholder="' + (isPickup ? 'Start typing a street, district or city…' : 'Start typing a street, ward or city…') + '">';
+      if (st.focus && st.query.trim() && sg.length) {
+        h += '<div class="suggest">' + sg.map(function (s, i) {
+          return '<button class="suggest__row" type="button" data-pick="' + key + '" data-i="' + i + '">' +
+            icon('pin', 14) + esc(s.text) + '</button>';
+        }).join('') + '</div>';
+      }
+      h += '</div>';
+      var rc = recents(key);
+      if (rc.length) {
+        h += '<div style="margin-top:20px"><div class="lbl">Recently used</div><div class="recents">' +
+          rc.map(function (t, i) {
+            return '<button class="recent" type="button" data-recent="' + key + '" data-i="' + i + '">' +
+              icon('clock', 14) + '<span>' + esc(t) + '</span></button>';
+          }).join('') + '</div></div>';
+      }
+      h += '</div>';
+    } else {
+      h += '<div class="addr-slot"><div class="addr-picked">' + icon('pin', 16) +
+        '<div class="addr-picked__t">' + esc(st.selected) + '</div>' +
+        '<button class="link-btn" type="button" data-clear="' + key + '">Change</button></div></div>';
+    }
+
+    h += '<div class="pair">' +
+      '<div><label class="lbl">' + (isPickup ? 'Sender name' : 'Recipient name') + '</label>' +
+      '<input class="input" data-name="' + key + '" value="' + esc(st.name) + '" placeholder="Full name"></div>' +
+      '<div><label class="lbl">Phone</label>' +
+      '<input class="input" data-phone="' + key + '" value="' + esc(st.phone) + '" placeholder="Contact number"></div></div>';
+
+    if (isPickup) {
+      h += '<div><label class="lbl">Pickup notes</label>' +
+        '<textarea class="textarea" rows="2" data-note="pickup" placeholder="Gate code, floor, best time to collect…">' + esc(st.note) + '</textarea></div>';
+    }
+    return h;
+  }
+
+  function renderStep1() {
+    var opts = function (sel) {
+      return COUNTRIES.map(function (c) {
+        return '<option value="' + esc(c) + '"' + (c === sel ? ' selected' : '') + '>' + esc(c) + '</option>';
+      }).join('');
+    };
+    return '<div class="card card--raised">' +
+      '<div style="display:flex;align-items:flex-end;gap:var(--space-6);flex-wrap:wrap;margin-bottom:28px">' +
+        '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Ship from</label>' +
+          '<select class="select" id="selOrigin">' + opts(S.originCountry) + '</select></div>' +
+        '<button class="tool" id="wSwapBtn" type="button" title="Swap direction" ' +
+          'style="width:44px;height:44px;justify-content:center;border-radius:var(--radius-pill);background:var(--surface-page);color:var(--brand-primary)">' +
+          icon('swap', 18) + '</button>' +
+        '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Deliver to</label>' +
+          '<select class="select" id="selDest">' + opts(S.destCountry) + '</select></div>' +
+      '</div>' +
+      '<div class="parties"><div class="party">' + addressBlock('pickup') + '</div>' +
+      '<div class="party">' + addressBlock('drop') + '</div></div>' +
+      '<div style="display:flex;justify-content:flex-end;margin-top:28px;padding-top:20px;border-top:1px solid var(--border-subtle)">' +
+        '<button class="btn btn--primary" id="toStep2" type="button"' + (step1Ready() ? '' : ' disabled') + '>' +
+        'Continue to items' + icon('arrow-right') + '</button></div></div>';
+  }
+
+  function renderStep2() {
+    var cards = S.items.map(function (it, i) {
+      var photos = it.photos.map(function (src, j) {
+        return '<div class="photo"><img src="' + esc(src) + '" alt="">' +
+          '<button class="photo__x" type="button" data-rmphoto="' + i + '" data-j="' + j + '">' + icon('x', 11) + '</button></div>';
+      }).join('');
+      return '<div class="card">' +
+        '<div class="item-head"><span class="item-num">' + (i + 1) + '</span>' +
+          '<span class="item-title">' + esc(it.name.trim() || 'Item ' + (i + 1)) + '</span>' +
+          (S.items.length > 1 ? '<button class="icon-btn" type="button" title="Remove item" data-rmitem="' + i + '">' + icon('trash') + '</button>' : '') +
+        '</div>' +
+        '<div class="grid2">' +
+          '<div><label class="lbl">Photos · before packing</label>' +
+            '<div class="photos">' + photos +
+              '<label class="photo-add">' + icon('camera', 20) + '<span>Add photo</span>' +
+              '<input type="file" accept="image/*" multiple hidden data-photos="' + i + '"></label></div>' +
+            '<p class="note">Photograph the item unpacked, from a couple of angles. This protects you if anything is disputed later.</p></div>' +
+          '<div><label class="lbl">What is inside?</label>' +
+            '<input class="input" data-iname="' + i + '" value="' + esc(it.name) + '" placeholder="e.g. Batik fabric, 2 pieces">' +
+            '<label class="lbl" style="margin-top:18px">Estimated weight</label>' +
+            '<div class="field-wrap" style="max-width:200px">' +
+              '<input class="input" type="number" min="0" step="0.1" data-iweight="' + i + '" value="' + esc(it.weight) + '" placeholder="0.0" style="padding-right:44px;padding-left:14px">' +
+              '<span class="unit">kg</span></div>' +
+            '<p class="note" style="margin-top:8px">A rough estimate is fine — we weigh everything precisely after pickup and update your booking.</p>' +
+            '<label class="lbl" style="margin-top:18px">Special handling</label>' +
+            '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+              '<button class="chip" type="button" data-fragile="' + i + '" aria-pressed="' + it.fragile + '">' + icon('fragile', 14) + 'Fragile</button>' +
+              '<button class="chip" type="button" data-battery="' + i + '" aria-pressed="' + it.battery + '">' + icon('battery', 14) + 'Contains battery</button>' +
+            '</div>' +
+            '<p class="note">Tag anything that needs extra care — we pack and declare it accordingly.</p></div>' +
+        '</div></div>';
+    }).join('');
+
+    return '<div style="display:flex;flex-direction:column;gap:var(--space-4)">' + cards +
+      '<button class="btn btn--dashed" id="addItem" type="button">' + icon('plus') + 'Add another item</button>' +
+      '<div class="row-btns" style="margin-top:8px">' +
+        '<button class="btn btn--ghost" id="toStep1" type="button">' + icon('chevron-left') + 'Back</button>' +
+        '<button class="btn btn--primary" id="toStep3" type="button"' + (step2Ready() ? '' : ' disabled') + '>' +
+        'Review booking' + icon('arrow-right') + '</button></div></div>';
+  }
+
+  function renderStep3() {
+    var est = estimateFrom(S.items);
+    var reviewItems = S.items.map(function (it) {
+      var tags = [it.fragile && 'Fragile', it.battery && 'Contains battery', it.weight && (it.weight + ' kg')].filter(Boolean).join(' · ');
+      var meta = (it.photos.length ? plural(it.photos.length, 'photo') : 'No photos') + (tags ? ' · ' + tags : '');
+      return '<div class="li"><div class="thumb">' +
+        (it.photos.length ? '<img src="' + esc(it.photos[0]) + '" alt="">' : icon('package', 18)) + '</div>' +
+        '<div style="flex:1"><div class="li__t">' + esc(it.name.trim() || 'Untitled item') + '</div>' +
+        '<div class="li__m">' + esc(meta) + '</div></div></div>';
+    }).join('');
+
+    var estimate = '<div class="estimate"><div class="cap">Estimated price</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px">' +
+        est.lines.map(function (l) { return '<div class="estimate__line"><span>' + esc(l.label) + '</span><span>' + esc(l.val) + '</span></div>'; }).join('') +
+      '</div>' +
+      '<div class="estimate__total"><span style="font-size:var(--fs-caption);color:var(--navy-100)">Estimated total</span><b>' + esc(fmt(est.total)) + '</b></div>' +
+      '<p>This is an estimate. Your final price is confirmed with you in chat after we review the booking — before pickup.</p></div>';
+
+    return '<div class="grid2 grid2--tight">' +
+      '<div class="col">' +
+        '<div class="card"><div class="cap">Route</div><div class="rail">' +
+          '<div class="rail__line"><span class="rail__dot"></span><span class="rail__bar"></span><span class="rail__dot rail__dot--end"></span></div>' +
+          '<div class="rail__body">' +
+            '<div><div class="rail__who">' + esc(S.pickup.name.trim() || 'Sender') + ' · ' + esc(S.originCountry) + '</div>' +
+            '<div class="rail__addr">' + esc(S.pickup.selected || '') + '</div></div>' +
+            '<div><div class="rail__who">' + esc(S.drop.name.trim() || 'Recipient') + ' · ' + esc(S.destCountry) + '</div>' +
+            '<div class="rail__addr">' + esc(S.drop.selected || '') + '</div></div>' +
+          '</div></div></div>' +
+        '<div class="card"><div class="cap">Items (' + S.items.length + ')</div><div class="stack">' + reviewItems + '</div></div>' +
+      '</div>' +
+      '<div class="col">' + estimate +
+        '<div class="info-note">After you submit, our team confirms the details with you in chat, then a courier collects the items at your pickup address.</div>' +
+        '<div class="row-btns">' +
+          '<button class="btn btn--ghost" id="backTo2" type="button">' + icon('chevron-left') + 'Back</button>' +
+          '<button class="btn btn--primary" id="submitBooking" type="button" style="flex:1">Submit booking</button>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function renderDone() {
+    return '<div class="card card--raised done"><div class="done__ic">' + icon('check', 30) + '</div>' +
+      '<h2>Booking ' + esc(S.newOrderId) + ' submitted</h2>' +
+      '<p>Thank you! Our team is reviewing your booking and will confirm the price and pickup time with you in chat.</p>' +
+      '<div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap">' +
+        '<button class="btn btn--primary" data-go="chat" type="button">' + icon('chat') + 'Open chat</button>' +
+        '<button class="btn btn--ghost" data-go="orders" type="button">View my shipments</button>' +
+      '</div></div>';
+  }
+
+  function renderBook() {
+    var h = '';
+    if (S.step < 4) {
+      var stepper = [['Route & addresses', 1], ['Items & photos', 2], ['Review', 3]].map(function (p) {
+        var label = p[0], n = p[1], done = S.step > n, cur = S.step === n;
+        return '<div style="display:flex;align-items:center">' +
+          '<button class="stp' + (done ? ' is-done' : '') + (cur ? ' is-cur' : '') + '" type="button" data-step="' + n + '">' +
+          '<span class="stp__circle">' + (done ? '✓' : n) + '</span><span class="stp__label">' + label + '</span></button>' +
+          (n < 3 ? '<span class="stp__line"></span>' : '') + '</div>';
+      }).join('');
+      h += '<div class="head-row"><div>' +
+        '<h1 class="h1">Book a pickup</h1>' +
+        '<p class="lead">We collect at your door and deliver across borders.</p></div>' +
+        '<div class="steps">' + stepper + '</div></div>';
+    }
+    if (S.step === 1) h += renderStep1();
+    else if (S.step === 2) h += renderStep2();
+    else if (S.step === 3) h += renderStep3();
+    else h += renderDone();
+    return h;
+  }
+
+  /* ============================================================
+     RENDER — My shipments
+     ============================================================ */
+  function renderOrders() {
+    var rows = S.orders.map(function (o) {
+      var st = statusOf(o.stage);
+      return '<button class="order" type="button" data-order="' + esc(o.id) + '">' +
+        '<span class="order__ic">' + icon('package') + '</span>' +
+        '<span style="min-width:140px"><span class="order__id" style="display:block">' + esc(o.id) + '</span>' +
+        '<span class="order__sub">Booked ' + esc(o.date) + ' · ' + plural(o.items, 'item') + '</span></span>' +
+        '<span class="order__route"><span style="font-weight:var(--fw-medium)">' + esc(o.from) + '</span>' +
+        icon('arrow-right', 13) + '<span style="font-weight:var(--fw-medium)">' + esc(o.to) + '</span></span>' +
+        '<span class="order__price">' + esc(fmt(o.price)) + '</span>' +
+        '<span class="badge badge--' + st[1] + '">' + st[0] + '</span>' +
+        '<span class="order__bar"><i class="' + (o.stage >= 6 ? 'is-done' : '') + '" style="width:' + Math.max(6, Math.round((o.stage / 6) * 100)) + '%"></i></span>' +
+        '</button>';
+    }).join('');
+    return '<div class="head-row"><div><h1 class="h1">My shipments</h1>' +
+      '<p class="lead">Track every booking from pickup to delivery.</p></div>' +
+      '<button class="btn btn--primary" data-go="book" type="button">' + icon('plus') + 'New booking</button></div>' +
+      '<div style="display:flex;flex-direction:column;gap:var(--space-3)">' + rows + '</div>';
+  }
+
+  /* ============================================================
+     RENDER — Tracking
+     ============================================================ */
+  function renderTrack() {
+    var active = S.orders.filter(function (o) { return o.id === S.activeOrder; })[0] || S.orders[0];
+    var d = active.detail || {};
+    var list = d.itemList || [];
+    var st = statusOf(active.stage);
+    var pickedUp = active.stage >= 2;
+    var estW = list.reduce(function (a, b) { return a + (b.estWeight || 0); }, 0);
+    var actW = list.reduce(function (a, b) { return a + (b.actualWeight || 0); }, 0);
+    var price = estimateFrom(list);
+
+    var items = list.map(function (it, i) {
+      var tags = [it.fragile && 'Fragile', it.battery && 'Contains battery'].filter(Boolean).join(' · ');
+      var meta = (it.photos ? plural(it.photos, 'photo') : 'No photos') + (tags ? ' · ' + tags : '');
+      var hasActual = pickedUp && it.actualWeight != null;
+      return '<div class="li" style="align-items:flex-start">' +
+        '<span class="item-num" style="width:26px;height:26px;font-size:var(--fs-overline)">' + (i + 1) + '</span>' +
+        '<div style="flex:1;min-width:0"><div class="li__t">' + esc(it.name) + '</div><div class="li__m">' + esc(meta) + '</div></div>' +
+        '<div style="text-align:right;flex:none;font-size:var(--fs-caption);font-weight:' + (hasActual ? 'var(--fw-bold)' : 'var(--fw-semibold)') + '">' +
+        esc(hasActual ? it.actualWeight + ' kg' : (it.estWeight ? it.estWeight + ' kg' : '—')) + '</div></div>';
+    }).join('');
+
+    var stages = STAGES.map(function (label, i) {
+      var done = i <= active.stage, cur = i === active.stage + 1;
+      var inner = done ? icon('check', 12) : (cur ? '<img src="../assets/airplane.svg" alt="">' : '');
+      return '<div class="tl"><div class="tl__gut">' +
+        '<span class="tl__dot' + (done ? ' is-done' : '') + (cur ? ' is-cur' : '') + '">' + inner + '</span>' +
+        (i < STAGES.length - 1 ? '<span class="tl__line' + (done ? ' is-done' : '') + '"></span>' : '') + '</div>' +
+        '<div class="tl__body"><div class="tl__label' + (done || cur ? ' is-on' : '') + '">' + esc(label) + '</div>' +
+        '<div class="tl__time">' + (done ? STAGE_TIMES[i] : (cur ? 'Up next' : '')) + '</div></div></div>';
+    }).join('');
+
+    return '<div style="max-width:1000px;margin:0 auto">' +
+      '<button class="back-link" data-go="orders" type="button">' + icon('chevron-left', 15) + 'All shipments</button>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin-bottom:6px">' +
+        '<h1 class="h1" style="font-size:var(--fs-h3);margin:0">' + esc(active.id) + '</h1>' +
+        '<span class="badge badge--' + st[1] + '">' + st[0] + '</span></div>' +
+      '<div style="font-size:var(--fs-body-sm);color:var(--text-secondary);margin-bottom:var(--space-6)">' +
+        esc(active.from) + ' → ' + esc(active.to) + ' · ' + plural(active.items, 'item') + ' · ' + esc(fmt(active.price)) + '</div>' +
+      '<div class="grid2 grid2--tight"><div class="col">' +
+        '<div class="card"><div class="cap">Route &amp; contacts</div><div class="rail">' +
+          '<div class="rail__line"><span class="rail__dot"></span><span class="rail__bar"></span><span class="rail__dot rail__dot--end"></span></div>' +
+          '<div class="rail__body">' +
+            '<div><div class="rail__cap">From · ' + esc(active.originCountry || '') + '</div>' +
+              '<div class="rail__who">' + esc(d.sender || 'Sender') + ' · ' + esc(d.senderPhone || '—') + '</div>' +
+              '<div class="rail__addr">' + esc(d.fromAddr || active.from) + '</div></div>' +
+            '<div><div class="rail__cap">To · ' + esc(active.destCountry || '') + '</div>' +
+              '<div class="rail__who">' + esc(d.recipient || 'Recipient') + ' · ' + esc(d.recipientPhone || '—') + '</div>' +
+              '<div class="rail__addr">' + esc(d.toAddr || active.to) + '</div></div>' +
+          '</div></div>' +
+          (d.note ? '<div class="pickup-note"><b>Pickup note: </b>' + esc(d.note) + '</div>' : '') +
+        '</div>' +
+        '<div class="card"><div class="cap">Items (' + plural(active.items, 'item') + ')</div>' +
+          '<div class="stack">' + items + '</div>' +
+          '<div class="divide">' +
+            (pickedUp
+              ? '<div class="split"><span>Total weight</span><span style="font-weight:var(--fw-bold);color:var(--text-primary)">' + actW.toFixed(1) + ' kg</span></div>'
+              : '<div class="split"><span>Estimated weight</span><span style="font-weight:var(--fw-semibold)">' + (estW ? estW.toFixed(1) : '0') + ' kg</span></div>' +
+                '<div style="font-size:var(--fs-overline);color:var(--text-tertiary);line-height:var(--lh-normal)">Actual weight is measured once our courier collects the items.</div>') +
+          '</div>' +
+          '<div class="divide">' +
+            price.lines.map(function (l) { return '<div class="split"><span>' + esc(l.label) + '</span><span>' + esc(l.val) + '</span></div>'; }).join('') +
+            '<div class="split" style="border-top:1px solid var(--border-subtle);padding-top:10px;margin-top:2px;align-items:baseline">' +
+              '<span>Total</span><span style="font-family:var(--font-display);font-size:var(--fs-h4);font-weight:var(--fw-bold);color:var(--text-primary)">' + esc(fmt(active.price)) + '</span></div>' +
+          '</div></div>' +
+      '</div>' +
+      '<div class="card card--raised" style="padding:var(--space-6)"><div class="cap">Tracking</div>' +
+        '<div style="display:flex;flex-direction:column">' + stages + '</div>' +
+        '<div style="border-top:1px solid var(--border-subtle);padding-top:20px;display:flex">' +
+          '<button class="btn btn--outline" data-go="chat" type="button" style="flex:1">' + icon('chat', 15) + 'Chat about this shipment</button>' +
+        '</div></div>' +
+      '</div></div>';
+  }
+
+  /* ============================================================
+     RENDER — Chat
+     ============================================================ */
+  function attachmentHTML(a, mine) {
+    if (a.isImage) return '<img class="att-img" src="' + esc(a.url) + '" alt="' + esc(a.name) + '">';
+    return '<div class="att-file"><span class="att-file__ic">' + esc(a.ext) + '</span>' +
+      '<div style="min-width:0"><div class="att-file__n">' + esc(a.name) + '</div>' +
+      '<div class="att-file__s">' + esc(a.size) + '</div></div></div>';
+  }
+
+  function renderChat() {
+    var msgs = S.messages.map(function (m) {
+      if (m.who === 'system') return '<div class="sysmsg">' + esc(m.text) + '</div>';
+      var mine = m.who === 'me';
+      var atts = (m.attachments || []).map(function (a) { return attachmentHTML(a, mine); }).join('');
+      return '<div class="msg-row' + (mine ? ' msg-row--me' : '') + '">' +
+        '<div class="bubble' + (mine ? ' bubble--me' : '') + '">' + atts +
+        (m.text && m.text.trim() ? '<div class="bubble__t">' + esc(m.text) + '</div>' : '') +
+        '<div class="bubble__time">' + esc(m.time || '') + '</div></div></div>';
+    }).join('');
+
+    var pending = S.pending.length ? '<div class="pending">' + S.pending.map(function (a, i) {
+      return '<div class="pending__item">' +
+        (a.isImage ? '<img class="pending__img" src="' + esc(a.url) + '" alt="">' :
+          '<div class="pending__file"><span class="att-file__ic">' + esc(a.ext) + '</span>' +
+          '<div style="min-width:0"><div class="att-file__n" style="max-width:120px;font-size:var(--fs-overline)">' + esc(a.name) + '</div>' +
+          '<div class="att-file__s" style="font-size:var(--fs-overline)">' + esc(a.size) + '</div></div></div>') +
+        '<button class="pending__x" type="button" data-rmpending="' + i + '">' + icon('x', 11) + '</button></div>';
+    }).join('') + '</div>' : '';
+
+    return '<div class="chat">' +
+      '<div class="chat__head">' +
+        '<span class="chat__avatar"><img src="../assets/tiximax-mark.svg" alt=""><i></i></span>' +
+        '<div style="flex:1;min-width:0"><div class="chat__name">TIXIMAX Support</div>' +
+        '<div class="chat__status"><i></i>Online · replies in minutes</div></div></div>' +
+      '<div class="chat__body" id="wChatBody">' + msgs + '</div>' + pending +
+      '<div class="composer">' +
+        '<label class="composer__attach" title="Attach photo or file">' + icon('paperclip', 19) +
+          '<input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip" hidden id="attachInput"></label>' +
+        '<input class="composer__input" id="chatInput" placeholder="Type a message…" value="' + esc(S.chatInput) + '">' +
+        '<button class="composer__send" id="sendBtn" type="button">' + icon('send', 17) + '</button>' +
+      '</div></div>';
+  }
+
+  /* ============================================================
+     RENDER chung
+     ============================================================ */
+  function render() {
+    var isBook = S.view === 'book', isOrders = S.view === 'orders', isTrack = S.view === 'track', isChat = S.view === 'chat';
+    $('viewBook').hidden = !isBook;
+    $('viewOrders').hidden = !isOrders;
+    $('viewTrack').hidden = !isTrack;
+    $('viewChat').hidden = !isChat;
+    if (isBook) $('viewBook').innerHTML = renderBook();
+    if (isOrders) $('viewOrders').innerHTML = renderOrders();
+    if (isTrack) $('viewTrack').innerHTML = renderTrack();
+    if (isChat) {
+      $('viewChat').innerHTML = renderChat();
+      var body = $('wChatBody');
+      if (body) body.scrollTop = body.scrollHeight;
+    }
+    document.querySelectorAll('#mWeb .nav__btn').forEach(function (b) {
+      var on = b.dataset.view === S.view || (b.dataset.view === 'orders' && S.view === 'track');
+      b.classList.toggle('is-active', on);
+    });
+    $('navDot').hidden = S.unread === 0;
+  }
+
+  /* ============================================================
+     TƯƠNG TÁC
+     ============================================================ */
+  function go(view) {
+    if (view === 'book' && S.step >= 4) {
+      S.step = 1;
+      S.pickup = { query: '', selected: null, name: '', phone: '', note: '', focus: false };
+      S.drop = { query: '', selected: null, name: '', phone: '', focus: false };
+      S.items = [{ name: '', fragile: false, battery: false, photos: [], weight: '' }];
+      S.newOrderId = 'TX-' + (parseInt(S.newOrderId.slice(3), 10) + 1);
+    }
+    if (view === 'chat') S.unread = 0;
+    S.view = view;
+    render();
+  }
+
+  document.querySelectorAll('#mWeb .nav__btn').forEach(function (b) {
+    b.addEventListener('click', function () { go(b.dataset.view); });
+  });
+  $('brandHome').addEventListener('click', function () { go('book'); });
+
+  /* Click uỷ quyền cho toàn bộ nội dung động */
+  document.querySelector('#mWeb .main').addEventListener('click', function (e) {
+    var t = e.target;
+    var hit = function (attr) { var el = t.closest('[' + attr + ']'); return el ? el : null; };
+    var el;
+
+    if ((el = hit('data-go'))) { go(el.dataset.go); return; }
+    if ((el = hit('data-order'))) { S.activeOrder = el.dataset.order; S.view = 'track'; render(); return; }
+    if ((el = hit('data-step'))) { var n = +el.dataset.step; if (n < S.step) { S.step = n; render(); } return; }
+    if ((el = hit('data-recent'))) {
+      var k2 = el.dataset.recent;
+      S[k2].selected = recents(k2)[+el.dataset.i]; S[k2].query = ''; render(); return;
+    }
+    if ((el = hit('data-clear'))) { S[el.dataset.clear].selected = null; render(); return; }
+    if ((el = hit('data-rmitem'))) { S.items.splice(+el.dataset.rmitem, 1); render(); return; }
+    if ((el = hit('data-rmphoto'))) {
+      var it = S.items[+el.dataset.rmphoto];
+      URL.revokeObjectURL(it.photos[+el.dataset.j]);
+      it.photos.splice(+el.dataset.j, 1); render(); return;
+    }
+    if ((el = hit('data-fragile'))) { var f = S.items[+el.dataset.fragile]; f.fragile = !f.fragile; render(); return; }
+    if ((el = hit('data-battery'))) { var b2 = S.items[+el.dataset.battery]; b2.battery = !b2.battery; render(); return; }
+    if ((el = hit('data-rmpending'))) { S.pending.splice(+el.dataset.rmpending, 1); render(); return; }
+
+    switch (t.closest('button') && t.closest('button').id) {
+      case 'wSwapBtn':
+        var o = S.originCountry; S.originCountry = S.destCountry; S.destCountry = o;
+        S.pickup.selected = null; S.pickup.query = ''; S.drop.selected = null; S.drop.query = '';
+        render(); break;
+      case 'toStep2': if (step1Ready()) { S.step = 2; render(); } break;
+      case 'toStep1': S.step = 1; render(); break;
+      case 'toStep3': if (step2Ready()) { S.step = 3; render(); } break;
+      case 'backTo2': S.step = 2; render(); break;
+      case 'addItem': S.items.push({ name: '', fragile: false, battery: false, photos: [], weight: '' }); render(); break;
+      case 'submitBooking': submitBooking(); break;
+      case 'sendBtn': sendChat(); break;
+      default: break;
+    }
+  });
+
+  /* Chọn gợi ý: dùng mousedown để chạy TRƯỚC blur của ô nhập */
+  document.querySelector('#mWeb .main').addEventListener('mousedown', function (e) {
+    var el = e.target.closest('[data-pick]');
+    if (!el) return;
+    e.preventDefault();
+    var key = el.dataset.pick, sg = suggestions(key)[+el.dataset.i];
+    if (sg) { S[key].selected = sg.value; S[key].query = ''; S[key].focus = false; render(); }
+  });
+
+  /* Nhập liệu (input/change) — cũng uỷ quyền, tránh mất listener khi render lại */
+  document.querySelector('#mWeb .main').addEventListener('input', function (e) {
+    var t = e.target, d = t.dataset;
+    if (d.q != null) { S[d.q].query = t.value; updateSuggest(d.q); return; }
+    if (d.name != null) { S[d.name].name = t.value; return; }
+    if (d.phone != null) { S[d.phone].phone = t.value; return; }
+    if (d.note != null) { S[d.note].note = t.value; return; }
+    if (d.iname != null) { S.items[+d.iname].name = t.value; syncStep2Btn(); return; }
+    if (d.iweight != null) { S.items[+d.iweight].weight = t.value; return; }
+    if (t.id === 'chatInput') { S.chatInput = t.value; }
+  });
+
+  document.querySelector('#mWeb .main').addEventListener('focusin', function (e) {
+    var d = e.target.dataset;
+    if (d && d.q != null) { S[d.q].focus = true; updateSuggest(d.q); }
+  });
+  document.querySelector('#mWeb .main').addEventListener('focusout', function (e) {
+    var d = e.target.dataset;
+    if (d && d.q != null) {
+      var key = d.q;
+      setTimeout(function () { S[key].focus = false; updateSuggest(key); }, 150);
+    }
+  });
+
+  /* Chỉ dựng lại danh sách gợi ý ngay dưới ô đang gõ — không đụng tới node input,
+     nên con trỏ và focus giữ nguyên khi gõ. */
+  function updateSuggest(key) {
+    var input = document.querySelector('[data-q="' + key + '"]');
+    if (!input) return;
+    var wrap = input.closest('.field-wrap');
+    var old = wrap.querySelector('.suggest');
+    if (old) old.remove();
+    var st = S[key];
+    if (!st.focus || !st.query.trim() || st.selected) return;
+    var sg = suggestions(key);
+    if (!sg.length) return;
+    var box = document.createElement('div');
+    box.className = 'suggest';
+    box.innerHTML = sg.map(function (item, i) {
+      return '<button class="suggest__row" type="button" data-pick="' + key + '" data-i="' + i + '">' +
+        icon('pin', 14) + esc(item.text) + '</button>';
+    }).join('');
+    wrap.appendChild(box);
+  }
+  /* Đổi tên món chỉ cần bật/tắt nút, không vẽ lại cả màn (giữ nguyên con trỏ) */
+  function syncStep2Btn() {
+    var btn = $('toStep3');
+    if (btn) btn.disabled = !step2Ready();
+  }
+
+  document.querySelector('#mWeb .main').addEventListener('change', function (e) {
+    var t = e.target, d = t.dataset;
+    if (t.id === 'selOrigin') { S.originCountry = t.value; S.pickup.selected = null; S.pickup.query = ''; render(); return; }
+    if (t.id === 'selDest') { S.destCountry = t.value; S.drop.selected = null; S.drop.query = ''; render(); return; }
+    if (d.photos != null) {
+      var it = S.items[+d.photos];
+      Array.prototype.forEach.call(t.files || [], function (f) { it.photos.push(URL.createObjectURL(f)); });
+      t.value = ''; render(); return;
+    }
+    if (t.id === 'attachInput') {
+      Array.prototype.forEach.call(t.files || [], function (f) {
+        S.pending.push({
+          name: f.name, size: fmtSize(f.size), isImage: f.type.indexOf('image/') === 0,
+          url: URL.createObjectURL(f), ext: (f.name.split('.').pop() || 'file').toUpperCase().slice(0, 4)
+        });
+      });
+      t.value = ''; render();
+    }
+  });
+
+  document.querySelector('#mWeb .main').addEventListener('keydown', function (e) {
+    if (e.target.id === 'chatInput' && e.key === 'Enter') { e.preventDefault(); sendChat(); }
+  });
+
+  /* ---------- Gửi booking ---------- */
+  function cityOf(addr, country) {
+    var part = (addr.split(',').slice(-2)[0] || '').replace(/\d+/g, '').trim();
+    return (part || country) + ', ' + (ISO[country] || country);
+  }
+  function submitBooking() {
+    var est = estimateFrom(S.items);
+    var order = {
+      id: S.newOrderId,
+      from: cityOf(S.pickup.selected, S.originCountry),
+      to: cityOf(S.drop.selected, S.destCountry),
+      items: S.items.length, date: 'Jul 23', stage: 0, price: est.total,
+      originCountry: S.originCountry, destCountry: S.destCountry,
+      detail: {
+        fromAddr: S.pickup.selected, sender: S.pickup.name.trim() || 'Sender', senderPhone: S.pickup.phone || '—', note: S.pickup.note || '',
+        toAddr: S.drop.selected, recipient: S.drop.name.trim() || 'Recipient', recipientPhone: S.drop.phone || '—',
+        itemList: S.items.map(function (it) {
+          return { name: it.name.trim() || 'Untitled item', fragile: it.fragile, battery: it.battery,
+                   photos: it.photos.length, estWeight: parseFloat(it.weight) || 0, actualWeight: null };
+        })
+      }
+    };
+    S.orders.unshift(order);
+    S.step = 4; S.unread = 1;
+    S.messages.push({ who: 'system', text: 'Booking ' + S.newOrderId + ' submitted · ' + plural(S.items.length, 'item') });
+    S.messages.push({ who: 'agent', time: now(),
+      text: 'Thanks! We received booking ' + S.newOrderId + '. We are reviewing your items and will confirm the final price and a pickup window shortly. Anything we should know before the courier arrives?' });
+    render();
+  }
+
+  /* ---------- Chat ---------- */
+  var replyTimer = null;
+  function sendChat() {
+    var text = S.chatInput.trim(), atts = S.pending;
+    if (!text && !atts.length) return;
+    S.messages.push({ who: 'me', text: text, time: now(), attachments: atts });
+    S.chatInput = ''; S.pending = [];
+    render();
+    clearTimeout(replyTimer);
+    var reply = atts.length
+      ? 'Thanks, we received your ' + (atts.length > 1 ? atts.length + ' files' : 'file') + '. Our team will review it and get back to you shortly.'
+      : 'Got it! Our team will get back to you shortly with the confirmed details.';
+    replyTimer = setTimeout(function () {
+      S.messages.push({ who: 'agent', text: reply, time: now() });
+      if (S.view !== 'chat') S.unread = 1;
+      render();
+    }, 1400);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

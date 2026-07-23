@@ -180,6 +180,17 @@ Hàng có icon-box (40px) + tiêu đề + phụ đề + trạng thái + chevron.
 - **Dropdown menu:** item 14px, hover nền `--gold-50`, separator, item danger màu đỏ.
 - **Dialog:** bo góc `--radius-xl`, shadow `xl`, icon tròn + tiêu đề + mô tả + 2 nút.
 
+### Chat
+Dùng cho 3 bối cảnh: **widget góc phải (web)** · **full screen (web)** · **mobile**.
+- **Bubble:** tin đến nền `--surface-card` + viền `--border-subtle`, bo `16/16/16/4`; tin đi nền `--brand-gold`, chữ `--navy-900`, bo `16/16/4/16`. Tin liền chuỗi bo đều 16px.
+- **Meta & trạng thái:** 11px `--text-tertiary`; đã gửi (`check`) → đã đọc (`check-check` màu `--brand-blue`).
+- **Thành phần khác:** divider ngày, tin hệ thống (pill `--surface-sunken`), typing 3 chấm, attachment ảnh/tệp, **order card** (mã đơn + badge trạng thái + tuyến/ngày giao), quick replies (pill viền `--gold-300`).
+- **Composer:** pill viền 1.5px, nút gửi tròn gold 36px; trạng thái Default · Focus (viền gold + `--shadow-focus`) · Disabled.
+- **Launcher:** FAB gold 56px + `--shadow-gold`, badge đỏ số tin chưa đọc, teaser bo `16/16/4/16`.
+- **Header widget** dùng band `--surface-navy` — chữ ghim `--neutral-0` (KHÔNG dùng `--text-inverse` vì token này đảo theo theme).
+- **Hàng hội thoại:** avatar 42–46px (chấm online xanh), tên + snippet 1 dòng cắt `…`, badge chưa đọc; hàng active nền `--gold-50` + `inset 3px` gold.
+- React: `preview/comp-chat.html` · `src/components/Chat.tsx`.
+
 ---
 
 ## 10. Iconography
