@@ -23,6 +23,7 @@
   :root {
     --ease-ios: cubic-bezier(.32, .72, 0, 1);
     --dur-push: 420ms;
+    --tabbar-h: 82px;
   }
 
   /* ---------- Page chrome ---------- */
@@ -107,17 +108,19 @@
   .scr {
     height: 100%; overflow-y: auto; scrollbar-width: none;
     display: flex; flex-direction: column; gap: var(--space-4);
-    padding: 68px var(--space-5) var(--space-8);
+    /* đệm dưới chừa chỗ cho tab bar cố định */
+    padding: 68px var(--space-5) calc(var(--tabbar-h) + var(--space-4));
   }
   .scr::-webkit-scrollbar { display: none; }
-  .scr--flush { padding: 0; gap: 0; }
+  .scr--flush { padding: 0 0 var(--tabbar-h); gap: 0; }
   .scr--center { align-items: center; text-align: center; }
   .spacer { flex: 1; }
 
   /* ---------- Hotspots ---------- */
-  [data-goto], [data-back], [data-action] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  [data-goto], [data-back], [data-action], [data-pickaddr], [data-paddr] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .btn[data-goto]:active:not(.is-disabled) { transform: scale(.985); }
-  .show-hotspots [data-goto], .show-hotspots [data-back], .show-hotspots [data-action] {
+  .show-hotspots [data-goto], .show-hotspots [data-back], .show-hotspots [data-action],
+  .show-hotspots [data-pickaddr], .show-hotspots [data-paddr] {
     outline: 2px dashed var(--brand-gold); outline-offset: 3px; border-radius: var(--radius-md);
   }
   .show-hotspots input, .show-hotspots textarea {
@@ -174,6 +177,25 @@
   .group__label .opt { font-weight: var(--fw-regular); letter-spacing: 0; text-transform: none; color: var(--text-tertiary); }
   .hint { font-size: var(--fs-overline); color: var(--text-tertiary); }
   .help { font-size: var(--fs-caption); color: var(--text-secondary); margin: -4px 0 0; }
+  /* Đơn giá theo cân nặng — chip nhỏ đặt cạnh nhãn có nhắc đến khối lượng */
+  .rate {
+    font-size: var(--fs-overline); font-weight: var(--fw-bold); white-space: nowrap;
+    color: var(--gold-800); background: var(--gold-50);
+    border: 1px solid var(--gold-200); border-radius: var(--radius-pill); padding: 2px 10px;
+  }
+  /* Bảng đơn giá /kg + tổng tạm tính — rõ ràng, dễ nhìn, cập nhật theo cân nặng */
+  .est {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+    background: var(--gold-50); border: 1px solid var(--gold-200);
+  }
+  .est__meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .est__rate { font-size: var(--fs-body); font-weight: var(--fw-bold); color: var(--gold-800); }
+  .est__base { font-size: var(--fs-overline); color: var(--text-secondary); }
+  .est__total {
+    font-family: var(--font-display); font-size: 24px; font-weight: var(--fw-bold);
+    color: var(--text-primary); white-space: nowrap; line-height: 1;
+  }
 
   /* ---------- Real inputs ---------- */
   .field {
@@ -191,8 +213,30 @@
   .field__unit { font-size: var(--fs-body-sm); color: var(--text-tertiary); }
   .field__row { display: flex; gap: var(--space-3); }
   .field__row > .field { flex: 1; min-width: 0; }
-  .field__ok { color: var(--text-success); opacity: 0; transition: opacity .2s; }
-  .field.is-ok .field__ok { opacity: 1; }
+
+  /* Ô nhập kèm nhãn riêng phía trên — mỗi input có label rõ ràng */
+  .field-set { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field__row > .field-set { flex: 1; }
+  .field-set__label {
+    font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-secondary);
+  }
+
+  /* Ô số điện thoại: nút chọn mã quốc gia + ô số, dropdown mã vùng bên dưới */
+  .phone { position: relative; display: flex; align-items: stretch; gap: var(--space-2); }
+  .phone__num { flex: 1; min-width: 0; }
+  .phone__cc {
+    flex: none; display: flex; align-items: center; gap: var(--space-2);
+    min-height: 48px; padding: 0 var(--space-3);
+    background: var(--surface-sunken); border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md); font: inherit; color: var(--text-primary); cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .phone__cc:hover { border-color: var(--border-focus); }
+  .phone__cc[aria-expanded="true"] { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .phone__code { font-size: 15px; font-weight: var(--fw-semibold); }
+  .phone__cc .ic { color: var(--text-tertiary); }
+  .picker--cc { left: 0; width: 216px; max-height: 232px; overflow-y: auto; scrollbar-width: none; }
+  .picker--cc::-webkit-scrollbar { display: none; }
 
   .field input, .field textarea {
     flex: 1; min-width: 0; width: 100%;
@@ -281,30 +325,134 @@
     background: #FFFFFF; clip-path: polygon(0 0, 100% 50%, 0 100%);
   }
 
-  /* ---------- Autocomplete ---------- */
-  .suggest {
-    background: var(--surface-card);
-    border: 1px solid var(--border-default); border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md); overflow: hidden;
+  /* ---------- Thẻ địa chỉ trên màn 1 ----------
+     Hai điểm nối bằng đường chấm; bấm một dòng → sang màn chọn địa chỉ. */
+  .addr-card { display: flex; flex-direction: column; padding: var(--space-2); }
+  .addr-row {
+    display: flex; align-items: flex-start; gap: var(--space-3); width: 100%; text-align: left;
+    padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);
+    background: none; border: 0; font: inherit; color: var(--text-primary); cursor: pointer;
+    transition: background .15s;
   }
-  .suggest__row {
-    display: flex; align-items: center; gap: var(--space-3); width: 100%;
-    padding: var(--space-3) var(--space-4); background: none; border: 0;
-    font: inherit; text-align: left; color: var(--text-tertiary); cursor: pointer;
+  .addr-row:hover { background: var(--surface-sunken); }
+  .addr-row__dot { width: 10px; height: 10px; border-radius: var(--radius-pill); flex: none; margin-top: 6px; }
+  .addr-row__dot--from { background: var(--brand-gold); box-shadow: 0 0 0 3px rgba(244, 185, 49, .18); }
+  .addr-row__dot--to { background: var(--brand-green); box-shadow: 0 0 0 3px var(--success-bg); }
+  .addr-row__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .addr-row__t { font-size: 15px; font-weight: var(--fw-semibold); line-height: var(--lh-normal); }
+  /* chưa chọn thì chữ mờ — đó là placeholder chứ không phải dữ liệu */
+  .addr-row.is-empty .addr-row__t { font-weight: var(--fw-regular); color: var(--text-tertiary); }
+  .addr-row__s {
+    font-size: var(--fs-overline); color: var(--text-tertiary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .suggest__row + .suggest__row { border-top: 1px solid var(--border-subtle); }
-  .suggest__row:hover, .suggest__row.is-active { background: var(--gold-50); color: var(--gold-700); }
-  .suggest__t { font-size: var(--fs-body-sm); color: var(--text-primary); }
-  .suggest__s { font-size: var(--fs-overline); color: var(--text-tertiary); }
-  /* --gold-50 is a raw scale (does not flip with theme) → pin dark text so it stays readable in both modes */
-  .suggest__row:hover .suggest__t, .suggest__row.is-active .suggest__t { color: var(--neutral-900); }
-  .suggest__row:hover .suggest__s, .suggest__row.is-active .suggest__s { color: var(--neutral-600); }
+  .addr-row__go { color: var(--text-tertiary); margin-top: 4px; }
+  /* đường chấm nối — canh theo tâm chấm tròn (8 đệm thẻ + 12 đệm dòng + 5) */
+  .addr-card__rail { height: 14px; margin-left: 24px; border-left: 2px dotted var(--border-strong); }
+
+  /* ---------- Màn chọn địa chỉ ---------- */
+  .pick-head {
+    flex: none; display: flex; align-items: flex-start; gap: var(--space-3);
+    padding: 62px var(--space-4) var(--space-4);
+    background: var(--surface-card); border-bottom: 1px solid var(--border-default);
+  }
+  .pick-head__back {
+    background: none; border: 0; padding: 0; margin-top: 12px; cursor: pointer;
+    color: var(--text-primary); display: flex;
+  }
+  .pick-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .pick-field { display: flex; align-items: center; gap: var(--space-3); }
+  .pick-field__dot { width: 12px; height: 12px; border-radius: var(--radius-pill); flex: none; }
+  .pick-field__dot--from { background: var(--brand-gold); box-shadow: 0 0 0 3px rgba(244, 185, 49, .18); }
+  .pick-field__dot--to { background: var(--brand-green); box-shadow: 0 0 0 3px var(--success-bg); }
+  .pick-field__box {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-2);
+    min-height: 44px; padding: 0 var(--space-3);
+    background: var(--surface-card); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .pick-field.is-active .pick-field__box { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .pick-field__box input {
+    flex: 1; min-width: 0; font: inherit; font-size: 15px; color: inherit;
+    background: none; border: 0; outline: none; padding: 0; margin: 0;
+  }
+  .pick-field__box input::placeholder { color: var(--text-tertiary); }
+  .pick-field__cam { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text-tertiary); display: flex; }
+  .pick-field__cam:hover { color: var(--text-brand); }
+  /* canh theo tâm chấm 12px → 6px */
+  .pick-fields__rail { height: 14px; margin-left: 5px; border-left: 2px dotted var(--border-strong); }
+
+  /* Mã bưu điện — chỉ hiện khi đang chọn đầu giao; canh lề dưới ô địa chỉ To
+     (chấm 12px + gap var(--space-3) 12px = 24px) */
+  .pick-zip { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0 24px; }
+  .pick-zip[hidden] { display: none; }
+  .pick-zip__label { flex: none; font-size: var(--fs-overline); font-weight: var(--fw-semibold); color: var(--text-tertiary); }
+  .pick-zip__box {
+    flex: 1; min-width: 0; display: flex; align-items: center;
+    min-height: 38px; padding: 0 var(--space-3);
+    background: var(--surface-sunken); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .pick-zip__box:focus-within { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .pick-zip__box input {
+    flex: 1; min-width: 0; font: inherit; font-size: 14px; letter-spacing: .02em; color: inherit;
+    background: none; border: 0; outline: none; padding: 0; margin: 0;
+  }
+  .pick-zip__box input::placeholder { color: var(--text-tertiary); letter-spacing: 0; }
+
+  .pick-tabs { flex: none; display: flex; gap: var(--space-2); padding: var(--space-4) var(--space-4) var(--space-3); }
+  .pick-tab {
+    height: 34px; padding: 0 var(--space-4); border-radius: var(--radius-pill);
+    background: var(--surface-sunken); border: 1px solid transparent;
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary);
+    cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  }
+  .pick-tab:hover { color: var(--text-primary); }
+  .pick-tab[aria-pressed="true"] { background: var(--gold-50); border-color: var(--gold-200); color: var(--gold-800); }
+
+  /* danh sách tự cuộn; đệm dưới chừa chỗ cho nút nổi "Pick on map" */
+  .pick-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 0 var(--space-4) 72px; }
+  .pick-list::-webkit-scrollbar { display: none; }
+  .pick-item { display: flex; align-items: center; gap: var(--space-2); }
+  .pick-item + .pick-item { border-top: 1px solid var(--border-subtle); }
+  .pick-item__main {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-3); text-align: left;
+    padding: var(--space-3) 0; background: none; border: 0; font: inherit; color: var(--text-primary); cursor: pointer;
+  }
+  .pick-item__ic {
+    width: 34px; height: 34px; border-radius: var(--radius-pill); flex: none;
+    background: var(--surface-sunken); color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pick-item.is-saved .pick-item__ic { background: var(--gold-100); color: var(--gold-700); }
+  .pick-item__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .pick-item__t { font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); }
+  .pick-item__s { font-size: var(--fs-overline); color: var(--text-tertiary); line-height: var(--lh-normal); }
+  .pick-item__more {
+    flex: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: var(--radius-pill);
+    background: none; color: var(--text-tertiary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pick-item__more:hover { background: var(--surface-sunken); color: var(--text-primary); }
+  .pick-empty { padding: var(--space-8) var(--space-4); text-align: center; font-size: var(--fs-caption); color: var(--text-tertiary); line-height: var(--lh-relaxed); }
+
+  /* nút nổi ở đáy, nằm trên tab bar */
+  .pick-map {
+    position: absolute; left: 50%; transform: translateX(-50%); z-index: 12;
+    bottom: calc(var(--tabbar-h) + var(--space-3));
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    height: 44px; padding: 0 var(--space-5); border-radius: var(--radius-pill);
+    background: var(--surface-card); border: 1px solid var(--border-default); box-shadow: var(--shadow-lg);
+    font: inherit; font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); color: var(--text-primary);
+    cursor: pointer; white-space: nowrap;
+  }
+  .pick-map:hover { border-color: var(--brand-gold); }
 
   /* ---------- Buttons ---------- */
   .btn {
-    height: 52px; border-radius: var(--radius-md); width: 100%;
+    height: 52px; border-radius: var(--radius-md); width: 100%; flex: none;
     display: flex; align-items: center; justify-content: center; gap: var(--space-2);
-    font: inherit; font-size: var(--fs-body); font-weight: var(--fw-semibold);
+    font: inherit; font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: 1;
     border: 0; cursor: pointer;
     transition: transform .12s var(--ease-ios), filter .15s, opacity .15s;
   }
@@ -403,10 +551,57 @@
   .badge--gold { background: var(--gold-100); color: var(--gold-800); }
   .badge--neutral { background: var(--surface-sunken); color: var(--text-secondary); }
   .badge--status { background: var(--gold-100); color: var(--gold-800); border: 1px solid var(--gold-300); padding: 5px 12px; font-size: var(--fs-overline); font-weight: var(--fw-bold); }
+  /* Trạng thái theo chặng — success/info tự đảo theo light–dark nên dùng được cả hai */
+  .badge--status.badge--green { background: var(--success-bg); color: var(--text-success); border-color: var(--success-border); }
+  .badge--status.badge--blue { background: var(--info-bg); color: var(--text-info); border-color: var(--info-border); }
+  /* Header Tracking: status hiển thị trên mã tracking */
+  .tk-head { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
 
   .price-row { display: flex; align-items: baseline; justify-content: space-between; }
   .price-row__label { font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); }
   .price-row__value { font-family: var(--font-display); font-size: 26px; font-weight: var(--fw-bold); color: var(--text-primary); }
+
+  /* ---------- Chi tiết đơn hàng (Review) ---------- */
+  .od { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); }
+  .od__head { font-size: var(--fs-caption); font-weight: var(--fw-bold); color: var(--gold-700); letter-spacing: .02em; }
+  .od__count { font-weight: var(--fw-semibold); }
+  .od__items { display: flex; flex-direction: column; gap: var(--space-3); }
+  .od__item { display: flex; align-items: flex-start; gap: var(--space-3); }
+  .od__num {
+    width: 26px; height: 26px; flex: none; border-radius: var(--radius-pill);
+    background: var(--brand-navy); color: var(--neutral-0);
+    font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .od__item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .od__item-name { font-size: var(--fs-body-sm); font-weight: var(--fw-bold); color: var(--text-primary); }
+  .od__item-sub { font-size: var(--fs-overline); color: var(--text-tertiary); margin-top: 2px; }
+  .od__item-w { font-size: var(--fs-body-sm); font-weight: var(--fw-bold); color: var(--text-primary); white-space: nowrap; }
+  .od__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .od__row--sum {
+    padding-top: var(--space-4); border-top: 1px solid var(--border-subtle);
+    font-size: var(--fs-body-sm); color: var(--text-secondary);
+  }
+  .od__w { font-weight: var(--fw-bold); color: var(--text-primary); }
+  .od__rate {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+    background: var(--gold-50); border: 1px solid var(--gold-200);
+  }
+  .od__rate-cap { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); }
+  .od__rate-price { font-size: var(--fs-body-sm); color: var(--text-secondary); margin-top: 2px; }
+  .od__rate-price strong { font-family: var(--font-display); font-size: 22px; font-weight: var(--fw-bold); color: var(--gold-800); }
+  .od__rate-r { text-align: right; }
+  .od__rate-w { font-family: var(--font-display); font-size: 20px; font-weight: var(--fw-bold); color: var(--text-primary); line-height: 1.15; }
+  .od__rate-note { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  .od__break { display: flex; flex-direction: column; gap: var(--space-2); }
+  .od__bi { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); font-size: var(--fs-body-sm); }
+  .od__bi-l { color: var(--text-secondary); min-width: 0; }
+  .od__bi-r { color: var(--text-primary); font-weight: var(--fw-medium); white-space: nowrap; }
+  .od__row--total { padding-top: var(--space-4); border-top: 1px solid var(--border-default); }
+  .od__row--total span:first-child { font-size: var(--fs-body); font-weight: var(--fw-semibold); color: var(--text-secondary); }
+  .od__row--total span:last-child { font-family: var(--font-display); font-size: 26px; font-weight: var(--fw-bold); color: var(--text-primary); }
+  .od__foot { text-align: center; margin-top: calc(-1 * var(--space-2)); }
 
   .alert {
     display: flex; gap: var(--space-2); margin-top: var(--space-3);
@@ -490,8 +685,64 @@
   .tl__t--todo { color: var(--text-tertiary); }
   .tl__s { font-size: var(--fs-overline); color: var(--text-tertiary); margin-top: 2px; }
 
+  /* ---------- Danh sách lô hàng (tab My shipments) ---------- */
+  .ships { display: flex; flex-direction: column; gap: var(--space-3); }
+  .ship {
+    display: flex; gap: var(--space-3); align-items: flex-start; width: 100%; text-align: left;
+    padding: var(--space-4); border-radius: var(--radius-lg);
+    background: var(--surface-card); border: 1px solid var(--border-default); box-shadow: var(--shadow-sm);
+    /* <button> mặc định color:buttontext — không kế thừa, dark mode sẽ ra chữ đen trên nền tối */
+    font: inherit; color: var(--text-primary); cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, transform .12s var(--ease-ios);
+  }
+  .ship:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+  .ship:active { transform: scale(.99); }
+  .ship__ic {
+    width: 34px; height: 34px; border-radius: var(--radius-sm); flex: none;
+    background: var(--gold-50); border: 1px solid var(--gold-200); color: var(--gold-700);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ship__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  /* Status lên trên, mã tracking to & rõ bên dưới (mã dài không còn bị bóp/wrap) */
+  .ship__top { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+  .ship__id { font-size: var(--fs-body); font-weight: var(--fw-bold); letter-spacing: var(--ls-wide); }
+  .ship__route { display: flex; align-items: center; gap: 6px; font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-secondary); }
+  .ship__route .ic { color: var(--text-tertiary); }
+  .ship__what {
+    font-size: var(--fs-overline); color: var(--text-tertiary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ship__bar { height: 4px; border-radius: 2px; background: var(--neutral-200); overflow: hidden; }
+  .ship__bar i { display: block; height: 100%; border-radius: 2px; background: var(--brand-gold); }
+  .ship__bar i.is-done { background: var(--brand-green); }
+  .ship__meta { display: flex; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-overline); color: var(--text-tertiary); }
+  /* ---------- Bottom tab bar ----------
+     Nằm NGOÀI .stage nên không trượt theo animation đẩy màn: tab bar đứng yên,
+     chỉ nội dung phía trên đổi — đúng cách iOS làm. */
+  .tabbar {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 18;
+    display: flex; padding: var(--space-2) var(--space-2) 26px;
+    background: var(--surface-card); border-top: 1px solid var(--border-default);
+  }
+  .tabbar__btn {
+    flex: 1; min-width: 0; padding: 4px 2px; border: 0; background: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--text-tertiary); font: inherit; font-size: 10.5px; font-weight: var(--fw-semibold);
+    line-height: 1.2; border-radius: var(--radius-sm);
+    transition: color .15s;
+  }
+  .tabbar__btn:hover { color: var(--text-secondary); }
+  .tabbar__btn[aria-current="page"] { color: var(--text-brand); }
+  .tabbar__ico { position: relative; display: flex; }
+  /* chấm báo tin nhắn chưa đọc trên tab Chat */
+  .tabbar__dot {
+    position: absolute; top: -1px; right: -4px; width: 9px; height: 9px;
+    border-radius: var(--radius-pill); background: var(--brand-red);
+    border: 2px solid var(--surface-card);
+  }
+
   .fab {
-    position: absolute; right: var(--space-5); bottom: 44px; z-index: 10;
+    position: absolute; right: var(--space-5); bottom: calc(var(--tabbar-h) + var(--space-3)); z-index: 10;
     width: 56px; height: 56px; border-radius: var(--radius-pill); padding: 0; border: 0; cursor: pointer;
     background: var(--brand-gold); box-shadow: var(--shadow-gold); color: var(--neutral-950);
     display: flex; align-items: center; justify-content: center;
@@ -507,11 +758,14 @@
     display: flex; align-items: center; gap: var(--space-3); position: relative;
   }
   .chat-head__back { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text-primary); display: flex; }
+  /* Avatar Chat = logo Symbol tròn (DS): navy trên nền sáng, tự đổi sang gold ở dark */
   .chat-head__avatar {
-    width: 40px; height: 40px; border-radius: var(--radius-pill); flex: none;
-    background: var(--brand-navy); display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: var(--radius-pill); flex: none; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
   }
-  .chat-head__avatar img { height: 18px; filter: brightness(0) invert(1); }
+  .chat-head__avatar img { width: 40px; height: 40px; display: block; }
+  [data-theme="dark"] .chat-head__sym--light,
+  [data-theme="light"] .chat-head__sym--dark { display: none; }
   .chat-head__name { font-size: 15px; font-weight: var(--fw-bold); color: var(--text-primary); }
   .chat-head__status { font-size: var(--fs-overline); color: var(--text-success); display: flex; align-items: center; gap: 5px; }
   .chat-head__status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: block; }
@@ -598,7 +852,8 @@
   .qr button:hover { background: var(--gold-50); }
 
   .composer {
-    padding: var(--space-3) var(--space-4) 40px; flex: none;
+    /* không cần chừa home indicator nữa — tab bar bên dưới đã lo */
+    padding: var(--space-3) var(--space-4); flex: none;
     background: var(--surface-card); border-top: 1px solid var(--border-default);
     display: flex; align-items: center; gap: var(--space-3);
   }
@@ -635,6 +890,7 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
     <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
     <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
@@ -657,9 +913,12 @@
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
     <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="i-more-vertical" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
     <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15"/><path d="M15 6v15"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
     <!-- Tiximax airplane mark (brand asset, path-inlined so it picks up currentColor) -->
@@ -703,8 +962,9 @@
           <!-- ══════════ 1 · Route & addresses ══════════ -->
           <section class="screen is-current" id="s1">
             <div class="scr">
+              <!-- Màn gốc: không có nút back (thay bằng spacer để logo cân giữa) -->
               <div class="appbar">
-                <button class="appbar__btn" type="button" disabled><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
+                <span class="appbar__spacer"></span>
                 <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
                 <span class="appbar__spacer"></span>
               </div>
@@ -736,47 +996,73 @@
                 <div class="picker picker--to" id="pickerTo" hidden></div>
               </div>
 
-              <!-- ── Sender: contact details kept separate from the address ── -->
-              <div class="party">
-                <div class="party__h"><span class="party__dot party__dot--from"></span><span id="senderLabel">Sender · pickup</span></div>
-                <div class="group">
-                  <span class="group__label">Contact</span>
-                  <div class="field__row">
-                    <label class="field" style="flex:1.1"><input id="inName" type="text" placeholder="Sender full name"></label>
-                    <label class="field"><input id="inPhone" type="tel" placeholder="Phone number"></label>
-                  </div>
-                </div>
-                <div class="group">
-                  <span class="group__label">Pickup address</span>
-                  <label class="field" id="fieldPickup">
-                    <svg class="ic ic--18" style="color:var(--gold-700)"><use href="#i-search"></use></svg>
-                    <input id="inPickup" type="text" autocomplete="off" placeholder="House number, street…">
-                    <svg class="ic ic--18 ic--bold field__ok"><use href="#i-check"></use></svg>
-                  </label>
-                  <span class="hint" id="pickupSub" hidden></span>
-                  <div class="suggest" id="sugPickup" hidden></div>
+              <!-- ── Địa chỉ: bấm vào một dòng để sang màn chọn địa chỉ riêng ── -->
+              <div class="group">
+                <span class="group__label">Addresses</span>
+                <div class="card addr-card">
+                  <button class="addr-row" type="button" data-pickaddr="pickup">
+                    <span class="addr-row__dot addr-row__dot--from"></span>
+                    <span class="addr-row__body">
+                      <span class="addr-row__t" id="cardPickup"></span>
+                      <span class="addr-row__s" id="cardPickupSub" hidden></span>
+                    </span>
+                    <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
+                  </button>
+                  <span class="addr-card__rail" aria-hidden="true"></span>
+                  <button class="addr-row" type="button" data-pickaddr="deliver">
+                    <span class="addr-row__dot addr-row__dot--to"></span>
+                    <span class="addr-row__body">
+                      <span class="addr-row__t" id="cardDeliver"></span>
+                      <span class="addr-row__s" id="cardDeliverSub" hidden></span>
+                    </span>
+                    <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
+                  </button>
                 </div>
               </div>
 
-              <!-- ── Recipient ── -->
-              <div class="party">
-                <div class="party__h"><span class="party__dot party__dot--to"></span><span id="deliverLabel">Recipient · delivery</span></div>
+              <!-- ── Sender: khối riêng, mỗi ô nhập có nhãn liên kết ── -->
+              <div class="party card card--pad">
+                <div class="party__h"><span class="party__dot party__dot--from"></span><span id="senderLabel">Sender · pickup</span></div>
                 <div class="group">
-                  <span class="group__label">Contact</span>
-                  <div class="field__row">
-                    <label class="field" style="flex:1.1"><input id="inRcvName" type="text" placeholder="Recipient full name"></label>
-                    <label class="field"><input id="inRcvPhone" type="tel" placeholder="Phone number"></label>
+                  <div class="field-set">
+                    <label class="field-set__label" for="inName">Full name</label>
+                    <div class="field"><input id="inName" type="text" placeholder="Full name"></div>
+                  </div>
+                  <div class="field-set">
+                    <label class="field-set__label" for="inPhone">Phone number</label>
+                    <div class="phone">
+                      <button class="phone__cc" type="button" id="ccSender" aria-expanded="false" aria-label="Country calling code">
+                        <span id="ccSenderFlag"></span>
+                        <span class="phone__code" id="ccSenderCode"></span>
+                        <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
+                      </button>
+                      <div class="field phone__num"><input id="inPhone" type="tel" placeholder="Mobile number"></div>
+                      <div class="picker picker--cc" id="pickerCcSender" hidden></div>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              <!-- ── Recipient: khối riêng ── -->
+              <div class="party card card--pad">
+                <div class="party__h"><span class="party__dot party__dot--to"></span><span id="deliverLabel">Recipient · delivery</span></div>
                 <div class="group">
-                  <span class="group__label">Delivery address</span>
-                  <label class="field" id="fieldDeliver">
-                    <svg class="ic ic--18" style="color:var(--text-success)"><use href="#i-pin"></use></svg>
-                    <input id="inDeliver" type="text" autocomplete="off" placeholder="Recipient address…">
-                    <svg class="ic ic--18 ic--bold field__ok"><use href="#i-check"></use></svg>
-                  </label>
-                  <span class="hint" id="deliverSub" hidden></span>
-                  <div class="suggest" id="sugDeliver" hidden></div>
+                  <div class="field-set">
+                    <label class="field-set__label" for="inRcvName">Full name</label>
+                    <div class="field"><input id="inRcvName" type="text" placeholder="Full name"></div>
+                  </div>
+                  <div class="field-set">
+                    <label class="field-set__label" for="inRcvPhone">Phone number</label>
+                    <div class="phone">
+                      <button class="phone__cc" type="button" id="ccRcv" aria-expanded="false" aria-label="Country calling code">
+                        <span id="ccRcvFlag"></span>
+                        <span class="phone__code" id="ccRcvCode"></span>
+                        <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
+                      </button>
+                      <div class="field phone__num"><input id="inRcvPhone" type="tel" placeholder="Mobile number"></div>
+                      <div class="picker picker--cc" id="pickerCcRcv" hidden></div>
+                    </div>
+                  </div>
                 </div>
                 <span class="hint" id="gate1" hidden>Enter contact details and addresses for both sender and recipient to continue.</span>
               </div>
@@ -837,6 +1123,13 @@
                   <input id="inWeight" type="number" min="0.1" step="0.1" placeholder="1.0">
                   <span class="field__unit">kg</span>
                 </label>
+                <div class="est">
+                  <span class="est__meta">
+                    <span class="est__rate" id="estRate"></span>
+                    <span class="est__base" id="estBase"></span>
+                  </span>
+                  <span class="est__total" id="estTotal"></span>
+                </div>
                 <span class="hint">Used for your first estimate — we weigh it precisely at pickup.</span>
               </div>
 
@@ -916,24 +1209,35 @@
                 </div>
               </div>
 
-              <div class="card card--pad" style="display:flex;gap:var(--space-3);align-items:center">
-                <div class="thumb-pair" id="rvThumbs"></div>
-                <div style="flex:1;min-width:0">
-                  <div class="rows__t" id="rvContents"></div>
-                  <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap" id="rvBadges"></div>
-                </div>
-              </div>
+              <!-- Chi tiết đơn hàng: món · tổng khối lượng · đơn giá · bảng giá · tổng -->
+              <div class="card od">
+                <div class="od__head">Items <span class="od__count" id="rvCount"></span></div>
+                <div class="od__items" id="rvItems"></div>
 
-              <div class="card card--gold card--pad">
-                <div class="price-row">
-                  <span class="price-row__label">Estimated total</span>
-                  <span class="price-row__value" id="rvPrice"></span>
+                <div class="od__row od__row--sum">
+                  <span>Total weight</span>
+                  <span class="od__w" id="rvTotalW"></span>
                 </div>
-                <div class="alert">
-                  <svg class="ic ic--15"><use href="#i-info"></use></svg>
-                  <p id="rvNote"></p>
+
+                <div class="od__rate">
+                  <div>
+                    <div class="od__rate-cap">Shipping rate</div>
+                    <div class="od__rate-price"><strong id="rvRate"></strong> / kg</div>
+                  </div>
+                  <div class="od__rate-r">
+                    <div class="od__rate-w" id="rvRateW"></div>
+                    <div class="od__rate-note">estimated weight</div>
+                  </div>
+                </div>
+
+                <div class="od__break" id="rvBreak"></div>
+
+                <div class="od__row od__row--total">
+                  <span>Total</span>
+                  <span id="rvPrice"></span>
                 </div>
               </div>
+              <p class="hint od__foot">Final price is confirmed after we weigh your parcel at pickup.</p>
 
               <div class="spacer"></div>
               <button class="btn btn--primary" type="button" id="cta3" data-goto="3">
@@ -994,12 +1298,12 @@
                 </button>
               </div>
 
-              <div class="split">
+              <div class="tk-head">
+                <span class="badge badge--status" id="tkStatus"></span>
                 <div>
                   <h1 class="scr-title" id="tkId"></h1>
                   <p class="scr-sub" id="tkSub"></p>
                 </div>
-                <span class="badge badge--status">Pickup scheduled</span>
               </div>
 
               <div class="band">
@@ -1007,8 +1311,8 @@
                   <span class="band__code" id="tkFromCode"></span>
                   <div class="track">
                     <span class="track__rail"></span>
-                    <span class="track__done"></span>
-                    <span class="track__plane plane"><svg width="20" height="20" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
+                    <span class="track__done" id="tkTrackDone"></span>
+                    <span class="track__plane plane" id="tkTrackPlane"><svg width="20" height="20" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
                   </div>
                   <span class="band__code band__code--dim" id="tkToCode"></span>
                 </div>
@@ -1018,74 +1322,38 @@
                 </div>
               </div>
 
-              <div class="card card--pad money">
-                <div class="money__col">
-                  <div class="money__label">Estimated price</div>
-                  <div class="money__value" id="tkPrice"></div>
-                </div>
-                <span class="money__div"></span>
-                <div class="money__col" style="flex:1.4">
-                  <div class="money__label">Final price</div>
-                  <div class="money__pending">
-                    <svg class="ic ic--14"><use href="#i-clock"></use></svg>
-                    Confirmed after weighing
-                  </div>
-                </div>
-              </div>
+              <!-- Tiến trình vận chuyển (mốc hành trình) — giữ ngay sau tuyến như ban đầu -->
+              <div class="card timeline" id="tkTimeline"></div>
 
-              <div class="card timeline">
-                <div class="tl">
-                  <div class="tl__gutter">
-                    <span class="tl__dot tl__dot--done"><svg class="ic ic--14" style="stroke-width:3"><use href="#i-check"></use></svg></span>
-                    <span class="tl__line tl__line--done"></span>
+              <!-- Chi tiết giá lô hàng: món · tổng KL · đơn giá · bảng giá · tổng -->
+              <div class="card od">
+                <div class="od__head">Items <span class="od__count" id="tkCount"></span></div>
+                <div class="od__items" id="tkItems"></div>
+
+                <div class="od__row od__row--sum">
+                  <span>Total weight</span>
+                  <span class="od__w" id="tkTotalW"></span>
+                </div>
+
+                <div class="od__rate">
+                  <div>
+                    <div class="od__rate-cap">Shipping rate</div>
+                    <div class="od__rate-price"><strong id="tkRate"></strong> / kg</div>
                   </div>
-                  <div class="tl__body">
-                    <div class="tl__t">Booking received</div>
-                    <div class="tl__s" id="tkBooked"></div>
+                  <div class="od__rate-r">
+                    <div class="od__rate-w" id="tkRateW"></div>
+                    <div class="od__rate-note" id="tkRateNote"></div>
                   </div>
                 </div>
-                <div class="tl">
-                  <div class="tl__gutter">
-                    <span class="tl__dot tl__dot--done"><svg class="ic ic--14" style="stroke-width:3"><use href="#i-check"></use></svg></span>
-                    <span class="tl__line tl__line--done"></span>
-                  </div>
-                  <div class="tl__body">
-                    <div class="tl__t">Confirmed via chat</div>
-                    <div class="tl__s">Pickup details agreed with you</div>
-                  </div>
-                </div>
-                <div class="tl">
-                  <div class="tl__gutter">
-                    <span class="tl__dot tl__dot--now"><i></i></span>
-                    <span class="tl__line"></span>
-                  </div>
-                  <div class="tl__body">
-                    <div class="tl__t">Pickup scheduled</div>
-                    <div class="tl__s">Tomorrow, 9:00–12:00 · courier will call</div>
-                  </div>
-                </div>
-                <div class="tl">
-                  <div class="tl__gutter"><span class="tl__dot"></span><span class="tl__line"></span></div>
-                  <div class="tl__body">
-                    <div class="tl__t tl__t--todo">Picked up &amp; weighed</div>
-                    <div class="tl__s">Final price confirmed at your door</div>
-                  </div>
-                </div>
-                <div class="tl">
-                  <div class="tl__gutter"><span class="tl__dot"></span><span class="tl__line"></span></div>
-                  <div class="tl__body">
-                    <div class="tl__t tl__t--todo" id="tkShipping"></div>
-                    <div class="tl__s" id="tkShippingSub"></div>
-                  </div>
-                </div>
-                <div class="tl">
-                  <div class="tl__gutter"><span class="tl__dot"></span></div>
-                  <div class="tl__body">
-                    <div class="tl__t tl__t--todo">Delivered</div>
-                    <div class="tl__s">Signed for by recipient</div>
-                  </div>
+
+                <div class="od__break" id="tkBreak"></div>
+
+                <div class="od__row od__row--total">
+                  <span id="tkTotalLabel">Total</span>
+                  <span id="tkTotal"></span>
                 </div>
               </div>
+              <p class="hint od__foot" id="tkFoot"></p>
 
               <div class="spacer"></div>
             </div>
@@ -1097,7 +1365,10 @@
             <div class="scr scr--flush">
               <div class="chat-head">
                 <button class="chat-head__back" type="button" data-back="4"><svg class="ic ic--20"><use href="#i-chevron-left"></use></svg></button>
-                <span class="chat-head__avatar"><img src="../assets/tiximax-mark.svg" alt=""></span>
+                <span class="chat-head__avatar">
+                  <img class="chat-head__sym chat-head__sym--light" src="../assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+                  <img class="chat-head__sym chat-head__sym--dark" src="../assets/tiximax-symbol-circle-gold.svg" alt="">
+                </span>
                 <div style="flex:1">
                   <div class="chat-head__name">Tiximax Express</div>
                   <div class="chat-head__status"><i></i>Online · replies in minutes</div>
@@ -1131,7 +1402,98 @@
             </div>
           </section>
 
+          <!-- ══════════ 7 · My shipments (tab) ══════════ -->
+          <section class="screen" id="s7">
+            <div class="scr">
+              <div class="appbar">
+                <span class="appbar__spacer"></span>
+                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <button class="appbar__btn" type="button" data-action="new" title="New shipment">
+                  <svg class="ic ic--18"><use href="#i-plus"></use></svg>
+                </button>
+              </div>
+
+              <div>
+                <h1 class="scr-title">My shipments</h1>
+                <p class="scr-sub" id="shSub"></p>
+              </div>
+
+              <div class="ships" id="shipList"></div>
+              <div class="spacer"></div>
+            </div>
+          </section>
+
+          <!-- ══════════ 8 · Address picker ══════════
+               Màn riêng, mở khi bấm một dòng trên thẻ địa chỉ ở màn 1.
+               Hai ô địa chỉ nối bằng đường chấm; ô đang chọn được viền sáng. -->
+          <section class="screen" id="s8">
+            <div class="scr scr--flush">
+              <div class="pick-head">
+                <button class="pick-head__back" type="button" data-back="0" title="Back">
+                  <svg class="ic ic--20"><use href="#i-arrow-left"></use></svg>
+                </button>
+                <div class="pick-fields">
+                  <div class="pick-field" id="pickFieldFrom">
+                    <span class="pick-field__dot pick-field__dot--from"></span>
+                    <span class="pick-field__box">
+                      <input id="pickInFrom" type="text" autocomplete="off" aria-label="Pickup address">
+                    </span>
+                  </div>
+                  <span class="pick-fields__rail" aria-hidden="true"></span>
+                  <div class="pick-field" id="pickFieldTo">
+                    <span class="pick-field__dot pick-field__dot--to"></span>
+                    <span class="pick-field__box">
+                      <input id="pickInTo" type="text" autocomplete="off" aria-label="Delivery address">
+                      <button class="pick-field__cam" type="button" title="Scan an address">
+                        <svg class="ic ic--18"><use href="#i-camera"></use></svg>
+                      </button>
+                    </span>
+                  </div>
+                  <!-- Mã bưu điện đầu giao: tự điền từ gợi ý, khách sửa nếu cần -->
+                  <div class="pick-zip" id="pickZip" hidden>
+                    <span class="pick-zip__label">Postal code</span>
+                    <span class="pick-zip__box">
+                      <input id="pickInZip" type="text" inputmode="numeric" autocomplete="off"
+                             aria-label="Delivery postal code" placeholder="Optional — for exact delivery">
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pick-tabs">
+                <button class="pick-tab" type="button" data-ptab="recent" aria-pressed="true">Recent</button>
+                <button class="pick-tab" type="button" data-ptab="suggested" aria-pressed="false">Suggested</button>
+                <button class="pick-tab" type="button" data-ptab="saved" aria-pressed="false">Saved</button>
+              </div>
+
+              <div class="pick-list" id="pickList"></div>
+            </div>
+            <button class="pick-map" type="button" id="pickMapBtn">
+              <svg class="ic ic--18"><use href="#i-map"></use></svg> Pick on map
+            </button>
+          </section>
+
         </div>
+
+        <!-- Tab bar: đặt ngoài .stage để đứng yên khi màn hình trượt -->
+        <nav class="tabbar" id="tabbar" aria-label="Main">
+          <button class="tabbar__btn" type="button" data-tab="0" aria-current="page">
+            <span class="tabbar__ico"><svg class="ic ic--22"><use href="#i-plus"></use></svg></span>
+            New booking
+          </button>
+          <button class="tabbar__btn" type="button" data-tab="1">
+            <span class="tabbar__ico"><svg class="ic ic--22"><use href="#i-package"></use></svg></span>
+            My shipments
+          </button>
+          <button class="tabbar__btn" type="button" data-tab="2">
+            <span class="tabbar__ico">
+              <svg class="ic ic--22"><use href="#i-chat"></use></svg>
+              <i class="tabbar__dot" id="tabDot" hidden></i>
+            </span>
+            Chat
+          </button>
+        </nav>
+
         <div class="device__home"></div>
       </div>
     </div>
@@ -1147,10 +1509,10 @@
      DATA
      ============================================================ */
   var COUNTRIES = {
-    ID: { name: 'Indonesia',   city: 'Jakarta', code: 'CGK' },
-    JP: { name: 'Japan',       city: 'Tokyo',   code: 'NRT' },
-    VN: { name: 'Vietnam',     city: 'Hanoi',   code: 'HAN' },
-    PH: { name: 'Philippines', city: 'Manila',  code: 'MNL' }
+    ID: { name: 'Indonesia',   city: 'Jakarta', code: 'CGK', dial: '+62' },
+    JP: { name: 'Japan',       city: 'Tokyo',   code: 'NRT', dial: '+81' },
+    VN: { name: 'Vietnam',     city: 'Hanoi',   code: 'HAN', dial: '+84' },
+    PH: { name: 'Philippines', city: 'Manila',  code: 'MNL', dial: '+63' }
   };
   var ORDER = ['ID', 'JP', 'VN', 'PH'];
 
@@ -1186,15 +1548,30 @@
      from/to are just the route picker defaults, not pre-filled data. */
   var EMPTY = {
     from: 'ID', to: 'JP',
-    pickup: '', pickupSub: '', deliver: '', deliverSub: '',
-    name: '', phone: '',                 // sender
-    rcvName: '', rcvPhone: '',           // recipient
+    pickup: '', pickupSub: '', deliver: '', deliverSub: '', deliverZip: '',
+    name: '', phone: '', phoneCC: 'ID',      // sender (phoneCC = mã vùng SĐT)
+    rcvName: '', rcvPhone: '', rcvPhoneCC: 'JP',   // recipient
     contents: '', weight: '',
-    fragile: false, battery: false, photos: [], id: '', bookedAt: null
+    fragile: false, battery: false, photos: [], id: '', bookedAt: null,
+    booked: false,                       // đã bấm "Book pickup" chưa
+    saved: [],                           // địa chỉ đã lưu ở màn chọn địa chỉ
+    unread: false                        // chấm đỏ trên tab Chat
   };
 
-  /* Order of the 6 screens inside the device frame */
-  var SCREEN_IDS = ['s1', 's2', 's3', 's4', 's5', 's6'];
+  /* Order of the 8 screens inside the device frame */
+  var SCREEN_IDS = ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'];
+
+  /* Hành trình 6 mốc. `stage` = số mốc đã xong, mốc thứ `stage` là mốc đang chạy. */
+  var LEGS = 6;
+
+  /* Vài lô hàng cũ để tab My shipments không trống khi chưa đặt đơn nào */
+  var SAMPLES = [
+    { id: 'TXM-306482124815', from: 'ID', to: 'JP', stage: 6, weight: 1.4, contents: 'Batik fabric, 2 pieces', daysAgo: 21 },
+    { id: 'TXM-517093824773', from: 'JP', to: 'VN', stage: 4, weight: 2.6, contents: 'Ceramic tea set', daysAgo: 6 }
+  ];
+  SAMPLES.forEach(function (s) {
+    s.bookedAt = new Date(Date.now() - s.daysAgo * 864e5).toISOString();
+  });
 
   var state = clone(EMPTY);
 
@@ -1211,18 +1588,53 @@
     var inner = (cc === 'ID' || cc === 'PH') ? '<i></i><i></i>' : '<i></i>';
     return '<span class="flag flag--' + cc.toLowerCase() + '">' + inner + '</span>';
   }
-  /* Estimated price: ¥2,000 base fee + ¥1,200/kg (1.5 kg → ¥3,800) */
-  function price() {
-    var w = parseFloat(state.weight) || 1;
-    return Math.round((2000 + 1200 * w) / 100) * 100;
+  /* Giá ước tính: phí cơ bản + đơn giá/kg + phụ phí hàng dễ vỡ / pin */
+  var BASE_FEE = 2000, RATE_PER_KG = 1200, FRAGILE_FEE = 500, BATTERY_FEE = 800;
+  function priceParts(w, fragile, battery) {
+    var kg = parseFloat(w) || 1;
+    var parts = {
+      kg: kg, base: BASE_FEE, shipping: Math.round(RATE_PER_KG * kg),
+      fragile: fragile ? FRAGILE_FEE : 0, battery: battery ? BATTERY_FEE : 0
+    };
+    parts.total = parts.base + parts.shipping + parts.fragile + parts.battery;
+    return parts;
   }
+  function priceOf(w, fragile, battery) { return priceParts(w, fragile, battery).total; }
+  function price() { return priceOf(state.weight, state.fragile, state.battery); }
   function yen(n) { return '¥' + n.toLocaleString('en-US'); }
-  function weightLabel() { return (parseFloat(state.weight) || 1).toFixed(1).replace(/\.0$/, '') + ' kg'; }
-  function timeNow() {
-    var d = new Date();
-    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-  }
+  function ratePerKg() { return yen(RATE_PER_KG) + ' / kg'; }   // đơn giá theo cân nặng
+  function weightLabel(w) { return (parseFloat(w) || 1).toFixed(1).replace(/\.0$/, '') + ' kg'; }
+  function kg1(w) { return (parseFloat(w) || 1).toFixed(1) + ' kg'; }   // luôn 1 số lẻ (bảng chi tiết)
+  function hhmm(d) { return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  function timeNow() { return hhmm(new Date()); }
   function dateLabel(d) { return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); }
+
+  /* ---------- Lô hàng: đơn đang đặt + các đơn mẫu ---------- */
+  /* Đơn vừa đặt luôn dừng ở mốc "Pickup scheduled" (2 mốc đầu đã xong) */
+  function activeShipment() {
+    return {
+      id: state.id, from: state.from, to: state.to, stage: 2,
+      weight: state.weight, contents: state.contents || 'Your parcel',
+      fragile: state.fragile, battery: state.battery,
+      bookedAt: state.bookedAt, isActive: true
+    };
+  }
+  function shipments() {
+    /* Dựa vào state.booked chứ không phải state.id: mở tab Chat cũng sinh mã
+       vận đơn, nhưng đơn đó chưa được đặt nên không được lên danh sách. */
+    return (state.booked ? [activeShipment()] : []).concat(SAMPLES);
+  }
+  function shipmentById(id) {
+    return shipments().filter(function (s) { return s.id === id; })[0] || null;
+  }
+  /* Nhãn + màu badge theo chặng */
+  function statusOf(stage) {
+    if (stage >= LEGS) return ['Delivered', 'green'];
+    if (stage >= 4) return ['In transit', 'blue'];
+    if (stage >= 3) return ['Picked up', 'blue'];
+    if (stage >= 2) return ['Pickup scheduled', ''];
+    return ['Confirmed', ''];
+  }
 
   /* ============================================================
      SCREEN 1 — route, addresses, contacts
@@ -1252,7 +1664,7 @@
         state[which] = cc;
         closePickers();
         renderRoute();
-        refreshSuggest();
+        renderAddrCard();
         gate();
       });
     });
@@ -1271,66 +1683,233 @@
   }
   $('pickFrom').addEventListener('click', function (e) { e.stopPropagation(); togglePicker('from'); });
   $('pickTo').addEventListener('click', function (e) { e.stopPropagation(); togglePicker('to'); });
-  document.addEventListener('click', function () { closePickers(); closeChatMenu(); });
+
+  /* ---------- Mã quốc gia cho số điện thoại (sender + recipient) ---------- */
+  var CC_SEL = [
+    { btn: 'ccSender', menu: 'pickerCcSender', flag: 'ccSenderFlag', code: 'ccSenderCode', key: 'phoneCC' },
+    { btn: 'ccRcv',    menu: 'pickerCcRcv',    flag: 'ccRcvFlag',    code: 'ccRcvCode',    key: 'rcvPhoneCC' }
+  ];
+  function renderPhoneCC() {
+    CC_SEL.forEach(function (c) {
+      $(c.flag).innerHTML = flagHTML(state[c.key]);
+      $(c.code).textContent = COUNTRIES[state[c.key]].dial;
+    });
+  }
+  function buildCcPicker(sel) {
+    var el = $(sel.menu);
+    el.innerHTML = ORDER.map(function (cc) {
+      var on = state[sel.key] === cc;
+      return '<button class="picker__item" type="button" data-cc="' + cc + '" aria-selected="' + on + '">' +
+        flagHTML(cc) +
+        '<span><span>' + esc(COUNTRIES[cc].name) + '</span><br><span class="picker__city">' + COUNTRIES[cc].dial + '</span></span>' +
+        (on ? '<svg class="ic ic--16"><use href="#i-check"></use></svg>' : '') +
+        '</button>';
+    }).join('');
+    el.querySelectorAll('.picker__item').forEach(function (b) {
+      b.addEventListener('click', function () { state[sel.key] = b.dataset.cc; closeCcPickers(); renderPhoneCC(); });
+    });
+  }
+  function closeCcPickers() {
+    CC_SEL.forEach(function (c) { $(c.menu).hidden = true; $(c.btn).setAttribute('aria-expanded', 'false'); });
+  }
+  function toggleCcPicker(sel) {
+    var el = $(sel.menu), open = el.hidden;
+    closeCcPickers(); closePickers();
+    if (open) { buildCcPicker(sel); el.hidden = false; $(sel.btn).setAttribute('aria-expanded', 'true'); }
+  }
+  CC_SEL.forEach(function (sel) {
+    $(sel.btn).addEventListener('click', function (e) { e.stopPropagation(); toggleCcPicker(sel); });
+  });
+
+  document.addEventListener('click', function () { closePickers(); closeCcPickers(); closeChatMenu(); });
 
   $('swapBtn').addEventListener('click', function () {
     var f = state.from; state.from = state.to; state.to = f;
     var p = state.pickup, ps = state.pickupSub;
     state.pickup = state.deliver; state.pickupSub = state.deliverSub;
     state.deliver = p; state.deliverSub = ps;
+    state.deliverZip = '';               // đầu giao mới chưa có mã bưu điện
     this.classList.add('is-spun');
     var btn = this;
     setTimeout(function () { btn.classList.remove('is-spun'); }, 360);
-    renderRoute(); syncInputs(); refreshSuggest(); gate();
+    renderRoute(); syncInputs(); gate();
   });
 
-  /* ---------- Autocomplete shared by both address fields ---------- */
-  function attachSuggest(input, list, subEl, poolKey, storeKey) {
-    function pool() { return BOOK[state[poolKey]] || []; }
-    function close() { list.hidden = true; }
-    function open() {
-      var q = input.value.trim().toLowerCase();
-      var hits = pool().filter(function (r) { return !q || (r[0] + ' ' + r[1]).toLowerCase().indexOf(q) >= 0; }).slice(0, 3);
-      if (!hits.length) { close(); return; }
-      list.innerHTML = hits.map(function (r, i) {
-        var t = esc(r[0]);
-        if (q) {
-          var at = r[0].toLowerCase().indexOf(q);
-          if (at >= 0) t = esc(r[0].slice(0, at)) + '<strong>' + esc(r[0].slice(at, at + q.length)) + '</strong>' + esc(r[0].slice(at + q.length));
-        }
-        return '<button class="suggest__row' + (i === 0 ? ' is-active' : '') + '" type="button" data-i="' + i + '">' +
-          '<svg class="ic ic--18"><use href="#i-pin"></use></svg>' +
-          '<span class="field__body"><span class="suggest__t">' + t + '</span><br><span class="suggest__s">' + esc(r[1]) + '</span></span>' +
-          '</button>';
-      }).join('');
-      list.querySelectorAll('.suggest__row').forEach(function (b) {
-        b.addEventListener('mousedown', function (e) {   // mousedown: fires before blur
-          e.preventDefault();
-          var r = hits[parseInt(b.dataset.i, 10)];
-          input.value = r[0];
-          state[storeKey] = r[0];
-          state[storeKey + 'Sub'] = r[1];
-          subEl.textContent = r[1]; subEl.hidden = false;
-          input.closest('.field').classList.add('is-ok');
-          close(); gate();
-        });
-      });
-      list.hidden = false;
-    }
-    input.addEventListener('focus', open);
-    input.addEventListener('input', function () {
-      state[storeKey] = input.value;
-      state[storeKey + 'Sub'] = '';
-      subEl.hidden = true;
-      input.closest('.field').classList.toggle('is-ok', !!input.value.trim());
-      open(); gate();
-    });
-    input.addEventListener('blur', function () { setTimeout(close, 120); });
-    return { close: close };
+  /* Địa chỉ không còn gõ trực tiếp ở màn 1 — xem "SCREEN 8" bên dưới. */
+
+  /* ============================================================
+     SCREEN 1 — thẻ địa chỉ (chỉ hiển thị; chọn ở màn 8)
+     ============================================================ */
+  var ADDR_ROWS = [
+    { key: 'pickup', id: 'cardPickup', empty: 'Where are we picking up?' },
+    { key: 'deliver', id: 'cardDeliver', empty: 'Where is it going?' }
+  ];
+
+  /* Mã bưu điện: bắt token kiểu 12730 / 153-0063 / 100000 / 1229 trong dòng phụ */
+  var ZIP_RE = /\d{3}-\d{4}|\d{4,6}/;
+  function extractZip(sub) { var m = (sub || '').match(ZIP_RE); return m ? m[0] : ''; }
+  /* Ghép mã bưu điện khách đã chọn/sửa vào dòng phụ để hiển thị nhất quán */
+  function withZip(sub, zip) {
+    if (!zip) return sub;
+    if (!sub) return 'Postal code ' + zip;
+    return ZIP_RE.test(sub) ? sub.replace(ZIP_RE, zip) : sub + ' ' + zip;
   }
-  var sugP = attachSuggest($('inPickup'), $('sugPickup'), $('pickupSub'), 'from', 'pickup');
-  var sugD = attachSuggest($('inDeliver'), $('sugDeliver'), $('deliverSub'), 'to', 'deliver');
-  function refreshSuggest() { sugP.close(); sugD.close(); }
+
+  function renderAddrCard() {
+    ADDR_ROWS.forEach(function (r) {
+      var val = state[r.key].trim();
+      var sub = r.key === 'deliver' ? withZip(state.deliverSub, state.deliverZip) : state[r.key + 'Sub'];
+      var t = $(r.id), subEl = $(r.id + 'Sub');
+      t.textContent = val || r.empty;
+      t.closest('.addr-row').classList.toggle('is-empty', !val);
+      subEl.textContent = sub;
+      subEl.hidden = !sub;
+    });
+  }
+
+  /* ============================================================
+     SCREEN 8 — Address picker
+     Một màn riêng cho cả hai đầu địa chỉ: ô đang chọn được viền sáng,
+     bấm ô kia là chuyển sang chọn cho đầu đó.
+     ============================================================ */
+  var pickField = 'pickup';            // đầu đang chọn: 'pickup' | 'deliver'
+  var pickTab = 'recent';
+  var PICK_ICON = { recent: '#i-clock', suggested: '#i-pin', saved: '#i-bookmark' };
+
+  /* Khoảng cách chỉ để lấp bố cục. Thang cố định theo vị trí trong sổ địa chỉ —
+     cố ý không tăng dần để tab "Suggested" (gần nhất trước) khác thứ tự "Recent". */
+  var DIST = [2.6, 0.4, 8.7, 1.1, 5.2, 12.3, 3.4, 6.8];
+  function pickCountry() { return pickField === 'pickup' ? state.from : state.to; }
+  function pickValue() { return pickField === 'pickup' ? state.pickup : state.deliver; }
+
+  function pickPool() {
+    var all = (BOOK[pickCountry()] || []).map(function (r, i) {
+      return { t: r[0], s: r[1], d: DIST[i % DIST.length] };
+    });
+    if (pickTab === 'saved') {
+      return all.filter(function (r) { return state.saved.indexOf(r.t) >= 0; });
+    }
+    if (pickTab === 'suggested') {          // gợi ý = gần nhất trước
+      return all.slice().sort(function (a, b) { return a.d - b.d; });
+    }
+    return all;                              // vừa dùng gần đây
+  }
+
+  function renderPickList() {
+    var q = pickValue().trim().toLowerCase();
+    var rows = pickPool().filter(function (r) {
+      return !q || (r.t + ' ' + r.s).toLowerCase().indexOf(q) >= 0;
+    });
+    if (!rows.length) {
+      $('pickList').innerHTML = '<p class="pick-empty">' + (pickTab === 'saved'
+        ? 'Nothing saved yet — tap ⋮ on any address to keep it here.'
+        : 'No address matches “' + esc(pickValue().trim()) + '”.') + '</p>';
+      return;
+    }
+    $('pickList').innerHTML = rows.map(function (r) {
+      var saved = state.saved.indexOf(r.t) >= 0;
+      return '<div class="pick-item' + (saved ? ' is-saved' : '') + '">' +
+        '<button class="pick-item__main" type="button" data-paddr="' + esc(r.t) + '">' +
+          '<span class="pick-item__ic"><svg class="ic ic--16"><use href="' +
+            (saved ? '#i-bookmark' : PICK_ICON[pickTab]) + '"></use></svg></span>' +
+          '<span class="pick-item__body">' +
+            '<span class="pick-item__t">' + esc(r.t) + '</span>' +
+            '<span class="pick-item__s">' + r.d.toFixed(1) + ' km · ' + esc(r.s) + '</span>' +
+          '</span>' +
+        '</button>' +
+        '<button class="pick-item__more" type="button" data-psave="' + esc(r.t) + '" title="' +
+          (saved ? 'Remove from saved' : 'Save this address') + '">' +
+          '<svg class="ic ic--18"><use href="#i-more-vertical"></use></svg></button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function syncPickFields() {
+    var isFrom = pickField === 'pickup';
+    $('pickFieldFrom').classList.toggle('is-active', isFrom);
+    $('pickFieldTo').classList.toggle('is-active', !isFrom);
+    $('pickZip').hidden = isFrom;        // mã bưu điện chỉ cho đầu giao
+  }
+
+  function renderPicker() {
+    $('pickInFrom').value = state.pickup;
+    $('pickInTo').value = state.deliver;
+    $('pickInZip').value = state.deliverZip;
+    $('pickInFrom').placeholder = 'Pickup in ' + COUNTRIES[state.from].name;
+    $('pickInTo').placeholder = 'Delivery in ' + COUNTRIES[state.to].name;
+    syncPickFields();
+    renderPickList();
+    /* đợi hết animation đẩy màn rồi mới đặt con trỏ, không thì trang bị giật */
+    var input = $(pickField === 'pickup' ? 'pickInFrom' : 'pickInTo');
+    setTimeout(function () { input.focus(); }, 460);
+  }
+
+  /* Chọn xong: đầu kia còn trống thì ở lại chọn tiếp, không thì quay về màn 1.
+     Riêng đầu giao: tự điền mã bưu điện từ gợi ý rồi ở lại để khách kiểm/sửa. */
+  function choosePick(title) {
+    var row = (BOOK[pickCountry()] || []).filter(function (r) { return r[0] === title; })[0];
+    if (!row) return;
+    if (pickField === 'pickup') {
+      state.pickup = row[0]; state.pickupSub = row[1];
+      renderAddrCard(); gate();
+      if (!state.deliver.trim()) { pickField = 'deliver'; renderPicker(); return; }
+      goBack(0);
+      return;
+    }
+    state.deliver = row[0]; state.deliverSub = row[1];
+    state.deliverZip = extractZip(row[1]);
+    renderAddrCard(); gate();
+    if (!state.pickup.trim()) { pickField = 'pickup'; renderPicker(); return; }
+    /* đủ cả hai đầu → ở lại, đưa con trỏ vào ô mã bưu điện để khách xác nhận/sửa */
+    syncPickFields(); renderPickList();
+    $('pickInTo').value = state.deliver;
+    $('pickInZip').value = state.deliverZip;
+    setTimeout(function () { $('pickInZip').focus(); $('pickInZip').select(); }, 60);
+  }
+
+  function toggleSaved(title) {
+    var at = state.saved.indexOf(title);
+    if (at >= 0) state.saved.splice(at, 1); else state.saved.push(title);
+    renderPickList();
+  }
+
+  [['pickInFrom', 'pickup'], ['pickInTo', 'deliver']].forEach(function (pair) {
+    var input = $(pair[0]), key = pair[1];
+    input.addEventListener('focus', function () {
+      if (pickField === key) return;
+      pickField = key; syncPickFields(); renderPickList();
+    });
+    input.addEventListener('input', function () {
+      state[key] = this.value;
+      state[key + 'Sub'] = '';            // gõ tay thì chưa có dòng phụ
+      renderPickList(); renderAddrCard(); gate();
+    });
+  });
+
+  /* Khách sửa/điền mã bưu điện đầu giao */
+  $('pickInZip').addEventListener('input', function () {
+    state.deliverZip = this.value.replace(/[^\d-]/g, '');
+    if (this.value !== state.deliverZip) this.value = state.deliverZip;
+    renderAddrCard();
+  });
+
+  document.querySelectorAll('.pick-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      pickTab = b.dataset.ptab;
+      document.querySelectorAll('.pick-tab').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x.dataset.ptab === pickTab));
+      });
+      renderPickList();
+    });
+  });
+
+  /* Bản thật sẽ mở bản đồ; ở prototype thì ghim luôn địa chỉ gần nhất */
+  $('pickMapBtn').addEventListener('click', function () {
+    var nearest = (BOOK[pickCountry()] || []).map(function (r, i) {
+      return { t: r[0], d: DIST[i % DIST.length] };
+    }).sort(function (a, b) { return a.d - b.d; })[0];
+    if (nearest) choosePick(nearest.t);
+  });
 
   var CONTACT_FIELDS = { inName: 'name', inPhone: 'phone', inRcvName: 'rcvName', inRcvPhone: 'rcvPhone' };
   Object.keys(CONTACT_FIELDS).forEach(function (id) {
@@ -1373,12 +1952,19 @@
   }
 
   $('inContents').addEventListener('input', function () { state.contents = this.value; gate(); });
-  $('inWeight').addEventListener('input', function () { state.weight = this.value; });
+  /* Bảng đơn giá + tổng tạm tính; cập nhật ngay khi đổi cân nặng */
+  function renderEst() {
+    $('estRate').textContent = ratePerKg();
+    $('estBase').textContent = '+ ' + yen(BASE_FEE) + ' base fee';
+    $('estTotal').textContent = '≈ ' + yen(price());
+  }
+  $('inWeight').addEventListener('input', function () { state.weight = this.value; renderEst(); });
   document.querySelectorAll('.choice').forEach(function (b) {
     b.addEventListener('click', function () {
       var k = b.dataset.flag;
       state[k] = !state[k];
       b.setAttribute('aria-pressed', String(state[k]));
+      renderEst();   // phụ phí đổi → cập nhật tổng tạm tính
     });
   });
 
@@ -1394,22 +1980,16 @@
 
   /* ---------- Push state back into the inputs (reset / demo / swap) ---------- */
   function syncInputs() {
-    $('inPickup').value = state.pickup;
-    $('inDeliver').value = state.deliver;
     $('inName').value = state.name;
     $('inPhone').value = state.phone;
     $('inRcvName').value = state.rcvName;
     $('inRcvPhone').value = state.rcvPhone;
     $('inContents').value = state.contents;
     $('inWeight').value = state.weight;
-    $('pickupSub').textContent = state.pickupSub; $('pickupSub').hidden = !state.pickupSub;
-    $('deliverSub').textContent = state.deliverSub; $('deliverSub').hidden = !state.deliverSub;
-    $('fieldPickup').classList.toggle('is-ok', !!state.pickup.trim());
-    $('fieldDeliver').classList.toggle('is-ok', !!state.deliver.trim());
     document.querySelectorAll('.choice').forEach(function (b) {
       b.setAttribute('aria-pressed', String(!!state[b.dataset.flag]));
     });
-    renderRoute(); renderPhotos(); gate();
+    renderRoute(); renderPhoneCC(); renderAddrCard(); renderPhotos(); gate();
   }
 
   /* ============================================================
@@ -1422,27 +2002,45 @@
     $('rvToCity').textContent = T.city;
     $('rvToMeta').textContent = T.name + ' · door delivery';
     $('rvPickup').textContent = state.pickup + (state.pickupSub ? ', ' + state.pickupSub : '');
-    $('rvContact').textContent = [state.name, state.phone].filter(Boolean).join(' · ');
-    $('rvDeliver').textContent = state.deliver + (state.deliverSub ? ', ' + state.deliverSub : '');
-    $('rvDeliverSub').textContent = [state.rcvName, state.rcvPhone].filter(Boolean).join(' · ') || (T.name + ' · door delivery');
-    $('rvContents').textContent = state.contents || '—';
+    var sPhone = state.phone ? COUNTRIES[state.phoneCC].dial + ' ' + state.phone : '';
+    $('rvContact').textContent = [state.name, sPhone].filter(Boolean).join(' · ');
+    var dSub = withZip(state.deliverSub, state.deliverZip);
+    $('rvDeliver').textContent = state.deliver + (dSub ? ', ' + dSub : '');
+    var rPhone = state.rcvPhone ? COUNTRIES[state.rcvPhoneCC].dial + ' ' + state.rcvPhone : '';
+    $('rvDeliverSub').textContent = [state.rcvName, rPhone].filter(Boolean).join(' · ') || (T.name + ' · door delivery');
+    /* ----- Chi tiết đơn hàng: 1 kiện hàng, kèm số ảnh & cờ đặc biệt ----- */
+    var np = state.photos.length;
+    var subBits = [];
+    if (np) subBits.push(np + (np === 1 ? ' photo' : ' photos'));
+    if (state.fragile) subBits.push('Fragile');
+    if (state.battery) subBits.push('Battery');
+    $('rvCount').textContent = '(1 item)';
+    $('rvItems').innerHTML =
+      '<div class="od__item">' +
+        '<span class="od__num">1</span>' +
+        '<div class="od__item-body">' +
+          '<div class="od__item-name">' + esc(state.contents || 'Your parcel') + '</div>' +
+          (subBits.length ? '<div class="od__item-sub">' + esc(subBits.join(' · ')) + '</div>' : '') +
+        '</div>' +
+        '<span class="od__item-w">' + kg1(state.weight) + '</span>' +
+      '</div>';
+    $('rvTotalW').textContent = kg1(state.weight);
+    $('rvRate').textContent = yen(RATE_PER_KG);
+    $('rvRateW').textContent = kg1(state.weight);
 
-    var badges = [];
-    if (state.fragile) badges.push('<span class="badge badge--gold">Fragile</span>');
-    if (state.battery) badges.push('<span class="badge badge--gold">Battery</span>');
-    badges.push('<span class="badge badge--neutral">~' + weightLabel() + '</span>');
-    $('rvBadges').innerHTML = badges.join('');
-
-    var t = state.photos.slice(0, 2).map(function (p) {
-      return '<span class="thumb"><img src="' + esc(p.url) + '" alt=""></span>';
-    });
-    if (state.photos.length > 2) t.push('<span class="thumb">+' + (state.photos.length - 2) + '</span>');
-    if (!t.length) t = ['<span class="thumb"><svg class="ic ic--18"><use href="#i-image"></use></svg></span>'];
-    $('rvThumbs').innerHTML = t.join('');
-
-    $('rvPrice').textContent = yen(price());
-    $('rvNote').textContent = 'Based on your ' + weightLabel() +
-      ' estimate. The final price is confirmed after we weigh your parcel at pickup.';
+    /* ----- Bảng giá: phí cơ bản · cước theo cân · phụ phí · tổng ----- */
+    var p = priceParts(state.weight, state.fragile, state.battery);
+    var lines = [
+      ['Base international pickup', p.base],
+      ['Shipping · ' + kg1(state.weight) + ' × ' + yen(RATE_PER_KG) + '/kg', p.shipping]
+    ];
+    if (p.fragile) lines.push(['Fragile handling × 1', p.fragile]);
+    if (p.battery) lines.push(['Battery handling × 1', p.battery]);
+    $('rvBreak').innerHTML = lines.map(function (l) {
+      return '<div class="od__bi"><span class="od__bi-l">' + esc(l[0]) + '</span>' +
+        '<span class="od__bi-r">' + esc(yen(l[1])) + '</span></div>';
+    }).join('');
+    $('rvPrice').textContent = yen(p.total);
   }
 
   /* ============================================================
@@ -1450,31 +2048,140 @@
      ============================================================ */
   function ensureBooking() {
     if (!state.id) {
-      state.id = 'TXM-' + Math.floor(10000 + Math.random() * 89999);
+      state.id = 'TXM-' + String(Math.floor(Math.random() * 9e11) + 1e11);   // 12 chữ số
       state.bookedAt = new Date().toISOString();
     }
   }
   function renderConfirm() {
     ensureBooking();
+    state.booked = true;
+    state.unread = true;                       // đội ngũ nhắn lại → chấm đỏ trên tab Chat
     $('cfId').textContent = state.id;
     $('cfShipTo').innerHTML = '<strong>Ships to ' + esc(COUNTRIES[state.to].name) + '</strong> — tracked door to door, 5–7 days';
   }
+
+  /* Lô hàng đang mở ở màn Tracking — null nghĩa là đơn vừa đặt */
+  var viewing = null;
+  function trackTarget() { return viewing || (state.booked ? activeShipment() : SAMPLES[0]); }
+
+  /* 6 mốc hành trình của một lô hàng */
+  function legsOf(sh) {
+    var F = COUNTRIES[sh.from], T = COUNTRIES[sh.to];
+    var d = new Date(sh.bookedAt);
+    return [
+      ['Booking received', 'Request submitted · ' + dateLabel(d) + ', ' + hhmm(d)],
+      ['Confirmed via chat', 'Pickup details agreed with you'],
+      /* Mốc đã qua thì không nói "Tomorrow" nữa */
+      ['Pickup scheduled', sh.stage > 2
+        ? 'Collected on schedule'
+        : 'Tomorrow, 9:00–12:00 · courier will call'],
+      ['Picked up & weighed', sh.stage > 3
+        ? 'Weighed ' + weightLabel(sh.weight) + ' at ' + ratePerKg() + ' · final price confirmed'
+        : 'Final price confirmed at your door'],
+      ['Shipping to ' + T.name, F.city + ' → ' + T.city + ' · 5–7 days'],
+      ['Delivered', 'Signed for by recipient']
+    ];
+  }
+  function timelineHTML(sh) {
+    var legs = legsOf(sh);
+    return legs.map(function (leg, i) {
+      var done = i < sh.stage, now = i === sh.stage, last = i === legs.length - 1;
+      var dot = done
+        ? '<span class="tl__dot tl__dot--done"><svg class="ic ic--14" style="stroke-width:3"><use href="#i-check"></use></svg></span>'
+        : (now ? '<span class="tl__dot tl__dot--now"><i></i></span>' : '<span class="tl__dot"></span>');
+      return '<div class="tl"><div class="tl__gutter">' + dot +
+        (last ? '' : '<span class="tl__line' + (done ? ' tl__line--done' : '') + '"></span>') +
+        '</div><div class="tl__body">' +
+        '<div class="tl__t' + (done || now ? '' : ' tl__t--todo') + '">' + esc(leg[0]) + '</div>' +
+        '<div class="tl__s">' + esc(leg[1]) + '</div></div></div>';
+    }).join('');
+  }
+
   function renderTracking() {
-    ensureBooking();
-    var F = COUNTRIES[state.from], T = COUNTRIES[state.to];
-    var d = new Date(state.bookedAt);
-    $('tkId').textContent = state.id;
+    var sh = trackTarget();
+    var F = COUNTRIES[sh.from], T = COUNTRIES[sh.to];
+    var d = new Date(sh.bookedAt);
+    var st = statusOf(sh.stage), delivered = sh.stage >= LEGS;
+
+    $('tkId').textContent = sh.id;
     $('tkSub').textContent = F.city + ' → ' + T.city + ' · booked ' + dateLabel(d);
+    $('tkStatus').className = 'badge badge--status' + (st[1] ? ' badge--' + st[1] : '');
+    $('tkStatus').textContent = st[0];
     $('tkFromCode').textContent = F.code;
     $('tkToCode').textContent = T.code;
     $('tkFromMeta').textContent = F.city + ', ' + F.name;
     var eta = new Date(d.getTime() + 6 * 864e5);
-    $('tkToMeta').textContent = T.city + ', ' + T.name + ' · ETA ' + dateLabel(eta);
-    $('tkPrice').textContent = yen(price());
-    $('tkBooked').textContent = 'Request submitted · ' + dateLabel(d) + ', ' +
-      String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    $('tkShipping').textContent = 'Shipping to ' + T.name;
-    $('tkShippingSub').textContent = F.city + ' → ' + T.city + ' · 5–7 days';
+    $('tkToMeta').textContent = T.city + ', ' + T.name +
+      (delivered ? ' · delivered ' : ' · ETA ') + dateLabel(eta);
+
+    /* Máy bay chạy dọc theo chặng đã đi */
+    var pct = Math.max(8, Math.round(sh.stage / LEGS * 100));
+    $('tkTrackDone').style.width = pct + '%';
+    $('tkTrackPlane').style.left = pct + '%';
+
+    /* ----- Chi tiết giá lô hàng đang xem (đã cân → giá chốt; chưa cân → tạm tính) ----- */
+    var weighed = sh.stage > 3;                 // đã cân ở mốc "Picked up & weighed"
+    var p = priceParts(sh.weight, sh.fragile, sh.battery);
+    var subBits = [];
+    if (sh.photos && sh.photos.length) subBits.push(sh.photos.length + (sh.photos.length === 1 ? ' photo' : ' photos'));
+    if (sh.fragile) subBits.push('Fragile');
+    if (sh.battery) subBits.push('Battery');
+    $('tkCount').textContent = '(1 item)';
+    $('tkItems').innerHTML =
+      '<div class="od__item"><span class="od__num">1</span>' +
+        '<div class="od__item-body"><div class="od__item-name">' + esc(sh.contents) + '</div>' +
+          (subBits.length ? '<div class="od__item-sub">' + esc(subBits.join(' · ')) + '</div>' : '') +
+        '</div><span class="od__item-w">' + kg1(sh.weight) + '</span></div>';
+    $('tkTotalW').textContent = kg1(sh.weight);
+    $('tkRate').textContent = yen(RATE_PER_KG);
+    $('tkRateW').textContent = kg1(sh.weight);
+    $('tkRateNote').textContent = weighed ? 'actual weight' : 'estimated weight';
+
+    var lines = [
+      ['Base international pickup', p.base],
+      ['Shipping · ' + kg1(sh.weight) + ' × ' + yen(RATE_PER_KG) + '/kg', p.shipping]
+    ];
+    if (p.fragile) lines.push(['Fragile handling × 1', p.fragile]);
+    if (p.battery) lines.push(['Battery handling × 1', p.battery]);
+    $('tkBreak').innerHTML = lines.map(function (l) {
+      return '<div class="od__bi"><span class="od__bi-l">' + esc(l[0]) + '</span>' +
+        '<span class="od__bi-r">' + esc(yen(l[1])) + '</span></div>';
+    }).join('');
+    $('tkTotalLabel').textContent = weighed ? 'Final price' : 'Estimated total';
+    $('tkTotal').textContent = yen(p.total);
+    $('tkFoot').textContent = weighed
+      ? 'Final price · weighed ' + kg1(sh.weight) + ' at pickup.'
+      : 'Final price is confirmed after we weigh your parcel at pickup.';
+
+    $('tkTimeline').innerHTML = timelineHTML(sh);
+  }
+
+  /* ============================================================
+     SCREEN 7 — My shipments (tab)
+     ============================================================ */
+  function renderShipments() {
+    var list = shipments();
+    $('shSub').textContent = list.length + (list.length === 1 ? ' shipment' : ' shipments') +
+      ' · tap one to track it';
+    $('shipList').innerHTML = list.map(function (sh) {
+      var F = COUNTRIES[sh.from], T = COUNTRIES[sh.to];
+      var st = statusOf(sh.stage), delivered = sh.stage >= LEGS;
+      var pct = Math.max(8, Math.round(sh.stage / LEGS * 100));
+      return '<button class="ship" type="button" data-ship="' + esc(sh.id) + '">' +
+        '<span class="ship__ic"><svg class="ic ic--18"><use href="#i-package"></use></svg></span>' +
+        '<span class="ship__body">' +
+          '<span class="ship__top">' +
+            '<span class="badge badge--status' + (st[1] ? ' badge--' + st[1] : '') + '">' + esc(st[0]) + '</span>' +
+            '<span class="ship__id">' + esc(sh.id) + '</span></span>' +
+          '<span class="ship__route"><span>' + esc(F.city) + '</span>' +
+            '<svg class="ic ic--14"><use href="#i-arrow-right"></use></svg>' +
+            '<span>' + esc(T.city) + '</span></span>' +
+          '<span class="ship__what">' + esc(sh.contents) + '</span>' +
+          '<span class="ship__bar"><i class="' + (delivered ? 'is-done' : '') + '" style="width:' + pct + '%"></i></span>' +
+          '<span class="ship__meta"><span>Booked ' + esc(dateLabel(new Date(sh.bookedAt))) + '</span>' +
+            '<span>' + esc(yen(priceOf(sh.weight, sh.fragile, sh.battery))) + '</span></span>' +
+        '</span></button>';
+    }).join('');
   }
 
   /* Copy the shipment ID */
@@ -1614,7 +2321,39 @@
   var CONFIRM = 3;
   var hist = [];
 
-  var RENDER = { 2: renderReview, 3: renderConfirm, 4: renderTracking, 5: function () { if (!chatSeeded) seedChat(); } };
+  var RENDER = {
+    2: renderReview,
+    3: renderConfirm,
+    4: renderTracking,
+    5: function () { state.unread = false; if (!chatSeeded) seedChat(); },   // mở Chat = đã đọc
+    6: renderShipments,
+    7: renderPicker
+  };
+
+  /* Mỗi màn thuộc về tab nào — dùng để tô sáng tab đang mở.
+     Wizard (0–3) thuộc New booking, Tracking (4) là màn con của My shipments. */
+  var TAB_OF = [0, 0, 0, 0, 1, 2, 1, 0];
+  var TAB_TARGET = [0, 6, 5];            // New booking · My shipments · Chat
+  var tabs = [].slice.call(document.querySelectorAll('.tabbar__btn'));
+
+  function syncTabs() {
+    var active = TAB_OF[cur];
+    tabs.forEach(function (b, i) {
+      if (i === active) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    $('tabDot').hidden = !state.unread;
+  }
+
+  tabs.forEach(function (b, i) {
+    b.addEventListener('click', function () {
+      var target = TAB_TARGET[i];
+      if (target === cur) return;
+      if (target === 6) viewing = null;    // vào lại danh sách thì bỏ lô đang xem
+      hist = [];                           // tab là màn gốc — không mang lịch sử của tab cũ theo
+      go(target, true);
+    });
+  });
 
   /* viaBack = true → don't append to the history (we're going backwards) */
   function go(next, viaBack) {
@@ -1641,6 +2380,7 @@
     if (sc) sc.scrollTop = 0;
 
     cur = next;
+    syncTabs();
     setTimeout(function () {
       screens.forEach(function (el) { el.classList.remove('no-anim'); });
       busy = false;
@@ -1664,9 +2404,21 @@
     if (act) { doAction(act.dataset.action); return; }
     var back = e.target.closest('[data-back]');
     if (back) { goBack(Number.parseInt(back.dataset.back, 10)); return; }
+    /* Một hàng trong My shipments → mở đúng lô đó ở màn Tracking */
+    var ship = e.target.closest('[data-ship]');
+    if (ship) { viewing = shipmentById(ship.dataset.ship); go(4); return; }
+    /* Thẻ địa chỉ ở màn 1 → sang màn chọn địa chỉ */
+    var openPick = e.target.closest('[data-pickaddr]');
+    if (openPick) { pickField = openPick.dataset.pickaddr; go(7); return; }
+    var save = e.target.closest('[data-psave]');
+    if (save) { toggleSaved(save.dataset.psave); return; }
+    var addr = e.target.closest('[data-paddr]');
+    if (addr) { choosePick(addr.dataset.paddr); return; }
     var hit = e.target.closest('[data-goto]');
     if (!hit || hit.classList.contains('is-disabled')) return;
-    go(Number.parseInt(hit.dataset.goto, 10));
+    var target = Number.parseInt(hit.dataset.goto, 10);
+    if (target === 4) viewing = null;          // mọi lối khác vào Tracking = đơn vừa đặt
+    go(target);
   });
 
   function doAction(name) {
@@ -1678,9 +2430,10 @@
     state.photos.forEach(function (p) { URL.revokeObjectURL(p.url); });
     state = clone(EMPTY);
     chatSeeded = false; replyIdx = 0;
-    hist = [];
+    hist = []; viewing = null;
     syncInputs(); closeChatMenu();
     go(0);
+    syncTabs();                  // go() bỏ qua khi đã đứng ở màn 0
   }
   /* ---------- Keyboard (disabled while typing in an input) ---------- */
   document.addEventListener('keydown', function (e) {
@@ -1709,7 +2462,9 @@
   });
 
   /* ---------- Boot ---------- */
+  renderEst();   // đơn giá /kg + tổng tạm tính
   syncInputs();
+  syncTabs();
 })();
 </script>
 </body>

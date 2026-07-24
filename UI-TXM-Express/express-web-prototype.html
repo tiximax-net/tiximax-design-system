@@ -82,8 +82,8 @@
   }
   .card--raised { box-shadow: var(--shadow-md); padding: var(--space-8); }
   .cap { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-brand); margin-bottom: var(--space-4); }
-  .lbl { display: block; font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); color: var(--text-tertiary); margin-bottom: var(--space-2); }
-  .lbl--gold { font-size: var(--fs-overline); color: var(--text-brand); }
+  .lbl { display: block; font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); letter-spacing: 0.01em; color: var(--text-secondary); margin-bottom: var(--space-2); }
+  .lbl--gold { font-size: var(--fs-body-sm); color: var(--text-brand); }
 
   /* ---------- Stepper ---------- */
   .steps { display: flex; align-items: center; }
@@ -114,7 +114,13 @@
   .field-wrap .lead-ic { position: absolute; left: 14px; top: 13px; color: var(--neutral-400); pointer-events: none; }
   .field-wrap .input { padding-left: 40px; }
   .unit { position: absolute; right: 14px; top: 13px; font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-tertiary); }
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  /* Người gửi / người nhận: tên và SĐT xếp DỌC (một cột) — giữ là 1 ô subgrid */
+  /* Tách rõ khối thông tin người gửi/nhận khỏi khối địa chỉ phía trên */
+  .pair { display: grid; grid-template-columns: 1fr; gap: var(--space-4); margin-top: var(--space-4); }
+  /* SĐT: ô chọn mã quốc gia (cờ + mã) đứng cạnh ô nhập số */
+  .phone-field { display: flex; gap: var(--space-2); }
+  .phone-cc { flex: none; width: 116px; padding-left: 12px; padding-right: var(--space-8); font-size: var(--fs-body-sm); }
+  .phone-field .input { flex: 1; min-width: 0; }
 
   /* ---------- Address search ---------- */
   .party-h { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
@@ -151,7 +157,7 @@
      Cho hai cột dùng CHUNG hàng bằng subgrid: mỗi phần (tiêu đề · địa chỉ · tên+SĐT
      · ghi chú) là một hàng, chiều cao lấy theo cột cao hơn nên luôn thẳng hàng. */
   .parties { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); column-gap: var(--space-6); row-gap: var(--space-5); }
-  .party { display: grid; grid-template-rows: subgrid; grid-row: span 4; align-content: start; }
+  .party { display: grid; grid-template-rows: subgrid; grid-row: span 5; align-content: start; }
   .addr-slot { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; }
   @supports not (grid-template-rows: subgrid) {
     /* Dự phòng cho trình duyệt chưa có subgrid: chốt cứng chiều cao ô địa chỉ */
@@ -168,6 +174,38 @@
   .addr-picked__t { flex: 1; font-size: var(--fs-caption); color: var(--neutral-900); line-height: var(--lh-normal); }
   .link-btn { border: none; background: none; color: var(--text-link); font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); cursor: pointer; padding: 0; }
   .link-btn:hover { text-decoration: underline; }
+
+  /* Ô mã bưu điện — vẫn cho khách nhập tay dù đã chọn địa chỉ autocomplete */
+  .lbl-opt { font-size: var(--fs-overline); font-weight: var(--fw-semibold); letter-spacing: 0; color: var(--text-tertiary); text-transform: none; margin-left: 6px; }
+
+  /* ---------- Address picker — dropdown gọn, xổ xuống ngay dưới ô ---------- */
+  .addr-anchor { position: relative; }
+  .addr-drop {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 40;
+    display: flex; flex-direction: column; overflow: hidden; max-height: 320px;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); animation: fadeUp 120ms ease-out;
+  }
+  .addr-drop__cap { padding: 10px 12px 4px; font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); text-transform: uppercase; color: var(--text-tertiary); }
+  .addr-drop__list { overflow-y: auto; padding: 4px 6px 6px; display: flex; flex-direction: column; gap: 2px; }
+  .picker__empty { padding: 16px 12px; text-align: center; font-size: var(--fs-caption); color: var(--text-tertiary); }
+  .pick-row {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    padding: 9px 10px; border: none; background: none; border-radius: var(--radius-md); cursor: pointer; font: inherit;
+  }
+  .pick-row:hover { background: var(--navy-50); }
+  .pick-row__ic {
+    width: 32px; height: 32px; flex: none; border-radius: var(--radius-pill);
+    background: var(--brand-navy); color: var(--neutral-0); display: flex; align-items: center; justify-content: center;
+  }
+  .pick-row--exact .pick-row__ic { background: var(--gold-50); color: var(--text-brand); }
+  .pick-row__body { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .pick-row__t { font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pick-row__m { font-size: var(--fs-overline); color: var(--text-secondary); line-height: var(--lh-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pick-row__m b { color: var(--text-primary); font-weight: var(--fw-semibold); }
+
+  [data-theme="dark"] .ptab.is-active { background: rgba(244, 185, 49, .12); color: var(--brand-gold); }
+  [data-theme="dark"] .pick-row:hover { background: var(--surface-sunken); }
 
   /* ---------- Buttons ---------- */
   .btn {
@@ -268,6 +306,33 @@
     padding: 14px 16px; font-size: var(--fs-caption); color: var(--text-info); line-height: var(--lh-relaxed);
   }
 
+  /* ---------- Đơn giá / kg (nêu rõ, dễ nhìn) ---------- */
+  .rate-box { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-radius: var(--radius-md); padding: 13px 16px; }
+  .rate-box .k { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: var(--ls-overline); text-transform: uppercase; display: block; margin-bottom: 3px; }
+  .rate-box .v { font-family: var(--font-display); font-size: var(--fs-h4); font-weight: var(--fw-bold); line-height: 1; }
+  .rate-box .v small { font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); }
+  .rate-box .w { text-align: right; flex: none; }
+  .rate-box .w b { font-family: var(--font-display); font-size: var(--fs-h4); font-weight: var(--fw-bold); line-height: 1; display: block; }
+  .rate-box .w span { font-size: var(--fs-overline); }
+  /* Trên card ước tính (nền navy) */
+  .estimate .rate-box { background: rgba(244, 185, 49, .14); border: 1px solid rgba(244, 185, 49, .30); margin-bottom: var(--space-4); }
+  .estimate .rate-box .k { color: var(--navy-100); }
+  .estimate .rate-box .v { color: var(--gold-300); }
+  .estimate .rate-box .v small { color: var(--navy-100); }
+  .estimate .rate-box .w b { color: var(--neutral-0); }
+  .estimate .rate-box .w span { color: var(--navy-200); }
+  /* Trên card sáng (tracking) */
+  .rate-box--light { background: var(--gold-50); border: 1px solid var(--gold-200); margin-bottom: var(--space-3); }
+  .rate-box--light .k { color: var(--text-tertiary); }
+  .rate-box--light .v { color: var(--text-brand); }
+  .rate-box--light .v small { color: var(--text-secondary); }
+  .rate-box--light .w b { color: var(--text-primary); }
+  .rate-box--light .w span { color: var(--text-tertiary); }
+  [data-theme="dark"] .rate-box--light { background: rgba(244, 185, 49, .10); border-color: rgba(244, 185, 49, .22); }
+
+  /* Nhắc đơn giá ngay cạnh ô nhập cân */
+  .rate-hint { color: var(--text-brand); font-weight: var(--fw-bold); }
+
   /* ---------- Done ---------- */
   .done { max-width: 520px; margin: 48px auto 0; text-align: center; padding: 48px 40px; }
   .done__ic {
@@ -337,8 +402,10 @@
     border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
   }
   .chat__head { display: flex; align-items: center; gap: var(--space-3); padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-sunken); }
-  .chat__avatar { position: relative; width: 40px; height: 40px; flex: none; border-radius: var(--radius-pill); background: var(--brand-navy); display: flex; align-items: center; justify-content: center; }
-  .chat__avatar img { width: 22px; height: 22px; display: block; filter: brightness(0) invert(1); }
+  /* Avatar Chat = logo Symbol tròn màu Navy (SVG đã có sẵn hình tròn nền navy) */
+  .chat__avatar { position: relative; width: 40px; height: 40px; flex: none; border-radius: var(--radius-pill); display: flex; align-items: center; justify-content: center; }
+  .chat__avatar img { width: 100%; height: 100%; display: block; border-radius: var(--radius-pill); }
+  [data-theme="dark"] .chat__avatar--light, [data-theme="light"] .chat__avatar--dark { display: none; }
   .chat__avatar i { position: absolute; right: 0; bottom: 0; width: 11px; height: 11px; border-radius: var(--radius-pill); background: var(--green-400); border: 2px solid var(--surface-sunken); }
   .chat__name { font-size: var(--fs-body); font-weight: var(--fw-bold); }
   .chat__status { font-size: var(--fs-overline); color: var(--text-success); display: flex; align-items: center; gap: 5px; }
@@ -519,27 +586,34 @@
   var STAGE_TIMES = ['Jul 20, 09:12', 'Jul 20, 10:05', 'Jul 21, 14:30', 'Jul 22, 06:15', 'Jul 22, 18:40', 'Jul 23, 08:00', 'Jul 23, 11:25'];
   var RATES = { USD: [1, '$', 2], JPY: [155, '¥', 0], IDR: [16300, 'Rp ', 0] };
   var ISO = { Indonesia: 'ID', Japan: 'JP', Vietnam: 'VN', Philippines: 'PH', Korea: 'KR', Singapore: 'SG' };
+  var DIAL = { Indonesia: '+62', Japan: '+81', Vietnam: '+84', Philippines: '+63', Korea: '+82', Singapore: '+65' };
+  /* Danh sách mã quốc gia cho ô SĐT — [cờ, mã, tên] */
+  var CODES = [
+    ['🇻🇳', '+84', 'Vietnam'], ['🇮🇩', '+62', 'Indonesia'], ['🇯🇵', '+81', 'Japan'],
+    ['🇰🇷', '+82', 'Korea'], ['🇵🇭', '+63', 'Philippines'], ['🇸🇬', '+65', 'Singapore'],
+    ['🇬🇧', '+44', 'United Kingdom'], ['🇺🇸', '+1', 'United States']
+  ];
 
   var S = {
     view: 'book', step: 1,
     currency: 'USD',
     originCountry: 'Indonesia', destCountry: 'Japan',
-    pickup: { query: '', selected: null, name: '', phone: '', note: '', focus: false },
-    drop: { query: '', selected: null, name: '', phone: '', focus: false },
+    pickup: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+62', note: '', focus: false },
+    drop: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+81', focus: false },
     items: [{ name: '', fragile: false, battery: false, photos: [], weight: '' }],
     orders: [
-      { id: 'TX-2445', from: 'Jakarta, ID', to: 'Tokyo, JP', items: 2, date: 'Jul 02', stage: 6, price: 41, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+      { id: '480244512207', from: 'Jakarta, ID', to: 'Tokyo, JP', items: 2, date: 'Jul 02', stage: 6, price: 41, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
         fromAddr: 'Jl. Jend. Sudirman No. 52-53, SCBD, Jakarta Selatan 12190', sender: 'Dewi Lestari', senderPhone: '+62 812 5550 194', note: 'Lobby B, ask reception',
         toAddr: '2-11-3 Meguro, Meguro-ku, Tokyo 153-0063', recipient: 'Kenta Mori', recipientPhone: '+81 90 5550 812',
         itemList: [
           { name: 'Batik fabric, 2 pieces', fragile: false, battery: false, photos: 2, estWeight: 1.2, actualWeight: 1.4 },
           { name: 'Ceramic tea set', fragile: true, battery: false, photos: 1, estWeight: 2.5, actualWeight: 2.6 }
         ] } },
-      { id: 'TX-2460', from: 'Bandung, ID', to: 'Osaka, JP', items: 1, date: 'Jul 14', stage: 3, price: 28, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+      { id: '480246023140', from: 'Bandung, ID', to: 'Osaka, JP', items: 1, date: 'Jul 14', stage: 3, price: 28, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
         fromAddr: 'Jl. Braga No. 99, Sumur Bandung, Bandung 40111', sender: 'Andi Pratama', senderPhone: '+62 813 5550 771', note: '',
         toAddr: '3-1-3 Umeda, Kita-ku, Osaka 530-0001', recipient: 'Yuki Tanaka', recipientPhone: '+81 90 5550 233',
         itemList: [{ name: 'Kopi Luwak beans, 1kg', fragile: false, battery: false, photos: 1, estWeight: 1.0, actualWeight: 1.1 }] } },
-      { id: 'TX-2473', from: 'Jakarta, ID', to: 'Fukuoka, JP', items: 3, date: 'Jul 20', stage: 1, price: 52, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
+      { id: '480247323205', from: 'Jakarta, ID', to: 'Fukuoka, JP', items: 3, date: 'Jul 20', stage: 1, price: 52, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
         fromAddr: 'Jl. Asia Afrika No. 8, Gelora, Jakarta Pusat 10270', sender: 'Sari Wijaya', senderPhone: '+62 811 5550 902', note: 'Call on arrival',
         toAddr: '1-1-1 Hakata Ekimae, Hakata-ku, Fukuoka 812-0011', recipient: 'Haruto Sato', recipientPhone: '+81 90 5550 640',
         itemList: [
@@ -548,7 +622,7 @@
           { name: 'Silver jewelry ×3', fragile: false, battery: false, photos: 0, estWeight: 0.3, actualWeight: null }
         ] } }
     ],
-    activeOrder: null, newOrderId: 'TX-2481', unread: 0,
+    activeOrder: null, newOrderId: '480248109631', unread: 0,
     messages: [{ who: 'agent', text: 'Hello! This is Rina from TIXIMAX Express. Submit a booking and we will confirm the price and pickup time with you right here.', time: '09:00' }],
     chatInput: '', pending: []
   };
@@ -569,16 +643,46 @@
   function fmtSize(b) { return b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(0) + ' KB' : (b / 1048576).toFixed(1) + ' MB'; }
   function plural(n, w) { return n + ' ' + w + (n > 1 ? 's' : ''); }
 
-  /* Giá tạm tính: nền 28$ + 9$/món thêm + 4$/món dễ vỡ + 2$/món có pin */
+  /* Mã tracking: 12 chữ số. Lưu dạng thô (đủ 12 số), hiển thị nhóm 4-4-4 cho dễ đọc. */
+  function genTracking() {
+    var n = '';
+    for (var i = 0; i < 12; i++) n += Math.floor(Math.random() * 10);
+    return n;
+  }
+  function fmtTracking(code) {
+    var s = String(code == null ? '' : code).replace(/\D/g, '');
+    return /^\d{12}$/.test(s) ? s.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3') : String(code);
+  }
+
+  /* Picker: đoạn đầu địa chỉ làm tiêu đề, phần còn lại làm dòng phụ; khoảng cách
+     là số giả ổn định (suy từ ký tự) để không nhảy loạn mỗi lần vẽ lại. */
+  function titleOf(addr) { return (String(addr).split(',')[0] || String(addr)).trim(); }
+  function restOf(addr) { var p = String(addr).split(','); return p.slice(1).join(',').trim() || String(addr); }
+  function distanceFor(addr) {
+    var s = 0; for (var i = 0; i < String(addr).length; i++) s += String(addr).charCodeAt(i);
+    var km = (s % 185) / 10;
+    return (km < 1 ? km.toFixed(2) : km.toFixed(0)) + ' km';
+  }
+
+  /* Giá tạm tính TÍNH THEO CÂN: phí nền + (số kg × đơn giá/kg) + phụ phí dễ vỡ / pin.
+     Đơn giá/kg được nêu rõ để khách dễ nhìn. */
+  var RATE_PER_KG = 6;   // USD / kg
+  var BASE_FEE = 15;     // phí lấy hàng quốc tế cơ bản
+  function itemWeight(i) {
+    if (i.actualWeight != null) return i.actualWeight;   // đơn đã cân thực tế
+    if (i.estWeight != null) return i.estWeight;         // đơn cũ (itemList)
+    var w = parseFloat(i.weight);                        // form đang nhập
+    return isNaN(w) ? 0 : w;
+  }
   function estimateFrom(list) {
-    var n = list.length;
     var fragile = list.filter(function (i) { return i.fragile; }).length;
     var battery = list.filter(function (i) { return i.battery; }).length;
-    var lines = [{ label: 'Base international pickup', val: fmt(28) }];
-    if (n > 1) lines.push({ label: 'Additional items × ' + (n - 1), val: fmt((n - 1) * 9) });
+    var weight = list.reduce(function (a, b) { return a + itemWeight(b); }, 0);
+    var lines = [{ label: 'Base international pickup', val: fmt(BASE_FEE) }];
+    lines.push({ label: 'Shipping · ' + weight.toFixed(1) + ' kg × ' + fmt(RATE_PER_KG) + '/kg', val: fmt(weight * RATE_PER_KG) });
     if (fragile) lines.push({ label: 'Fragile handling × ' + fragile, val: fmt(fragile * 4) });
     if (battery) lines.push({ label: 'Battery declaration × ' + battery, val: fmt(battery * 2) });
-    return { lines: lines, total: 28 + (n - 1) * 9 + fragile * 4 + battery * 2 };
+    return { lines: lines, total: BASE_FEE + weight * RATE_PER_KG + fragile * 4 + battery * 2, weight: weight, ratePerKg: RATE_PER_KG };
   }
   function statusOf(stage) {
     if (stage >= 6) return ['Delivered', 'green'];
@@ -617,44 +721,79 @@
       ' <span>· ' + esc(country) + '</span></span></div>';
 
     if (!st.selected) {
-      var sg = suggestions(key);
-      h += '<div class="addr-slot"><div class="field-wrap">' +
-        '<span class="lead-ic">' + icon('search', 16) + '</span>' +
-        '<input class="input" data-q="' + key + '" value="' + esc(st.query) + '" ' +
-        'placeholder="' + (isPickup ? 'Start typing a street, district or city…' : 'Start typing a street, ward or city…') + '">';
-      if (st.focus && st.query.trim() && sg.length) {
-        h += '<div class="suggest">' + sg.map(function (s, i) {
-          return '<button class="suggest__row" type="button" data-pick="' + key + '" data-i="' + i + '">' +
-            icon('pin', 14) + esc(s.text) + '</button>';
-        }).join('') + '</div>';
-      }
-      h += '</div>';
-      var rc = recents(key);
-      if (rc.length) {
-        h += '<div style="margin-top:20px"><div class="lbl">Recently used</div><div class="recents">' +
-          rc.map(function (t, i) {
-            return '<button class="recent" type="button" data-recent="' + key + '" data-i="' + i + '">' +
-              icon('clock', 14) + '<span>' + esc(t) + '</span></button>';
-          }).join('') + '</div></div>';
-      }
-      h += '</div>';
+      // Ô nhập autocomplete — click/gõ vào là dropdown xổ xuống ngay dưới
+      h += '<div class="addr-slot"><div class="addr-anchor">' +
+        '<div class="field-wrap">' +
+          '<span class="lead-ic">' + icon('search', 16) + '</span>' +
+          '<input class="input" data-addrq="' + key + '" value="' + esc(st.query) + '" ' +
+          'placeholder="' + (isPickup ? 'Search a pickup address…' : 'Search a delivery address…') + '" autocomplete="off">' +
+        '</div>' +
+        (st.focus ? renderAddrDrop(key) : '') +
+      '</div></div>';
     } else {
       h += '<div class="addr-slot"><div class="addr-picked">' + icon('pin', 16) +
         '<div class="addr-picked__t">' + esc(st.selected) + '</div>' +
         '<button class="link-btn" type="button" data-clear="' + key + '">Change</button></div></div>';
     }
 
+    // Autocomplete đã điền địa chỉ, nhưng vẫn cho khách nhập tay mã bưu điện nếu cần
+    h += '<div><label class="lbl">Postal / ZIP code<span class="lbl-opt">optional</span></label>' +
+      '<input class="input" data-postal="' + key + '" value="' + esc(st.postal) + '" ' +
+      'placeholder="' + (isPickup ? 'e.g. 12190' : 'e.g. 153-0063') + '" inputmode="numeric" autocomplete="postal-code" style="max-width:240px"></div>';
+
+    var dialOpts = CODES.map(function (c) {
+      return '<option value="' + c[1] + '"' + (c[1] === st.dial ? ' selected' : '') + '>' + c[0] + ' ' + c[1] + '</option>';
+    }).join('');
     h += '<div class="pair">' +
       '<div><label class="lbl">' + (isPickup ? 'Sender name' : 'Recipient name') + '</label>' +
       '<input class="input" data-name="' + key + '" value="' + esc(st.name) + '" placeholder="Full name"></div>' +
       '<div><label class="lbl">Phone</label>' +
-      '<input class="input" data-phone="' + key + '" value="' + esc(st.phone) + '" placeholder="Contact number"></div></div>';
+      '<div class="phone-field">' +
+        '<select class="select phone-cc" data-dial="' + key + '" aria-label="Country code">' + dialOpts + '</select>' +
+        '<input class="input" type="tel" inputmode="tel" data-phone="' + key + '" value="' + esc(st.phone) + '" placeholder="Mobile number"></div>' +
+      '</div></div>';
 
     if (isPickup) {
       h += '<div><label class="lbl">Pickup notes</label>' +
         '<textarea class="textarea" rows="2" data-note="pickup" placeholder="Gate code, floor, best time to collect…">' + esc(st.note) + '</textarea></div>';
     }
     return h;
+  }
+
+  /* ============================================================
+     RENDER — Dropdown chọn địa chỉ (xổ ngay dưới ô, gọn)
+     ============================================================ */
+  function addrList(key) {
+    var country = key === 'pickup' ? S.originCountry : S.destCountry;
+    var all = (ADDR[country] || []).slice();
+    var q = S[key].query.trim().toLowerCase();
+    if (q) return all.filter(function (a) { return a.toLowerCase().indexOf(q) >= 0; }).slice(0, 6);
+    return all.slice(0, 4);   // chưa gõ → vài địa chỉ gần đây
+  }
+  function addrRows(key) {
+    var q = S[key].query.trim();
+    var rows = addrList(key).map(function (a) {
+      return '<button class="pick-row" type="button" data-pick="' + key + '" data-addr="' + encodeURIComponent(a) + '">' +
+        '<span class="pick-row__ic">' + icon(q ? 'pin' : 'clock', 15) + '</span>' +
+        '<span class="pick-row__body"><span class="pick-row__t">' + esc(titleOf(a)) + '</span>' +
+        '<span class="pick-row__m"><b>' + esc(distanceFor(a)) + '</b> · ' + esc(restOf(a)) + '</span></span></button>';
+    }).join('');
+    // Cho tự nhập tay khi không có gợi ý khớp
+    if (q.length > 3) {
+      rows += '<button class="pick-row pick-row--exact" type="button" data-pick="' + key + '" data-addr="' + encodeURIComponent(q) + '">' +
+        '<span class="pick-row__ic">' + icon('pin', 15) + '</span>' +
+        '<span class="pick-row__body"><span class="pick-row__t">Use exactly what I typed</span>' +
+        '<span class="pick-row__m">' + esc(q) + '</span></span></button>';
+    }
+    if (!rows) rows = '<div class="picker__empty">No match — keep typing the full address.</div>';
+    return rows;
+  }
+  function renderAddrDrop(key) {
+    var q = S[key].query.trim();
+    return '<div class="addr-drop">' +
+        '<div class="addr-drop__cap">' + (q ? 'Matching addresses' : 'Recently used') + '</div>' +
+        '<div class="addr-drop__list" data-drop="' + key + '">' + addrRows(key) + '</div>' +
+      '</div>';
   }
 
   function renderStep1() {
@@ -699,7 +838,7 @@
             '<p class="note">Photograph the item unpacked, from a couple of angles. This protects you if anything is disputed later.</p></div>' +
           '<div><label class="lbl">What is inside?</label>' +
             '<input class="input" data-iname="' + i + '" value="' + esc(it.name) + '" placeholder="e.g. Batik fabric, 2 pieces">' +
-            '<label class="lbl" style="margin-top:18px">Estimated weight</label>' +
+            '<label class="lbl" style="margin-top:18px">Estimated weight <span class="lbl-opt rate-hint">· ' + esc(fmt(RATE_PER_KG)) + '/kg</span></label>' +
             '<div class="field-wrap" style="max-width:200px">' +
               '<input class="input" type="number" min="0" step="0.1" data-iweight="' + i + '" value="' + esc(it.weight) + '" placeholder="0.0" style="padding-right:44px;padding-left:14px">' +
               '<span class="unit">kg</span></div>' +
@@ -733,6 +872,10 @@
     }).join('');
 
     var estimate = '<div class="estimate"><div class="cap">Estimated price</div>' +
+      '<div class="rate-box">' +
+        '<div><span class="k">Shipping rate</span><span class="v">' + esc(fmt(est.ratePerKg)) + ' <small>/ kg</small></span></div>' +
+        '<div class="w"><span class="k">Chargeable</span><b>' + est.weight.toFixed(1) + ' kg</b></div>' +
+      '</div>' +
       '<div style="display:flex;flex-direction:column;gap:8px">' +
         est.lines.map(function (l) { return '<div class="estimate__line"><span>' + esc(l.label) + '</span><span>' + esc(l.val) + '</span></div>'; }).join('') +
       '</div>' +
@@ -762,7 +905,11 @@
 
   function renderDone() {
     return '<div class="card card--raised done"><div class="done__ic">' + icon('check', 30) + '</div>' +
-      '<h2>Booking ' + esc(S.newOrderId) + ' submitted</h2>' +
+      '<h2>Booking submitted</h2>' +
+      '<div style="display:inline-flex;flex-direction:column;gap:4px;margin:0 auto 22px;padding:12px 24px;border:1px solid var(--border-default);border-radius:var(--radius-md);background:var(--surface-sunken)">' +
+        '<span style="font-size:var(--fs-overline);font-weight:var(--fw-bold);letter-spacing:var(--ls-overline);color:var(--text-tertiary)">Tracking code</span>' +
+        '<span style="font-family:var(--font-display);font-size:var(--fs-h4);font-weight:var(--fw-bold);letter-spacing:3px">' + esc(fmtTracking(S.newOrderId)) + '</span>' +
+      '</div>' +
       '<p>Thank you! Our team is reviewing your booking and will confirm the price and pickup time with you in chat.</p>' +
       '<div style="display:flex;gap:var(--space-3);justify-content:center;flex-wrap:wrap">' +
         '<button class="btn btn--primary" data-go="chat" type="button">' + icon('chat') + 'Open chat</button>' +
@@ -798,13 +945,15 @@
   function renderOrders() {
     var rows = S.orders.map(function (o) {
       var st = statusOf(o.stage);
+      var est = estimateFrom((o.detail && o.detail.itemList) || []);
       return '<button class="order" type="button" data-order="' + esc(o.id) + '">' +
         '<span class="order__ic">' + icon('package') + '</span>' +
-        '<span style="min-width:140px"><span class="order__id" style="display:block">' + esc(o.id) + '</span>' +
-        '<span class="order__sub">Booked ' + esc(o.date) + ' · ' + plural(o.items, 'item') + '</span></span>' +
+        '<span style="min-width:150px"><span class="order__id" style="display:block">' + esc(fmtTracking(o.id)) + '</span>' +
+        '<span class="order__sub">Booked ' + esc(o.date) + ' · ' + plural(o.items, 'item') +
+          (est.weight > 0 ? ' · ' + est.weight.toFixed(1) + ' kg' : '') + '</span></span>' +
         '<span class="order__route"><span style="font-weight:var(--fw-medium)">' + esc(o.from) + '</span>' +
         icon('arrow-right', 13) + '<span style="font-weight:var(--fw-medium)">' + esc(o.to) + '</span></span>' +
-        '<span class="order__price">' + esc(fmt(o.price)) + '</span>' +
+        '<span class="order__price">' + esc(fmt(est.total)) + '</span>' +
         '<span class="badge badge--' + st[1] + '">' + st[0] + '</span>' +
         '<span class="order__bar"><i class="' + (o.stage >= 6 ? 'is-done' : '') + '" style="width:' + Math.max(6, Math.round((o.stage / 6) * 100)) + '%"></i></span>' +
         '</button>';
@@ -852,10 +1001,11 @@
     return '<div style="max-width:1000px;margin:0 auto">' +
       '<button class="back-link" data-go="orders" type="button">' + icon('chevron-left', 15) + 'All shipments</button>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;margin-bottom:6px">' +
-        '<h1 class="h1" style="font-size:var(--fs-h3);margin:0">' + esc(active.id) + '</h1>' +
+        '<div><div class="rail__cap" style="margin-bottom:2px">Tracking code</div>' +
+          '<h1 class="h1" style="font-size:var(--fs-h3);margin:0;letter-spacing:1px">' + esc(fmtTracking(active.id)) + '</h1></div>' +
         '<span class="badge badge--' + st[1] + '">' + st[0] + '</span></div>' +
       '<div style="font-size:var(--fs-body-sm);color:var(--text-secondary);margin-bottom:var(--space-6)">' +
-        esc(active.from) + ' → ' + esc(active.to) + ' · ' + plural(active.items, 'item') + ' · ' + esc(fmt(active.price)) + '</div>' +
+        esc(active.from) + ' → ' + esc(active.to) + ' · ' + plural(active.items, 'item') + ' · ' + esc(fmt(price.total)) + '</div>' +
       '<div class="grid2 grid2--tight"><div class="col">' +
         '<div class="card"><div class="cap">Route &amp; contacts</div><div class="rail">' +
           '<div class="rail__line"><span class="rail__dot"></span><span class="rail__bar"></span><span class="rail__dot rail__dot--end"></span></div>' +
@@ -878,15 +1028,19 @@
                 '<div style="font-size:var(--fs-overline);color:var(--text-tertiary);line-height:var(--lh-normal)">Actual weight is measured once our courier collects the items.</div>') +
           '</div>' +
           '<div class="divide">' +
+            '<div class="rate-box rate-box--light">' +
+              '<div><span class="k">Shipping rate</span><span class="v">' + esc(fmt(price.ratePerKg)) + ' <small>/ kg</small></span></div>' +
+              '<div class="w"><b>' + price.weight.toFixed(1) + ' kg</b><span>' + (pickedUp ? 'actual weight' : 'est. weight') + '</span></div>' +
+            '</div>' +
             price.lines.map(function (l) { return '<div class="split"><span>' + esc(l.label) + '</span><span>' + esc(l.val) + '</span></div>'; }).join('') +
             '<div class="split" style="border-top:1px solid var(--border-subtle);padding-top:10px;margin-top:2px;align-items:baseline">' +
-              '<span>Total</span><span style="font-family:var(--font-display);font-size:var(--fs-h4);font-weight:var(--fw-bold);color:var(--text-primary)">' + esc(fmt(active.price)) + '</span></div>' +
+              '<span>Total</span><span style="font-family:var(--font-display);font-size:var(--fs-h4);font-weight:var(--fw-bold);color:var(--text-primary)">' + esc(fmt(price.total)) + '</span></div>' +
           '</div></div>' +
       '</div>' +
       '<div class="card card--raised" style="padding:var(--space-6)"><div class="cap">Tracking</div>' +
         '<div style="display:flex;flex-direction:column">' + stages + '</div>' +
         '<div style="border-top:1px solid var(--border-subtle);padding-top:20px;display:flex">' +
-          '<button class="btn btn--outline" data-go="chat" type="button" style="flex:1">' + icon('chat', 15) + 'Chat about this shipment</button>' +
+          '<button class="btn btn--primary" data-go="chat" type="button" style="flex:1;padding:16px 28px;font-size:var(--fs-body)">' + icon('chat', 17) + 'Chat about this shipment</button>' +
         '</div></div>' +
       '</div></div>';
   }
@@ -923,7 +1077,10 @@
 
     return '<div class="chat">' +
       '<div class="chat__head">' +
-        '<span class="chat__avatar"><img src="../assets/tiximax-mark.svg" alt=""><i></i></span>' +
+        '<span class="chat__avatar">' +
+          '<img class="chat__avatar--light" src="../assets/tiximax-symbol-circle-navy.svg" alt="TIXIMAX Support">' +
+          '<img class="chat__avatar--dark" src="../assets/tiximax-symbol-circle-gold.svg" alt="TIXIMAX Support">' +
+          '<i></i></span>' +
         '<div style="flex:1;min-width:0"><div class="chat__name">TIXIMAX Support</div>' +
         '<div class="chat__status"><i></i>Online · replies in minutes</div></div></div>' +
       '<div class="chat__body" id="chatBody">' + msgs + '</div>' + pending +
@@ -959,16 +1116,35 @@
     $('navDot').hidden = S.unread === 0;
   }
 
+  /* ---------- Dropdown chọn địa chỉ ----------
+     Dựng lại danh sách ngay dưới ô đang gõ mà KHÔNG đụng tới node input,
+     nên con trỏ và focus của ô nhập được giữ nguyên. */
+  function paintDrop(key) {
+    var input = document.querySelector('[data-addrq="' + key + '"]');
+    if (!input) return;
+    var anchor = input.closest('.addr-anchor');
+    var old = anchor.querySelector('.addr-drop');
+    if (old) old.remove();
+    var st = S[key];
+    if (st.focus && !st.selected) anchor.insertAdjacentHTML('beforeend', renderAddrDrop(key));
+  }
+  function pickAddr(key, addr) {
+    if (!addr) return;
+    S[key].selected = addr; S[key].query = ''; S[key].focus = false;
+    render();
+  }
+  function focusAddr(key) { var s = document.querySelector('[data-addrq="' + key + '"]'); if (s) s.focus(); }
+
   /* ============================================================
      TƯƠNG TÁC
      ============================================================ */
   function go(view) {
     if (view === 'book' && S.step >= 4) {
       S.step = 1;
-      S.pickup = { query: '', selected: null, name: '', phone: '', note: '', focus: false };
-      S.drop = { query: '', selected: null, name: '', phone: '', focus: false };
+      S.pickup = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.originCountry] || '+62', note: '', focus: false };
+      S.drop = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.destCountry] || '+81', focus: false };
       S.items = [{ name: '', fragile: false, battery: false, photos: [], weight: '' }];
-      S.newOrderId = 'TX-' + (parseInt(S.newOrderId.slice(3), 10) + 1);
+      S.newOrderId = genTracking();
     }
     if (view === 'chat') S.unread = 0;
     S.view = view;
@@ -993,7 +1169,7 @@
       var k2 = el.dataset.recent;
       S[k2].selected = recents(k2)[+el.dataset.i]; S[k2].query = ''; render(); return;
     }
-    if ((el = hit('data-clear'))) { S[el.dataset.clear].selected = null; render(); return; }
+    if ((el = hit('data-clear'))) { S[el.dataset.clear].selected = null; S[el.dataset.clear].query = ''; S[el.dataset.clear].focus = true; render(); focusAddr(el.dataset.clear); return; }
     if ((el = hit('data-rmitem'))) { S.items.splice(+el.dataset.rmitem, 1); render(); return; }
     if ((el = hit('data-rmphoto'))) {
       var it = S.items[+el.dataset.rmphoto];
@@ -1007,7 +1183,8 @@
     switch (t.closest('button') && t.closest('button').id) {
       case 'swapBtn':
         var o = S.originCountry; S.originCountry = S.destCountry; S.destCountry = o;
-        S.pickup.selected = null; S.pickup.query = ''; S.drop.selected = null; S.drop.query = '';
+        S.pickup.selected = null; S.pickup.query = ''; S.pickup.postal = ''; S.pickup.dial = DIAL[S.originCountry] || S.pickup.dial;
+        S.drop.selected = null; S.drop.query = ''; S.drop.postal = ''; S.drop.dial = DIAL[S.destCountry] || S.drop.dial;
         render(); break;
       case 'toStep2': if (step1Ready()) { S.step = 2; render(); } break;
       case 'toStep1': S.step = 1; render(); break;
@@ -1020,21 +1197,21 @@
     }
   });
 
-  /* Chọn gợi ý: dùng mousedown để chạy TRƯỚC blur của ô nhập */
+  /* Chọn 1 dòng địa chỉ trong dropdown: dùng mousedown để chạy TRƯỚC blur của ô nhập */
   document.querySelector('.main').addEventListener('mousedown', function (e) {
     var el = e.target.closest('[data-pick]');
     if (!el) return;
-    e.preventDefault();
-    var key = el.dataset.pick, sg = suggestions(key)[+el.dataset.i];
-    if (sg) { S[key].selected = sg.value; S[key].query = ''; S[key].focus = false; render(); }
+    e.preventDefault();   // giữ focus ở ô nhập, không để blur đóng dropdown trước
+    pickAddr(el.dataset.pick, decodeURIComponent(el.dataset.addr || ''));
   });
 
   /* Nhập liệu (input/change) — cũng uỷ quyền, tránh mất listener khi render lại */
   document.querySelector('.main').addEventListener('input', function (e) {
     var t = e.target, d = t.dataset;
-    if (d.q != null) { S[d.q].query = t.value; updateSuggest(d.q); return; }
+    if (d.addrq != null) { S[d.addrq].query = t.value; paintDrop(d.addrq); return; }
     if (d.name != null) { S[d.name].name = t.value; return; }
     if (d.phone != null) { S[d.phone].phone = t.value; return; }
+    if (d.postal != null) { S[d.postal].postal = t.value; return; }
     if (d.note != null) { S[d.note].note = t.value; return; }
     if (d.iname != null) { S.items[+d.iname].name = t.value; syncStep2Btn(); return; }
     if (d.iweight != null) { S.items[+d.iweight].weight = t.value; return; }
@@ -1043,36 +1220,16 @@
 
   document.querySelector('.main').addEventListener('focusin', function (e) {
     var d = e.target.dataset;
-    if (d && d.q != null) { S[d.q].focus = true; updateSuggest(d.q); }
+    if (d && d.addrq != null) { S[d.addrq].focus = true; paintDrop(d.addrq); }
   });
   document.querySelector('.main').addEventListener('focusout', function (e) {
     var d = e.target.dataset;
-    if (d && d.q != null) {
-      var key = d.q;
-      setTimeout(function () { S[key].focus = false; updateSuggest(key); }, 150);
+    if (d && d.addrq != null) {
+      var key = d.addrq;   // chờ chút để mousedown chọn dòng kịp chạy trước khi đóng
+      setTimeout(function () { S[key].focus = false; paintDrop(key); }, 150);
     }
   });
 
-  /* Chỉ dựng lại danh sách gợi ý ngay dưới ô đang gõ — không đụng tới node input,
-     nên con trỏ và focus giữ nguyên khi gõ. */
-  function updateSuggest(key) {
-    var input = document.querySelector('[data-q="' + key + '"]');
-    if (!input) return;
-    var wrap = input.closest('.field-wrap');
-    var old = wrap.querySelector('.suggest');
-    if (old) old.remove();
-    var st = S[key];
-    if (!st.focus || !st.query.trim() || st.selected) return;
-    var sg = suggestions(key);
-    if (!sg.length) return;
-    var box = document.createElement('div');
-    box.className = 'suggest';
-    box.innerHTML = sg.map(function (item, i) {
-      return '<button class="suggest__row" type="button" data-pick="' + key + '" data-i="' + i + '">' +
-        icon('pin', 14) + esc(item.text) + '</button>';
-    }).join('');
-    wrap.appendChild(box);
-  }
   /* Đổi tên món chỉ cần bật/tắt nút, không vẽ lại cả màn (giữ nguyên con trỏ) */
   function syncStep2Btn() {
     var btn = $('toStep3');
@@ -1081,8 +1238,9 @@
 
   document.querySelector('.main').addEventListener('change', function (e) {
     var t = e.target, d = t.dataset;
-    if (t.id === 'selOrigin') { S.originCountry = t.value; S.pickup.selected = null; S.pickup.query = ''; render(); return; }
-    if (t.id === 'selDest') { S.destCountry = t.value; S.drop.selected = null; S.drop.query = ''; render(); return; }
+    if (d.dial != null) { S[d.dial].dial = t.value; return; }
+    if (t.id === 'selOrigin') { S.originCountry = t.value; S.pickup.selected = null; S.pickup.query = ''; S.pickup.postal = ''; S.pickup.dial = DIAL[t.value] || S.pickup.dial; render(); return; }
+    if (t.id === 'selDest') { S.destCountry = t.value; S.drop.selected = null; S.drop.query = ''; S.drop.postal = ''; S.drop.dial = DIAL[t.value] || S.drop.dial; render(); return; }
     if (d.photos != null) {
       var it = S.items[+d.photos];
       Array.prototype.forEach.call(t.files || [], function (f) { it.photos.push(URL.createObjectURL(f)); });
@@ -1100,7 +1258,13 @@
   });
 
   document.querySelector('.main').addEventListener('keydown', function (e) {
-    if (e.target.id === 'chatInput' && e.key === 'Enter') { e.preventDefault(); sendChat(); }
+    var d = e.target.dataset;
+    if (e.target.id === 'chatInput' && e.key === 'Enter') { e.preventDefault(); sendChat(); return; }
+    if (d && d.addrq != null) {
+      var key = d.addrq;
+      if (e.key === 'Enter') { e.preventDefault(); var first = addrList(key)[0] || S[key].query.trim(); pickAddr(key, first); }
+      else if (e.key === 'Escape') { e.target.blur(); }   // blur → focusout đóng dropdown
+    }
   });
 
   /* ---------- Gửi booking ---------- */
@@ -1117,8 +1281,8 @@
       items: S.items.length, date: 'Jul 23', stage: 0, price: est.total,
       originCountry: S.originCountry, destCountry: S.destCountry,
       detail: {
-        fromAddr: S.pickup.selected, sender: S.pickup.name.trim() || 'Sender', senderPhone: S.pickup.phone || '—', note: S.pickup.note || '',
-        toAddr: S.drop.selected, recipient: S.drop.name.trim() || 'Recipient', recipientPhone: S.drop.phone || '—',
+        fromAddr: S.pickup.selected, sender: S.pickup.name.trim() || 'Sender', senderPhone: S.pickup.phone ? (S.pickup.dial + ' ' + S.pickup.phone) : '—', note: S.pickup.note || '',
+        toAddr: S.drop.selected, recipient: S.drop.name.trim() || 'Recipient', recipientPhone: S.drop.phone ? (S.drop.dial + ' ' + S.drop.phone) : '—',
         itemList: S.items.map(function (it) {
           return { name: it.name.trim() || 'Untitled item', fragile: it.fragile, battery: it.battery,
                    photos: it.photos.length, estWeight: parseFloat(it.weight) || 0, actualWeight: null };
@@ -1127,9 +1291,9 @@
     };
     S.orders.unshift(order);
     S.step = 4; S.unread = 1;
-    S.messages.push({ who: 'system', text: 'Booking ' + S.newOrderId + ' submitted · ' + plural(S.items.length, 'item') });
+    S.messages.push({ who: 'system', text: 'Booking ' + fmtTracking(S.newOrderId) + ' submitted · ' + plural(S.items.length, 'item') });
     S.messages.push({ who: 'agent', time: now(),
-      text: 'Thanks! We received booking ' + S.newOrderId + '. We are reviewing your items and will confirm the final price and a pickup window shortly. Anything we should know before the courier arrives?' });
+      text: 'Thanks! We received booking ' + fmtTracking(S.newOrderId) + '. We are reviewing your items and will confirm the final price and a pickup window shortly. Anything we should know before the courier arrives?' });
     render();
   }
 
