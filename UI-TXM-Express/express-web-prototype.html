@@ -165,6 +165,42 @@
     .addr-slot { min-height: 190px; }
   }
 
+  /* ---------- Địa chỉ + liên hệ gộp 1 card kiểu "chuyến đi" (điểm gửi → điểm nhận) ---------- */
+  .trip { border: 1.5px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-card); padding: var(--space-4) var(--space-5); }
+  .trip__pt { display: flex; gap: var(--space-3); }
+  /* cột trái: chấm + đường nối chấm dưới */
+  .trip__rail { display: flex; flex-direction: column; align-items: center; padding-top: 3px; }
+  .trip__dot { width: 14px; height: 14px; border-radius: var(--radius-pill); flex: none; }
+  .trip__dot--from { background: var(--blue-500, #2563eb); box-shadow: 0 0 0 4px rgba(37, 99, 235, .16); }
+  .trip__dot--to { background: var(--red-500, #dc2626); border-radius: 50% 50% 50% 0; transform: rotate(45deg); box-shadow: 0 0 0 4px rgba(220, 38, 38, .14); }
+  .trip__line { flex: 1; width: 0; border-left: 2px dotted var(--border-strong); margin: 6px 0; min-height: 22px; }
+  .trip__main { flex: 1; min-width: 0; padding-bottom: var(--space-4); }
+  .trip__pt:last-child .trip__main { padding-bottom: 0; }
+  /* dòng tóm tắt / gợi ý (thu gọn) */
+  .trip__toprow { display: flex; align-items: flex-start; gap: var(--space-3); }
+  .trip__sum { flex: 1; display: flex; align-items: flex-start; gap: var(--space-3); min-width: 0; text-align: left; background: none; border: 0; padding: 6px 8px; margin: -6px -8px; border-radius: var(--radius-md); font: inherit; color: inherit; cursor: pointer; transition: background .15s; }
+  .trip__sum-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .trip__sum-t { font-size: var(--fs-body); font-weight: var(--fw-semibold); color: var(--text-primary); }
+  .trip__sum.is-empty .trip__sum-t { font-weight: var(--fw-regular); color: var(--text-tertiary); }
+  .trip__sum-m { font-size: var(--fs-caption); color: var(--text-secondary); }
+  /* cả dòng tóm tắt bấm được → hover đổi màu nhẹ để biết là chỉnh sửa được */
+  .trip__sum:hover { background: var(--surface-sunken); }
+  .trip__sum:hover .trip__sum-t { color: var(--text-brand); }
+  .trip__swap {
+    flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill); align-self: flex-start;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface-page); color: var(--brand-primary);
+    border: 1px solid var(--border-default); cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+  }
+  .trip__swap:hover { border-color: var(--brand-gold); color: var(--text-brand); background: var(--gold-50); }
+  /* form khi mở sửa */
+  /* Form gọn lại: giới hạn bề rộng input + giãn cách các nhóm cho thoáng */
+  .trip__form { display: flex; flex-direction: column; gap: var(--space-5); }
+  .trip__form .input, .trip__form .select, .trip__form .textarea,
+  .trip__form .addr-picked, .trip__form .field-wrap, .trip__form .pair { max-width: 440px; }
+  .trip__hd { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: 2px; }
+  .trip__hd-t { font-size: var(--fs-body); font-weight: var(--fw-semibold); }
+
   .addr-picked {
     display: flex; gap: var(--space-3); align-items: flex-start;
     /* 2 dòng địa chỉ + padding + viền — để ô 1 dòng và ô 2 dòng cao bằng nhau */
@@ -598,8 +634,9 @@
     view: 'book', step: 1,
     currency: 'USD',
     originCountry: 'Indonesia', destCountry: 'Japan',
-    pickup: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+62', note: '', focus: false },
-    drop: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+81', focus: false },
+    // Tất cả để trống — khách tự nhập từ đầu; form người gửi mở sẵn để nhập
+    pickup: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+62', note: '', focus: false, editing: true },
+    drop: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+81', focus: false, editing: false },
     items: [{ name: '', fragile: false, battery: false, photos: [], weight: '' }],
     orders: [
       { id: '480244512207', from: 'Jakarta, ID', to: 'Tokyo, JP', items: 2, date: 'Jul 02', stage: 6, price: 41, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
@@ -705,42 +742,32 @@
     var country = key === 'pickup' ? S.originCountry : S.destCountry;
     return (ADDR[country] || []).slice(0, 2);
   }
-  var step1Ready = function () { return !!(S.pickup.selected && S.drop.selected); };
+  function partyComplete(key) { var s = S[key]; return !!(s.selected && s.name.trim() && s.phone.trim()); }
+  var step1Ready = function () { return partyComplete('pickup') && partyComplete('drop'); };
   var step2Ready = function () { return S.items.length > 0 && S.items.every(function (i) { return i.name.trim(); }); };
 
   /* ============================================================
      RENDER — Booking wizard
      ============================================================ */
-  function addressBlock(key) {
-    var st = S[key];
-    var isPickup = key === 'pickup';
-    var country = isPickup ? S.originCountry : S.destCountry;
-    var h = '<div class="party-h">' +
-      '<span class="party-h__ic party-h__ic--' + (isPickup ? 'from' : 'to') + '">' + icon('pin', 14) + '</span>' +
-      '<span class="party-h__t">' + (isPickup ? 'Pickup address' : 'Delivery address') +
-      ' <span>· ' + esc(country) + '</span></span></div>';
-
+  // Nội dung form khi mở sửa một điểm (địa chỉ + mã BĐ + tên + SĐT)
+  function tripForm(key) {
+    var st = S[key], isPickup = key === 'pickup';
+    var h = '';
     if (!st.selected) {
-      // Ô nhập autocomplete — click/gõ vào là dropdown xổ xuống ngay dưới
-      h += '<div class="addr-slot"><div class="addr-anchor">' +
+      h += '<div class="addr-anchor">' +
         '<div class="field-wrap">' +
           '<span class="lead-ic">' + icon('search', 16) + '</span>' +
           '<input class="input" data-addrq="' + key + '" value="' + esc(st.query) + '" ' +
           'placeholder="' + (isPickup ? 'Search a pickup address…' : 'Search a delivery address…') + '" autocomplete="off">' +
-        '</div>' +
-        (st.focus ? renderAddrDrop(key) : '') +
-      '</div></div>';
+        '</div>' + (st.focus ? renderAddrDrop(key) : '') + '</div>';
     } else {
-      h += '<div class="addr-slot"><div class="addr-picked">' + icon('pin', 16) +
+      h += '<div class="addr-picked">' + icon('pin', 16) +
         '<div class="addr-picked__t">' + esc(st.selected) + '</div>' +
-        '<button class="link-btn" type="button" data-clear="' + key + '">Change</button></div></div>';
+        '<button class="link-btn" type="button" data-clear="' + key + '">Change</button></div>';
     }
-
-    // Autocomplete đã điền địa chỉ, nhưng vẫn cho khách nhập tay mã bưu điện nếu cần
     h += '<div><label class="lbl">Postal / ZIP code<span class="lbl-opt">optional</span></label>' +
       '<input class="input" data-postal="' + key + '" value="' + esc(st.postal) + '" ' +
       'placeholder="' + (isPickup ? 'e.g. 12190' : 'e.g. 153-0063') + '" inputmode="numeric" autocomplete="postal-code" style="max-width:240px"></div>';
-
     var dialOpts = CODES.map(function (c) {
       return '<option value="' + c[1] + '"' + (c[1] === st.dial ? ' selected' : '') + '>' + c[0] + ' ' + c[1] + '</option>';
     }).join('');
@@ -752,12 +779,38 @@
         '<select class="select phone-cc" data-dial="' + key + '" aria-label="Country code">' + dialOpts + '</select>' +
         '<input class="input" type="tel" inputmode="tel" data-phone="' + key + '" value="' + esc(st.phone) + '" placeholder="Mobile number"></div>' +
       '</div></div>';
-
     if (isPickup) {
-      h += '<div><label class="lbl">Pickup notes</label>' +
+      h += '<div><label class="lbl">Pickup notes<span class="lbl-opt">optional</span></label>' +
         '<textarea class="textarea" rows="2" data-note="pickup" placeholder="Gate code, floor, best time to collect…">' + esc(st.note) + '</textarea></div>';
     }
     return h;
+  }
+
+  // Một điểm trong "chuyến đi": thu gọn (tóm tắt / gợi ý) hoặc mở form sửa
+  function tripRow(key, isLast) {
+    var st = S[key], isPickup = key === 'pickup';
+    var editing = st.editing;
+    var rail = '<div class="trip__rail"><span class="trip__dot trip__dot--' + (isPickup ? 'from' : 'to') + '"></span>' +
+      (isLast ? '' : '<span class="trip__line"></span>') + '</div>';
+    var swap = isPickup
+      ? '<button class="trip__swap" id="swapBtn" type="button" title="Swap direction" aria-label="Swap sender and recipient">' + icon('swap', 16) + '</button>'
+      : '';
+    var main;
+    if (editing) {
+      main = '<div class="trip__form">' +
+        '<div class="trip__hd"><span class="trip__hd-t">' + (isPickup ? 'Sender · pickup' : 'Recipient · delivery') + '</span>' + swap + '</div>' +
+        tripForm(key) + '</div>';
+    } else if (partyComplete(key)) {
+      main = '<div class="trip__toprow"><button class="trip__sum" type="button" data-editparty="' + key + '">' +
+          '<span class="trip__sum-body"><span class="trip__sum-t">' + esc(st.selected) + '</span>' +
+            '<span class="trip__sum-m">' + esc(st.name) + ' · ' + esc(st.dial + ' ' + st.phone) +
+            (st.postal ? ' · ' + esc(st.postal) : '') + '</span></span></button>' + swap + '</div>';
+    } else {
+      main = '<div class="trip__toprow"><button class="trip__sum is-empty" type="button" data-editparty="' + key + '">' +
+          '<span class="trip__sum-body"><span class="trip__sum-t">' +
+          (isPickup ? 'Add pickup address' : 'Where to deliver?') + '</span></span></button>' + swap + '</div>';
+    }
+    return '<div class="trip__pt">' + rail + '<div class="trip__main">' + main + '</div></div>';
   }
 
   /* ============================================================
@@ -803,17 +856,15 @@
       }).join('');
     };
     return '<div class="card card--raised">' +
-      '<div style="display:flex;align-items:flex-end;gap:var(--space-6);flex-wrap:wrap;margin-bottom:28px">' +
+      // Route: chọn quốc gia — giữ nguyên
+      '<div style="display:flex;align-items:flex-end;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-5)">' +
         '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Ship from</label>' +
           '<select class="select" id="selOrigin">' + opts(S.originCountry) + '</select></div>' +
-        '<button class="tool" id="swapBtn" type="button" title="Swap direction" ' +
-          'style="width:44px;height:44px;justify-content:center;border-radius:var(--radius-pill);background:var(--surface-page);color:var(--brand-primary)">' +
-          icon('swap', 18) + '</button>' +
         '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Deliver to</label>' +
           '<select class="select" id="selDest">' + opts(S.destCountry) + '</select></div>' +
       '</div>' +
-      '<div class="parties"><div class="party">' + addressBlock('pickup') + '</div>' +
-      '<div class="party">' + addressBlock('drop') + '</div></div>' +
+      // Địa chỉ + liên hệ gộp 1 card kiểu chuyến đi (gửi → nhận)
+      '<div class="trip">' + tripRow('pickup', false) + tripRow('drop', true) + '</div>' +
       '<div style="display:flex;justify-content:flex-end;margin-top:28px;padding-top:20px;border-top:1px solid var(--border-subtle)">' +
         '<button class="btn btn--primary" id="toStep2" type="button"' + (step1Ready() ? '' : ' disabled') + '>' +
         'Continue to items' + icon('arrow-right') + '</button></div></div>';
@@ -1131,18 +1182,23 @@
   function pickAddr(key, addr) {
     if (!addr) return;
     S[key].selected = addr; S[key].query = ''; S[key].focus = false;
+    S[key].editing = true;              // giữ form mở để nhập tiếp tên & SĐT
     render();
+    var f = document.querySelector('[data-name="' + key + '"]');
+    if (f) f.focus();
   }
   function focusAddr(key) { var s = document.querySelector('[data-addrq="' + key + '"]'); if (s) s.focus(); }
 
   /* ============================================================
      TƯƠNG TÁC
      ============================================================ */
-  function go(view) {
-    if (view === 'book' && S.step >= 4) {
+  function go(view, fresh) {
+    // Bấm "New booking" → luôn xoá thông tin, trả về trang tạo mới
+    if (view === 'book' && (fresh || S.step >= 4)) {
       S.step = 1;
-      S.pickup = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.originCountry] || '+62', note: '', focus: false };
-      S.drop = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.destCountry] || '+81', focus: false };
+      // Xoá sạch cả người gửi lẫn người nhận — để trống cho khách nhập
+      S.pickup = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.originCountry] || '+62', note: '', focus: false, editing: true };
+      S.drop = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.destCountry] || '+81', focus: false, editing: false };
       S.items = [{ name: '', fragile: false, battery: false, photos: [], weight: '' }];
       S.newOrderId = genTracking();
     }
@@ -1152,9 +1208,10 @@
   }
 
   document.querySelectorAll('.nav__btn').forEach(function (b) {
-    b.addEventListener('click', function () { go(b.dataset.view); });
+    // Tab "New booking" luôn mở đơn mới (fresh); các tab khác chỉ chuyển view
+    b.addEventListener('click', function () { go(b.dataset.view, b.dataset.view === 'book'); });
   });
-  $('brandHome').addEventListener('click', function () { go('book'); });
+  $('brandHome').addEventListener('click', function () { go('book', true); });
 
   /* Click uỷ quyền cho toàn bộ nội dung động */
   document.querySelector('.main').addEventListener('click', function (e) {
@@ -1162,7 +1219,7 @@
     var hit = function (attr) { var el = t.closest('[' + attr + ']'); return el ? el : null; };
     var el;
 
-    if ((el = hit('data-go'))) { go(el.dataset.go); return; }
+    if ((el = hit('data-go'))) { go(el.dataset.go, el.dataset.go === 'book'); return; }
     if ((el = hit('data-order'))) { S.activeOrder = el.dataset.order; S.view = 'track'; render(); return; }
     if ((el = hit('data-step'))) { var n = +el.dataset.step; if (n < S.step) { S.step = n; render(); } return; }
     if ((el = hit('data-recent'))) {
@@ -1170,6 +1227,16 @@
       S[k2].selected = recents(k2)[+el.dataset.i]; S[k2].query = ''; render(); return;
     }
     if ((el = hit('data-clear'))) { S[el.dataset.clear].selected = null; S[el.dataset.clear].query = ''; S[el.dataset.clear].focus = true; render(); focusAddr(el.dataset.clear); return; }
+    if ((el = hit('data-editparty'))) {
+      var ek = el.dataset.editparty;
+      var other = ek === 'pickup' ? 'drop' : 'pickup';
+      S[ek].editing = true;
+      if (partyComplete(other)) S[other].editing = false;   // accordion: chỉ mở một bên
+      render();
+      var f = document.querySelector(!S[ek].selected ? '[data-addrq="' + ek + '"]' : '[data-name="' + ek + '"]');
+      if (f) f.focus();
+      return;
+    }
     if ((el = hit('data-rmitem'))) { S.items.splice(+el.dataset.rmitem, 1); render(); return; }
     if ((el = hit('data-rmphoto'))) {
       var it = S.items[+el.dataset.rmphoto];
@@ -1182,9 +1249,9 @@
 
     switch (t.closest('button') && t.closest('button').id) {
       case 'swapBtn':
+        // Đổi chiều: hoán đổi cả quốc gia lẫn thông tin hai bên (giữ dữ liệu đã điền)
         var o = S.originCountry; S.originCountry = S.destCountry; S.destCountry = o;
-        S.pickup.selected = null; S.pickup.query = ''; S.pickup.postal = ''; S.pickup.dial = DIAL[S.originCountry] || S.pickup.dial;
-        S.drop.selected = null; S.drop.query = ''; S.drop.postal = ''; S.drop.dial = DIAL[S.destCountry] || S.drop.dial;
+        var tmp = S.pickup; S.pickup = S.drop; S.drop = tmp;
         render(); break;
       case 'toStep2': if (step1Ready()) { S.step = 2; render(); } break;
       case 'toStep1': S.step = 1; render(); break;
@@ -1209,8 +1276,8 @@
   document.querySelector('.main').addEventListener('input', function (e) {
     var t = e.target, d = t.dataset;
     if (d.addrq != null) { S[d.addrq].query = t.value; paintDrop(d.addrq); return; }
-    if (d.name != null) { S[d.name].name = t.value; return; }
-    if (d.phone != null) { S[d.phone].phone = t.value; return; }
+    if (d.name != null) { S[d.name].name = t.value; syncStep1Btn(); return; }
+    if (d.phone != null) { S[d.phone].phone = t.value; syncStep1Btn(); return; }
     if (d.postal != null) { S[d.postal].postal = t.value; return; }
     if (d.note != null) { S[d.note].note = t.value; return; }
     if (d.iname != null) { S.items[+d.iname].name = t.value; syncStep2Btn(); return; }
@@ -1234,6 +1301,11 @@
   function syncStep2Btn() {
     var btn = $('toStep3');
     if (btn) btn.disabled = !step2Ready();
+  }
+  // Bật/tắt nút "Continue to items" ngay khi khách gõ, không cần vẽ lại cả màn
+  function syncStep1Btn() {
+    var btn = $('toStep2');
+    if (btn) btn.disabled = !step1Ready();
   }
 
   document.querySelector('.main').addEventListener('change', function (e) {

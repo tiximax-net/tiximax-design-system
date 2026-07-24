@@ -9,20 +9,6 @@
 <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
 <link rel="stylesheet" href="../colors_and_type.css">
 <style>
-  /* ============================================================
-     TIXIMAX EXPRESS — prototype gộp
-     Một file, hai bản dựng: app điện thoại (khung iOS, 6 màn) và web app
-     (booking wizard · my shipments · tracking · chat). Nút gạt trên thanh
-     shell chọn bản đang xem; sáng/tối áp cho cả hai.
-
-     Hai bản vốn là hai file riêng nên trùng nhiều tên class (.card, .btn,
-     .suggest, .tl, .composer…). Vì vậy CSS của mỗi bản được bọc trong
-     #mMobile / #mWeb, sprite icon bản web đổi tiền tố #i-* → #w-*.
-     File này được sinh ra từ express-booking-prototype.html và
-     express-web-prototype.html.
-     ============================================================ */
-
-  /* ---------- Nền chung ---------- */
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
@@ -397,6 +383,30 @@
   #mMobile .addr-row__go { color: var(--text-tertiary); margin-top: 4px; }
   /* đường chấm nối — canh theo tâm chấm tròn (8 đệm thẻ + 12 đệm dòng + 5) */
   #mMobile .addr-card__rail { height: 14px; margin-left: 24px; border-left: 2px dotted var(--border-strong); }
+  /* ---------- Địa chỉ + liên hệ gộp 1 card kiểu "chuyến đi" (gửi → nhận) ---------- */
+  #mMobile .trip { border: 1.5px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-card); padding: var(--space-4); }
+  #mMobile .trip__pt { display: flex; gap: var(--space-3); }
+  #mMobile .trip__rail { display: flex; flex-direction: column; align-items: center; padding-top: 3px; }
+  #mMobile .trip__dot { width: 14px; height: 14px; border-radius: var(--radius-pill); flex: none; }
+  #mMobile .trip__dot--from { background: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, .16); }
+  #mMobile .trip__dot--to { background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(45deg); box-shadow: 0 0 0 4px rgba(220, 38, 38, .14); }
+  #mMobile .trip__line { flex: 1; width: 0; border-left: 2px dotted var(--border-strong); margin: 6px 0; min-height: 18px; }
+  #mMobile .trip__main { flex: 1; min-width: 0; padding-bottom: var(--space-4); }
+  #mMobile .trip__pt:last-child .trip__main { padding-bottom: 0; }
+  #mMobile .trip__toprow { display: flex; align-items: flex-start; gap: var(--space-3); }
+  #mMobile .trip__sum { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-align: left; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+  #mMobile .trip__sum-t { font-size: 15px; font-weight: var(--fw-semibold); color: var(--text-primary); line-height: var(--lh-normal); }
+  #mMobile .trip__sum.is-empty .trip__sum-t { font-weight: var(--fw-regular); color: var(--text-tertiary); }
+  #mMobile .trip__sum-m { font-size: 13px; color: var(--text-secondary); }
+  #mMobile .trip__swap { flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; justify-content: center; background: var(--surface-page); color: var(--brand-primary); border: 1px solid var(--border-default); cursor: pointer; }
+  #mMobile .trip__swap:hover { border-color: var(--brand-gold); color: var(--text-brand); background: var(--gold-50); }
+  #mMobile .trip__form { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
+  #mMobile .trip__form[hidden],
+  #mMobile .trip__sum[hidden] { display: none !important; }
+  #mMobile .trip__hd-t { font-size: 15px; font-weight: var(--fw-semibold); }
+  #mMobile .route__arrow { color: var(--text-tertiary); display: inline-flex; }
+  #mMobile .trip__form .addr-row { border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 12px 14px; align-items: center; }
+  #mMobile .trip__form .addr-row:hover { border-color: var(--border-strong); background: var(--surface-sunken); }
   /* ---------- Màn chọn địa chỉ ---------- */
   #mMobile .pick-head {
       flex: none; display: flex; align-items: flex-start; gap: var(--space-3);
@@ -432,6 +442,8 @@
        (chấm 12px + gap var(--space-3) 12px = 24px) */
   #mMobile .pick-zip { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0 24px; }
   #mMobile .pick-zip[hidden] { display: none; }
+  /* chỉ hiện ô địa chỉ của đúng bên (Gửi hoặc Nhận) đang chọn */
+  #mMobile .pick-field[hidden] { display: none !important; }
   #mMobile .pick-zip__label { flex: none; font-size: var(--fs-overline); font-weight: var(--fw-semibold); color: var(--text-tertiary); }
   #mMobile .pick-zip__box {
       flex: 1; min-width: 0; display: flex; align-items: center;
@@ -1036,6 +1048,45 @@
       #mWeb .party { display: flex; flex-direction: column; gap: var(--space-5); }
       #mWeb .addr-slot { min-height: 190px; }
   }
+  /* ---------- Địa chỉ + liên hệ gộp 1 card kiểu "chuyến đi" (điểm gửi → điểm nhận) ---------- */
+  #mWeb .trip { border: 1.5px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-card); padding: var(--space-4) var(--space-5); }
+  #mWeb .trip__pt { display: flex; gap: var(--space-3); }
+  /* cột trái: chấm + đường nối chấm dưới */
+  #mWeb .trip__rail { display: flex; flex-direction: column; align-items: center; padding-top: 3px; }
+  #mWeb .trip__dot { width: 14px; height: 14px; border-radius: var(--radius-pill); flex: none; }
+  #mWeb .trip__dot--from { background: var(--blue-500, #2563eb); box-shadow: 0 0 0 4px rgba(37, 99, 235, .16); }
+  #mWeb .trip__dot--to { background: var(--red-500, #dc2626); border-radius: 50% 50% 50% 0; transform: rotate(45deg); box-shadow: 0 0 0 4px rgba(220, 38, 38, .14); }
+  #mWeb .trip__line { flex: 1; width: 0; border-left: 2px dotted var(--border-strong); margin: 6px 0; min-height: 22px; }
+  #mWeb .trip__main { flex: 1; min-width: 0; padding-bottom: var(--space-4); }
+  #mWeb .trip__pt:last-child .trip__main { padding-bottom: 0; }
+  /* dòng tóm tắt / gợi ý (thu gọn) */
+  #mWeb .trip__toprow { display: flex; align-items: flex-start; gap: var(--space-3); }
+  #mWeb .trip__sum { flex: 1; display: flex; align-items: flex-start; gap: var(--space-3); min-width: 0; text-align: left; background: none; border: 0; padding: 6px 8px; margin: -6px -8px; border-radius: var(--radius-md); font: inherit; color: inherit; cursor: pointer; transition: background .15s; }
+  #mWeb .trip__sum-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  #mWeb .trip__sum-t { font-size: var(--fs-body); font-weight: var(--fw-semibold); color: var(--text-primary); }
+  #mWeb .trip__sum.is-empty .trip__sum-t { font-weight: var(--fw-regular); color: var(--text-tertiary); }
+  #mWeb .trip__sum-m { font-size: var(--fs-caption); color: var(--text-secondary); }
+  /* cả dòng tóm tắt bấm được → hover đổi màu nhẹ để biết là chỉnh sửa được */
+  #mWeb .trip__sum:hover { background: var(--surface-sunken); }
+  #mWeb .trip__sum:hover .trip__sum-t { color: var(--text-brand); }
+  #mWeb .trip__swap {
+      flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill); align-self: flex-start;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--surface-page); color: var(--brand-primary);
+      border: 1px solid var(--border-default); cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+    }
+  #mWeb .trip__swap:hover { border-color: var(--brand-gold); color: var(--text-brand); background: var(--gold-50); }
+  /* form khi mở sửa */
+  /* Form gọn lại: giới hạn bề rộng input + giãn cách các nhóm cho thoáng */
+  #mWeb .trip__form { display: flex; flex-direction: column; gap: var(--space-5); }
+  #mWeb .trip__form .input,
+  #mWeb .trip__form .select,
+  #mWeb .trip__form .textarea,
+  #mWeb .trip__form .addr-picked,
+  #mWeb .trip__form .field-wrap,
+  #mWeb .trip__form .pair { max-width: 440px; }
+  #mWeb .trip__hd { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: 2px; }
+  #mWeb .trip__hd-t { font-size: var(--fs-body); font-weight: var(--fw-semibold); }
   #mWeb .addr-picked {
       display: flex; gap: var(--space-3); align-items: flex-start;
       /* 2 dòng địa chỉ + padding + viền — để ô 1 dòng và ô 2 dòng cao bằng nhau */
@@ -1499,9 +1550,7 @@
                   <span class="route__cap">FROM</span>
                   <span class="route__val" id="fromVal"></span>
                 </button>
-                <button class="route__swap" type="button" id="swapBtn" title="Swap route direction">
-                  <svg class="ic ic--16"><use href="#i-swap"></use></svg>
-                </button>
+                <span class="route__arrow"><svg class="ic ic--16"><use href="#i-arrow-right"></use></svg></span>
                 <button class="route__side route__side--to" type="button" id="pickTo" aria-expanded="false">
                   <span class="route__cap">TO</span>
                   <span class="route__val" id="toVal"></span>
@@ -1510,75 +1559,81 @@
                 <div class="picker picker--to" id="pickerTo" hidden></div>
               </div>
 
-              <!-- ── Địa chỉ: bấm vào một dòng để sang màn chọn địa chỉ riêng ── -->
+              <!-- ── Địa chỉ + liên hệ gộp 1 card kiểu chuyến đi (gửi → nhận) ── -->
               <div class="group">
-                <span class="group__label">Addresses</span>
-                <div class="card addr-card">
-                  <button class="addr-row" type="button" data-pickaddr="pickup">
-                    <span class="addr-row__dot addr-row__dot--from"></span>
-                    <span class="addr-row__body">
-                      <span class="addr-row__t" id="cardPickup"></span>
-                      <span class="addr-row__s" id="cardPickupSub" hidden></span>
-                    </span>
-                    <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
-                  </button>
-                  <span class="addr-card__rail" aria-hidden="true"></span>
-                  <button class="addr-row" type="button" data-pickaddr="deliver">
-                    <span class="addr-row__dot addr-row__dot--to"></span>
-                    <span class="addr-row__body">
-                      <span class="addr-row__t" id="cardDeliver"></span>
-                      <span class="addr-row__s" id="cardDeliverSub" hidden></span>
-                    </span>
-                    <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
-                  </button>
-                </div>
-              </div>
-
-              <!-- ── Sender: khối riêng, mỗi ô nhập có nhãn liên kết ── -->
-              <div class="party card card--pad">
-                <div class="party__h"><span class="party__dot party__dot--from"></span><span id="senderLabel">Sender · pickup</span></div>
-                <div class="group">
-                  <div class="field-set">
-                    <label class="field-set__label" for="inName">Full name</label>
-                    <div class="field"><input id="inName" type="text" placeholder="Full name"></div>
+                <span class="group__label">Addresses &amp; contacts</span>
+                <div class="trip">
+                  <!-- Điểm gửi (mặc định đã có sẵn) -->
+                  <div class="trip__pt">
+                    <div class="trip__rail"><span class="trip__dot trip__dot--from"></span><span class="trip__line"></span></div>
+                    <div class="trip__main">
+                      <div class="trip__toprow">
+                        <button class="trip__sum" type="button" id="sumPickup" data-editparty="pickup"></button>
+                        <button class="trip__swap" type="button" id="swapBtn" title="Swap direction" aria-label="Swap sender and recipient">
+                          <svg class="ic ic--16"><use href="#i-swap"></use></svg>
+                        </button>
+                      </div>
+                      <div class="trip__form" id="formPickup" hidden>
+                        <button class="addr-row" type="button" data-pickaddr="pickup">
+                          <span class="addr-row__body">
+                            <span class="addr-row__t" id="cardPickup"></span>
+                            <span class="addr-row__s" id="cardPickupSub" hidden></span>
+                          </span>
+                          <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
+                        </button>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inName">Sender name</label>
+                          <div class="field"><input id="inName" type="text" placeholder="Full name"></div>
+                        </div>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inPhone">Phone number</label>
+                          <div class="phone">
+                            <button class="phone__cc" type="button" id="ccSender" aria-expanded="false" aria-label="Country calling code">
+                              <span id="ccSenderFlag"></span>
+                              <span class="phone__code" id="ccSenderCode"></span>
+                              <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
+                            </button>
+                            <div class="field phone__num"><input id="inPhone" type="tel" placeholder="Mobile number"></div>
+                            <div class="picker picker--cc" id="pickerCcSender" hidden></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="field-set">
-                    <label class="field-set__label" for="inPhone">Phone number</label>
-                    <div class="phone">
-                      <button class="phone__cc" type="button" id="ccSender" aria-expanded="false" aria-label="Country calling code">
-                        <span id="ccSenderFlag"></span>
-                        <span class="phone__code" id="ccSenderCode"></span>
-                        <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
-                      </button>
-                      <div class="field phone__num"><input id="inPhone" type="tel" placeholder="Mobile number"></div>
-                      <div class="picker picker--cc" id="pickerCcSender" hidden></div>
+                  <!-- Điểm nhận (cần điền) -->
+                  <div class="trip__pt">
+                    <div class="trip__rail"><span class="trip__dot trip__dot--to"></span></div>
+                    <div class="trip__main">
+                      <button class="trip__sum is-empty" type="button" id="sumDeliver" data-editparty="deliver"></button>
+                      <div class="trip__form" id="formDeliver" hidden>
+                        <button class="addr-row" type="button" data-pickaddr="deliver">
+                          <span class="addr-row__body">
+                            <span class="addr-row__t" id="cardDeliver"></span>
+                            <span class="addr-row__s" id="cardDeliverSub" hidden></span>
+                          </span>
+                          <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
+                        </button>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inRcvName">Recipient name</label>
+                          <div class="field"><input id="inRcvName" type="text" placeholder="Full name"></div>
+                        </div>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inRcvPhone">Phone number</label>
+                          <div class="phone">
+                            <button class="phone__cc" type="button" id="ccRcv" aria-expanded="false" aria-label="Country calling code">
+                              <span id="ccRcvFlag"></span>
+                              <span class="phone__code" id="ccRcvCode"></span>
+                              <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
+                            </button>
+                            <div class="field phone__num"><input id="inRcvPhone" type="tel" placeholder="Mobile number"></div>
+                            <div class="picker picker--cc" id="pickerCcRcv" hidden></div>
+                          </div>
+                        </div>
+                        <span class="hint" id="gate1" hidden>Enter the delivery address and contact to continue.</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <!-- ── Recipient: khối riêng ── -->
-              <div class="party card card--pad">
-                <div class="party__h"><span class="party__dot party__dot--to"></span><span id="deliverLabel">Recipient · delivery</span></div>
-                <div class="group">
-                  <div class="field-set">
-                    <label class="field-set__label" for="inRcvName">Full name</label>
-                    <div class="field"><input id="inRcvName" type="text" placeholder="Full name"></div>
-                  </div>
-                  <div class="field-set">
-                    <label class="field-set__label" for="inRcvPhone">Phone number</label>
-                    <div class="phone">
-                      <button class="phone__cc" type="button" id="ccRcv" aria-expanded="false" aria-label="Country calling code">
-                        <span id="ccRcvFlag"></span>
-                        <span class="phone__code" id="ccRcvCode"></span>
-                        <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
-                      </button>
-                      <div class="field phone__num"><input id="inRcvPhone" type="tel" placeholder="Mobile number"></div>
-                      <div class="picker picker--cc" id="pickerCcRcv" hidden></div>
-                    </div>
-                  </div>
-                </div>
-                <span class="hint" id="gate1" hidden>Enter contact details and addresses for both sender and recipient to continue.</span>
               </div>
 
               <div class="spacer"></div>
@@ -2136,7 +2191,9 @@
      from/to are just the route picker defaults, not pre-filled data. */
   var EMPTY = {
     from: 'ID', to: 'JP',
-    pickup: '', pickupSub: '', deliver: '', deliverSub: '', deliverZip: '',
+    // Tất cả để trống — khách tự nhập từ đầu
+    pickup: '', pickupSub: '',
+    deliver: '', deliverSub: '', deliverZip: '',
     name: '', phone: '', phoneCC: 'ID',      // sender (phoneCC = mã vùng SĐT)
     rcvName: '', rcvPhone: '', rcvPhoneCC: 'JP',   // recipient
     contents: '', weight: '',
@@ -2232,8 +2289,42 @@
       '<svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>';
     $('toVal').innerHTML = flagHTML(state.to) + '<span>' + esc(COUNTRIES[state.to].name) + '</span>' +
       '<svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>';
-    $('senderLabel').textContent = 'Sender · pickup (' + COUNTRIES[state.from].name + ')';
-    $('deliverLabel').textContent = 'Recipient · delivery (' + COUNTRIES[state.to].name + ')';
+  }
+
+  /* ---------- Card chuyến đi: gửi (mặc định đã có) → nhận (cần điền) ---------- */
+  var editingParty = { pickup: true, deliver: false };   // mặc định mở sẵn form người gửi
+  function partyDone(key) {
+    return key === 'pickup'
+      ? !!(state.pickup.trim() && state.name.trim() && state.phone.trim())
+      : !!(state.deliver.trim() && state.rcvName.trim() && state.rcvPhone.trim());
+  }
+  function tripSummary(key) {
+    var isP = key === 'pickup';
+    var name = isP ? state.name : state.rcvName;
+    var dial = COUNTRIES[isP ? state.phoneCC : state.rcvPhoneCC].dial;
+    var phone = isP ? state.phone : state.rcvPhone;
+    var addr = isP ? state.pickup : state.deliver;
+    var sub = isP ? state.pickupSub : withZip(state.deliverSub, state.deliverZip);
+    var sumEl = $(isP ? 'sumPickup' : 'sumDeliver');
+    if (partyDone(key)) {
+      sumEl.classList.remove('is-empty');
+      sumEl.innerHTML = '<span class="trip__sum-t">' + esc(addr) + '</span>' +
+        '<span class="trip__sum-m">' + esc(name) + ' · ' + esc(dial + ' ' + phone) +
+        (sub ? ' · ' + esc(sub) : '') + '</span>';
+    } else {
+      sumEl.classList.add('is-empty');
+      sumEl.innerHTML = '<span class="trip__sum-t">' +
+        (isP ? 'Add pickup details' : 'Where to deliver?') + '</span>';
+    }
+  }
+  function renderTrip() {
+    ['pickup', 'deliver'].forEach(function (key) {
+      var isP = key === 'pickup';
+      var open = editingParty[key];      // đang sửa → mở form; ngược lại hiện tóm tắt
+      $(isP ? 'formPickup' : 'formDeliver').hidden = !open;
+      $(isP ? 'sumPickup' : 'sumDeliver').hidden = open;
+      if (!open) tripSummary(key);
+    });
   }
 
   function buildPicker(el, which) {
@@ -2311,16 +2402,47 @@
 
   document.addEventListener('click', function () { closePickers(); closeCcPickers(); closeChatMenu(); });
 
-  $('swapBtn').addEventListener('click', function () {
+  $('swapBtn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    // Đổi chiều: hoán đổi quốc gia + địa chỉ + liên hệ giữa hai bên
     var f = state.from; state.from = state.to; state.to = f;
     var p = state.pickup, ps = state.pickupSub;
     state.pickup = state.deliver; state.pickupSub = state.deliverSub;
     state.deliver = p; state.deliverSub = ps;
-    state.deliverZip = '';               // đầu giao mới chưa có mã bưu điện
+    var nm = state.name, ph = state.phone, cc = state.phoneCC;
+    state.name = state.rcvName; state.phone = state.rcvPhone; state.phoneCC = state.rcvPhoneCC;
+    state.rcvName = nm; state.rcvPhone = ph; state.rcvPhoneCC = cc;
+    state.deliverZip = extractZip(state.deliverSub);
+    var ep = editingParty.pickup; editingParty.pickup = editingParty.deliver; editingParty.deliver = ep;
     this.classList.add('is-spun');
     var btn = this;
     setTimeout(function () { btn.classList.remove('is-spun'); }, 360);
     renderRoute(); syncInputs(); gate();
+  });
+
+  /* Bấm vào tóm tắt điểm gửi/nhận → mở form sửa */
+  $('s1').addEventListener('click', function (e) {
+    var ed = e.target.closest('[data-editparty]');
+    if (!ed) return;
+    var key = ed.dataset.editparty;
+    editingParty[key] = true;
+    renderTrip();
+    var f = $(key === 'pickup' ? 'inName' : 'inRcvName');
+    if (f) f.focus();
+  });
+  /* Rời khỏi form mà đã đủ (hoặc còn trống hẳn) → thu gọn thành tóm tắt */
+  $('s1').addEventListener('focusout', function (e) {
+    var form = e.target.closest('.trip__form');
+    if (!form) return;
+    var key = form.id === 'formPickup' ? 'pickup' : 'deliver';
+    setTimeout(function () {
+      if (form.contains(document.activeElement)) return;
+      var isP = key === 'pickup';
+      var empty = isP
+        ? !(state.pickup.trim() || state.name.trim() || state.phone.trim())
+        : !(state.deliver.trim() || state.rcvName.trim() || state.rcvPhone.trim());
+      if (partyDone(key) || empty) { editingParty[key] = false; renderTrip(); }
+    }, 80);
   });
 
   /* Địa chỉ không còn gõ trực tiếp ở màn 1 — xem "SCREEN 8" bên dưới. */
@@ -2414,6 +2536,11 @@
 
   function syncPickFields() {
     var isFrom = pickField === 'pickup';
+    // Chỉ hiển thị ô địa chỉ của đúng bên đang chọn (Gửi hoặc Nhận)
+    $('pickFieldFrom').hidden = !isFrom;
+    $('pickFieldTo').hidden = isFrom;
+    var rail = $('s8').querySelector('.pick-fields__rail');
+    if (rail) rail.hidden = true;        // chỉ còn một ô nên bỏ đường nối
     $('pickFieldFrom').classList.toggle('is-active', isFrom);
     $('pickFieldTo').classList.toggle('is-active', !isFrom);
     $('pickZip').hidden = isFrom;        // mã bưu điện chỉ cho đầu giao
@@ -2439,20 +2566,19 @@
     if (!row) return;
     if (pickField === 'pickup') {
       state.pickup = row[0]; state.pickupSub = row[1];
+      editingParty.pickup = true;   // giữ form Gửi mở để nhập tên & SĐT
       renderAddrCard(); gate();
-      if (!state.deliver.trim()) { pickField = 'deliver'; renderPicker(); return; }
-      goBack(0);
+      goBack(0);                     // chọn xong cho bên Gửi → quay lại màn 1
+      setTimeout(function () { var f = $('inName'); if (f) f.focus(); }, 480);
       return;
     }
     state.deliver = row[0]; state.deliverSub = row[1];
     state.deliverZip = extractZip(row[1]);
+    editingParty.deliver = true;   // mở form nhập thông tin người nhận
     renderAddrCard(); gate();
-    if (!state.pickup.trim()) { pickField = 'pickup'; renderPicker(); return; }
-    /* đủ cả hai đầu → ở lại, đưa con trỏ vào ô mã bưu điện để khách xác nhận/sửa */
-    syncPickFields(); renderPickList();
-    $('pickInTo').value = state.deliver;
-    $('pickInZip').value = state.deliverZip;
-    setTimeout(function () { $('pickInZip').focus(); $('pickInZip').select(); }, 60);
+    /* bên Nhận: chọn địa chỉ xong → quay về màn 1 nhập tên & SĐT người nhận */
+    goBack(0);
+    setTimeout(function () { var f = $('inRcvName'); if (f) f.focus(); }, 480);
   }
 
   function toggleSaved(title) {
@@ -2562,6 +2688,7 @@
            && state.deliver.trim() && state.rcvName.trim() && state.rcvPhone.trim();
     $('cta1').classList.toggle('is-disabled', !ok1);
     $('gate1').hidden = !!ok1;
+    renderTrip();
     var ok2 = state.contents.trim();
     $('cta2').classList.toggle('is-disabled', !ok2);
   }
@@ -2935,6 +3062,7 @@
 
   tabs.forEach(function (b, i) {
     b.addEventListener('click', function () {
+      if (i === 0) { newShipment(); return; }   // tab New booking → luôn clear, tạo đơn mới
       var target = TAB_TARGET[i];
       if (target === cur) return;
       if (target === 6) viewing = null;    // vào lại danh sách thì bỏ lô đang xem
@@ -3017,6 +3145,7 @@
   function newShipment() {
     state.photos.forEach(function (p) { URL.revokeObjectURL(p.url); });
     state = clone(EMPTY);
+    editingParty = { pickup: true, deliver: false };   // đơn mới: mở sẵn form người gửi
     chatSeeded = false; replyIdx = 0;
     hist = []; viewing = null;
     syncInputs(); closeChatMenu();
@@ -3094,8 +3223,9 @@
     view: 'book', step: 1,
     currency: 'USD',
     originCountry: 'Indonesia', destCountry: 'Japan',
-    pickup: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+62', note: '', focus: false },
-    drop: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+81', focus: false },
+    // Tất cả để trống — khách tự nhập từ đầu; form người gửi mở sẵn để nhập
+    pickup: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+62', note: '', focus: false, editing: true },
+    drop: { query: '', selected: null, postal: '', name: '', phone: '', dial: '+81', focus: false, editing: false },
     items: [{ name: '', fragile: false, battery: false, photos: [], weight: '' }],
     orders: [
       { id: '480244512207', from: 'Jakarta, ID', to: 'Tokyo, JP', items: 2, date: 'Jul 02', stage: 6, price: 41, originCountry: 'Indonesia', destCountry: 'Japan', detail: {
@@ -3201,42 +3331,32 @@
     var country = key === 'pickup' ? S.originCountry : S.destCountry;
     return (ADDR[country] || []).slice(0, 2);
   }
-  var step1Ready = function () { return !!(S.pickup.selected && S.drop.selected); };
+  function partyComplete(key) { var s = S[key]; return !!(s.selected && s.name.trim() && s.phone.trim()); }
+  var step1Ready = function () { return partyComplete('pickup') && partyComplete('drop'); };
   var step2Ready = function () { return S.items.length > 0 && S.items.every(function (i) { return i.name.trim(); }); };
 
   /* ============================================================
      RENDER — Booking wizard
      ============================================================ */
-  function addressBlock(key) {
-    var st = S[key];
-    var isPickup = key === 'pickup';
-    var country = isPickup ? S.originCountry : S.destCountry;
-    var h = '<div class="party-h">' +
-      '<span class="party-h__ic party-h__ic--' + (isPickup ? 'from' : 'to') + '">' + icon('pin', 14) + '</span>' +
-      '<span class="party-h__t">' + (isPickup ? 'Pickup address' : 'Delivery address') +
-      ' <span>· ' + esc(country) + '</span></span></div>';
-
+  // Nội dung form khi mở sửa một điểm (địa chỉ + mã BĐ + tên + SĐT)
+  function tripForm(key) {
+    var st = S[key], isPickup = key === 'pickup';
+    var h = '';
     if (!st.selected) {
-      // Ô nhập autocomplete — click/gõ vào là dropdown xổ xuống ngay dưới
-      h += '<div class="addr-slot"><div class="addr-anchor">' +
+      h += '<div class="addr-anchor">' +
         '<div class="field-wrap">' +
           '<span class="lead-ic">' + icon('search', 16) + '</span>' +
           '<input class="input" data-addrq="' + key + '" value="' + esc(st.query) + '" ' +
           'placeholder="' + (isPickup ? 'Search a pickup address…' : 'Search a delivery address…') + '" autocomplete="off">' +
-        '</div>' +
-        (st.focus ? renderAddrDrop(key) : '') +
-      '</div></div>';
+        '</div>' + (st.focus ? renderAddrDrop(key) : '') + '</div>';
     } else {
-      h += '<div class="addr-slot"><div class="addr-picked">' + icon('pin', 16) +
+      h += '<div class="addr-picked">' + icon('pin', 16) +
         '<div class="addr-picked__t">' + esc(st.selected) + '</div>' +
-        '<button class="link-btn" type="button" data-clear="' + key + '">Change</button></div></div>';
+        '<button class="link-btn" type="button" data-clear="' + key + '">Change</button></div>';
     }
-
-    // Autocomplete đã điền địa chỉ, nhưng vẫn cho khách nhập tay mã bưu điện nếu cần
     h += '<div><label class="lbl">Postal / ZIP code<span class="lbl-opt">optional</span></label>' +
       '<input class="input" data-postal="' + key + '" value="' + esc(st.postal) + '" ' +
       'placeholder="' + (isPickup ? 'e.g. 12190' : 'e.g. 153-0063') + '" inputmode="numeric" autocomplete="postal-code" style="max-width:240px"></div>';
-
     var dialOpts = CODES.map(function (c) {
       return '<option value="' + c[1] + '"' + (c[1] === st.dial ? ' selected' : '') + '>' + c[0] + ' ' + c[1] + '</option>';
     }).join('');
@@ -3248,12 +3368,38 @@
         '<select class="select phone-cc" data-dial="' + key + '" aria-label="Country code">' + dialOpts + '</select>' +
         '<input class="input" type="tel" inputmode="tel" data-phone="' + key + '" value="' + esc(st.phone) + '" placeholder="Mobile number"></div>' +
       '</div></div>';
-
     if (isPickup) {
-      h += '<div><label class="lbl">Pickup notes</label>' +
+      h += '<div><label class="lbl">Pickup notes<span class="lbl-opt">optional</span></label>' +
         '<textarea class="textarea" rows="2" data-note="pickup" placeholder="Gate code, floor, best time to collect…">' + esc(st.note) + '</textarea></div>';
     }
     return h;
+  }
+
+  // Một điểm trong "chuyến đi": thu gọn (tóm tắt / gợi ý) hoặc mở form sửa
+  function tripRow(key, isLast) {
+    var st = S[key], isPickup = key === 'pickup';
+    var editing = st.editing;
+    var rail = '<div class="trip__rail"><span class="trip__dot trip__dot--' + (isPickup ? 'from' : 'to') + '"></span>' +
+      (isLast ? '' : '<span class="trip__line"></span>') + '</div>';
+    var swap = isPickup
+      ? '<button class="trip__swap" id="wSwapBtn" type="button" title="Swap direction" aria-label="Swap sender and recipient">' + icon('swap', 16) + '</button>'
+      : '';
+    var main;
+    if (editing) {
+      main = '<div class="trip__form">' +
+        '<div class="trip__hd"><span class="trip__hd-t">' + (isPickup ? 'Sender · pickup' : 'Recipient · delivery') + '</span>' + swap + '</div>' +
+        tripForm(key) + '</div>';
+    } else if (partyComplete(key)) {
+      main = '<div class="trip__toprow"><button class="trip__sum" type="button" data-editparty="' + key + '">' +
+          '<span class="trip__sum-body"><span class="trip__sum-t">' + esc(st.selected) + '</span>' +
+            '<span class="trip__sum-m">' + esc(st.name) + ' · ' + esc(st.dial + ' ' + st.phone) +
+            (st.postal ? ' · ' + esc(st.postal) : '') + '</span></span></button>' + swap + '</div>';
+    } else {
+      main = '<div class="trip__toprow"><button class="trip__sum is-empty" type="button" data-editparty="' + key + '">' +
+          '<span class="trip__sum-body"><span class="trip__sum-t">' +
+          (isPickup ? 'Add pickup address' : 'Where to deliver?') + '</span></span></button>' + swap + '</div>';
+    }
+    return '<div class="trip__pt">' + rail + '<div class="trip__main">' + main + '</div></div>';
   }
 
   /* ============================================================
@@ -3299,17 +3445,15 @@
       }).join('');
     };
     return '<div class="card card--raised">' +
-      '<div style="display:flex;align-items:flex-end;gap:var(--space-6);flex-wrap:wrap;margin-bottom:28px">' +
+      // Route: chọn quốc gia — giữ nguyên
+      '<div style="display:flex;align-items:flex-end;gap:var(--space-6);flex-wrap:wrap;margin-bottom:var(--space-5)">' +
         '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Ship from</label>' +
           '<select class="select" id="selOrigin">' + opts(S.originCountry) + '</select></div>' +
-        '<button class="tool" id="wSwapBtn" type="button" title="Swap direction" ' +
-          'style="width:44px;height:44px;justify-content:center;border-radius:var(--radius-pill);background:var(--surface-page);color:var(--brand-primary)">' +
-          icon('swap', 18) + '</button>' +
         '<div style="flex:1;min-width:200px"><label class="lbl lbl--gold">Deliver to</label>' +
           '<select class="select" id="selDest">' + opts(S.destCountry) + '</select></div>' +
       '</div>' +
-      '<div class="parties"><div class="party">' + addressBlock('pickup') + '</div>' +
-      '<div class="party">' + addressBlock('drop') + '</div></div>' +
+      // Địa chỉ + liên hệ gộp 1 card kiểu chuyến đi (gửi → nhận)
+      '<div class="trip">' + tripRow('pickup', false) + tripRow('drop', true) + '</div>' +
       '<div style="display:flex;justify-content:flex-end;margin-top:28px;padding-top:20px;border-top:1px solid var(--border-subtle)">' +
         '<button class="btn btn--primary" id="toStep2" type="button"' + (step1Ready() ? '' : ' disabled') + '>' +
         'Continue to items' + icon('arrow-right') + '</button></div></div>';
@@ -3627,18 +3771,23 @@
   function pickAddr(key, addr) {
     if (!addr) return;
     S[key].selected = addr; S[key].query = ''; S[key].focus = false;
+    S[key].editing = true;              // giữ form mở để nhập tiếp tên & SĐT
     render();
+    var f = document.querySelector('[data-name="' + key + '"]');
+    if (f) f.focus();
   }
   function focusAddr(key) { var s = document.querySelector('[data-addrq="' + key + '"]'); if (s) s.focus(); }
 
   /* ============================================================
      TƯƠNG TÁC
      ============================================================ */
-  function go(view) {
-    if (view === 'book' && S.step >= 4) {
+  function go(view, fresh) {
+    // Bấm "New booking" → luôn xoá thông tin, trả về trang tạo mới
+    if (view === 'book' && (fresh || S.step >= 4)) {
       S.step = 1;
-      S.pickup = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.originCountry] || '+62', note: '', focus: false };
-      S.drop = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.destCountry] || '+81', focus: false };
+      // Xoá sạch cả người gửi lẫn người nhận — để trống cho khách nhập
+      S.pickup = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.originCountry] || '+62', note: '', focus: false, editing: true };
+      S.drop = { query: '', selected: null, postal: '', name: '', phone: '', dial: DIAL[S.destCountry] || '+81', focus: false, editing: false };
       S.items = [{ name: '', fragile: false, battery: false, photos: [], weight: '' }];
       S.newOrderId = genTracking();
     }
@@ -3648,9 +3797,10 @@
   }
 
   document.querySelectorAll('#mWeb .nav__btn').forEach(function (b) {
-    b.addEventListener('click', function () { go(b.dataset.view); });
+    // Tab "New booking" luôn mở đơn mới (fresh); các tab khác chỉ chuyển view
+    b.addEventListener('click', function () { go(b.dataset.view, b.dataset.view === 'book'); });
   });
-  $('brandHome').addEventListener('click', function () { go('book'); });
+  $('brandHome').addEventListener('click', function () { go('book', true); });
 
   /* Click uỷ quyền cho toàn bộ nội dung động */
   document.querySelector('#mWeb .main').addEventListener('click', function (e) {
@@ -3658,7 +3808,7 @@
     var hit = function (attr) { var el = t.closest('[' + attr + ']'); return el ? el : null; };
     var el;
 
-    if ((el = hit('data-go'))) { go(el.dataset.go); return; }
+    if ((el = hit('data-go'))) { go(el.dataset.go, el.dataset.go === 'book'); return; }
     if ((el = hit('data-order'))) { S.activeOrder = el.dataset.order; S.view = 'track'; render(); return; }
     if ((el = hit('data-step'))) { var n = +el.dataset.step; if (n < S.step) { S.step = n; render(); } return; }
     if ((el = hit('data-recent'))) {
@@ -3666,6 +3816,16 @@
       S[k2].selected = recents(k2)[+el.dataset.i]; S[k2].query = ''; render(); return;
     }
     if ((el = hit('data-clear'))) { S[el.dataset.clear].selected = null; S[el.dataset.clear].query = ''; S[el.dataset.clear].focus = true; render(); focusAddr(el.dataset.clear); return; }
+    if ((el = hit('data-editparty'))) {
+      var ek = el.dataset.editparty;
+      var other = ek === 'pickup' ? 'drop' : 'pickup';
+      S[ek].editing = true;
+      if (partyComplete(other)) S[other].editing = false;   // accordion: chỉ mở một bên
+      render();
+      var f = document.querySelector(!S[ek].selected ? '[data-addrq="' + ek + '"]' : '[data-name="' + ek + '"]');
+      if (f) f.focus();
+      return;
+    }
     if ((el = hit('data-rmitem'))) { S.items.splice(+el.dataset.rmitem, 1); render(); return; }
     if ((el = hit('data-rmphoto'))) {
       var it = S.items[+el.dataset.rmphoto];
@@ -3678,9 +3838,9 @@
 
     switch (t.closest('button') && t.closest('button').id) {
       case 'wSwapBtn':
+        // Đổi chiều: hoán đổi cả quốc gia lẫn thông tin hai bên (giữ dữ liệu đã điền)
         var o = S.originCountry; S.originCountry = S.destCountry; S.destCountry = o;
-        S.pickup.selected = null; S.pickup.query = ''; S.pickup.postal = ''; S.pickup.dial = DIAL[S.originCountry] || S.pickup.dial;
-        S.drop.selected = null; S.drop.query = ''; S.drop.postal = ''; S.drop.dial = DIAL[S.destCountry] || S.drop.dial;
+        var tmp = S.pickup; S.pickup = S.drop; S.drop = tmp;
         render(); break;
       case 'toStep2': if (step1Ready()) { S.step = 2; render(); } break;
       case 'toStep1': S.step = 1; render(); break;
@@ -3705,8 +3865,8 @@
   document.querySelector('#mWeb .main').addEventListener('input', function (e) {
     var t = e.target, d = t.dataset;
     if (d.addrq != null) { S[d.addrq].query = t.value; paintDrop(d.addrq); return; }
-    if (d.name != null) { S[d.name].name = t.value; return; }
-    if (d.phone != null) { S[d.phone].phone = t.value; return; }
+    if (d.name != null) { S[d.name].name = t.value; syncStep1Btn(); return; }
+    if (d.phone != null) { S[d.phone].phone = t.value; syncStep1Btn(); return; }
     if (d.postal != null) { S[d.postal].postal = t.value; return; }
     if (d.note != null) { S[d.note].note = t.value; return; }
     if (d.iname != null) { S.items[+d.iname].name = t.value; syncStep2Btn(); return; }
@@ -3730,6 +3890,11 @@
   function syncStep2Btn() {
     var btn = $('toStep3');
     if (btn) btn.disabled = !step2Ready();
+  }
+  // Bật/tắt nút "Continue to items" ngay khi khách gõ, không cần vẽ lại cả màn
+  function syncStep1Btn() {
+    var btn = $('toStep2');
+    if (btn) btn.disabled = !step1Ready();
   }
 
   document.querySelector('#mWeb .main').addEventListener('change', function (e) {
