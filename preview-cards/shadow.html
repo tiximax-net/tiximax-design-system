@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Spacing" name="Shadow & elevation" subtitle="xs → xl + gold glow" viewport="700x160" -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-page);padding:28px 24px}
+  .grid{display:flex;gap:22px;align-items:center;justify-content:center}
+  .item{text-align:center}
+  .box{width:82px;height:62px;background:var(--surface-card);border-radius:var(--radius-md)}
+  .lbl{font-size:11px;font-weight:var(--fw-semibold);color:var(--text-primary);margin-top:12px}
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-xs)"></div><div class="lbl">xs</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-sm)"></div><div class="lbl">sm</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-md)"></div><div class="lbl">md</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-lg)"></div><div class="lbl">lg</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-xl)"></div><div class="lbl">xl</div></div>
+    <div class="item"><div class="box" style="box-shadow:var(--shadow-gold);border:1px solid var(--gold-200)"></div><div class="lbl">gold glow</div></div>
+  </div>
+</body>
+</html>

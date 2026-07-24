@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Input fields" subtitle="Plain text, icon left/right, date, time, select, validation states" viewport="700x440" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card);padding:24px;
+       display:grid;grid-template-columns:repeat(3,1fr);gap:18px 18px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  label{font-size:12.5px;font-weight:var(--fw-semibold);color:var(--text-primary)}
+  .inp{display:flex;align-items:center;gap:8px;border:1.5px solid var(--border-default);border-radius:var(--radius-md);
+       padding:10px 12px;background:#fff;font-size:14.5px;color:var(--text-primary)}
+  .inp svg{width:17px;height:17px;color:var(--text-tertiary);flex:none}
+  .inp input,.inp select{border:none;outline:none;font-family:inherit;font-size:14.5px;width:100%;background:transparent;color:var(--text-primary)}
+  .inp select{cursor:pointer;appearance:none}
+  .grow{flex:1}
+  .focus{border-color:var(--brand-gold)}
+  .error{border-color:var(--error)}
+  .success{border-color:var(--success)}
+  .disabled{background:var(--neutral-100);border-color:var(--border-default);color:var(--text-disabled)}
+  .disabled input{color:var(--text-disabled)}
+  .disabled svg{color:var(--text-disabled)}
+  .hint{font-size:11.5px;color:var(--text-tertiary)}
+  .err{font-size:11.5px;color:var(--text-error);font-weight:var(--fw-semibold);display:flex;align-items:center;gap:4px}
+  .err svg{width:13px;height:13px}
+  .ok{font-size:11.5px;color:var(--text-success);font-weight:var(--fw-semibold);display:flex;align-items:center;gap:4px}
+  .ok svg{width:13px;height:13px}
+</style>
+</head>
+<body>
+  <div class="field">
+    <label>Mặc định</label>
+    <div class="inp"><input class="grow" placeholder="Nhập nội dung..."></div>
+    <span class="hint">Text only · empty / placeholder</span>
+  </div>
+  <div class="field">
+    <label>Icon trái</label>
+    <div class="inp"><i data-lucide="package-search"></i><input class="grow" value="TX-48210" readonly></div>
+    <span class="hint">Leading icon · default</span>
+  </div>
+  <div class="field">
+    <label>Icon phải</label>
+    <div class="inp"><input class="grow" value="Tìm sản phẩm" readonly><i data-lucide="x"></i></div>
+    <span class="hint">Trailing icon · clearable</span>
+  </div>
+  <div class="field">
+    <label>Select</label>
+    <div class="inp"><i data-lucide="flag"></i><select class="grow"><option>Nhật Bản</option><option>Hàn Quốc</option></select><i data-lucide="chevron-down"></i></div>
+    <span class="hint">Dropdown</span>
+  </div>
+
+  <div class="field">
+    <label>Ngày nhận</label>
+    <div class="inp"><i data-lucide="calendar"></i><input class="grow" value="08/06/2026" readonly></div>
+    <span class="hint">Date</span>
+  </div>
+  <div class="field">
+    <label>Khung giờ giao</label>
+    <div class="inp"><i data-lucide="clock"></i><input class="grow" value="14:00 – 17:00" readonly></div>
+    <span class="hint">Time</span>
+  </div>
+  <div class="field">
+    <label>Focus</label>
+    <div class="inp focus"><i data-lucide="mail"></i><input class="grow" value="khachhang@email.com" readonly></div>
+    <span class="hint">Focused · gold ring</span>
+  </div>
+
+  <div class="field">
+    <label>Hợp lệ</label>
+    <div class="inp success"><i data-lucide="phone"></i><input class="grow" value="0901 234 567" readonly><i data-lucide="check" style="color:var(--success)"></i></div>
+    <span class="ok"><i data-lucide="check-circle-2"></i>Số điện thoại hợp lệ</span>
+  </div>
+  <div class="field">
+    <label>Lỗi</label>
+    <div class="inp error"><i data-lucide="phone"></i><input class="grow" value="0123" readonly></div>
+    <span class="err"><i data-lucide="alert-circle"></i>Số điện thoại không hợp lệ</span>
+  </div>
+  <div class="field">
+    <label>Vô hiệu hóa</label>
+    <div class="inp disabled"><i data-lucide="lock"></i><input class="grow" value="Không thể chỉnh sửa" readonly></div>
+    <span class="hint">Disabled</span>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!-- @dsCard group="Colors" name="Text colors" subtitle="Primary → disabled, brand, link" viewport="1100x440" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card);padding:36px 40px}
+  .stitle{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:14px}
+  .rows{display:flex;flex-direction:column;gap:6px}
+  .r{display:flex;align-items:center;gap:18px;padding:8px 0}
+  .sw{width:40px;height:40px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);flex:none}
+  .samp{font-size:20px;font-weight:var(--fw-semibold);min-width:260px}
+  .nm{font-size:15px;color:var(--text-secondary);font-weight:var(--fw-semibold)}
+  .hex{font-size:14px;color:var(--text-tertiary);margin-left:auto}
+</style>
+</head>
+<body>
+  <div class="stitle">Text colors</div>
+  <div class="rows">
+    <div class="r"><span class="sw" style="background:var(--text-primary)"></span><span class="samp" style="color:var(--text-primary)">Primary — heading text</span><span class="nm">text-primary</span><span class="hex">#0C1A31</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-secondary)"></span><span class="samp" style="color:var(--text-secondary)">Secondary — body copy</span><span class="nm">text-secondary</span><span class="hex">#515C6D</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-tertiary)"></span><span class="samp" style="color:var(--text-tertiary)">Tertiary — captions</span><span class="nm">text-tertiary</span><span class="hex">#8B95A5</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-disabled)"></span><span class="samp" style="color:var(--text-disabled)">Disabled</span><span class="nm">text-disabled</span><span class="hex">#B6BECB</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-brand)"></span><span class="samp" style="color:var(--text-brand)">Brand / gold text</span><span class="nm">text-brand</span><span class="hex">#C28E1F</span></div>
+    <div class="r"><span class="sw" style="background:var(--text-link)"></span><span class="samp" style="color:var(--text-link)">Link</span><span class="nm">text-link</span><span class="hex">#2563C9</span></div>
+  </div>
+</body>
+</html>

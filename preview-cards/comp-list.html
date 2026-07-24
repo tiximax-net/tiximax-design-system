@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="List" subtitle="Order list rows" viewport="700x230" -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-page);padding:22px 24px}
+  .list{background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;max-width:560px}
+  .item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border-subtle)}
+  .item:last-child{border-bottom:none}
+  .ico{width:40px;height:40px;border-radius:var(--radius-md);background:var(--gold-100);display:flex;align-items:center;justify-content:center;flex:none}
+  .ico svg{width:20px;height:20px;color:var(--gold-700)}
+  .main{flex:1;min-width:0}
+  .t{font-size:15px;font-weight:var(--fw-semibold);color:var(--text-primary)}
+  .s{font-size:13px;color:var(--text-tertiary);margin-top:1px}
+  .meta{font-size:12px;font-weight:var(--fw-bold);color:var(--text-success)}
+  .chev{color:var(--text-tertiary)}
+  .chev svg{width:18px;height:18px}
+</style>
+</head>
+<body>
+  <div class="list">
+    <div class="item"><span class="ico"><i data-lucide="package"></i></span><div class="main"><div class="t">Đơn TX-48210</div><div class="s">3 sản phẩm · Tokyo → Hà Nội</div></div><span class="meta">Đã giao</span><span class="chev"><i data-lucide="chevron-right"></i></span></div>
+    <div class="item"><span class="ico"><i data-lucide="plane"></i></span><div class="main"><div class="t">Đơn TX-48198</div><div class="s">1 sản phẩm · Seoul → TP.HCM</div></div><span class="meta" style="color:var(--gold-700)">Đang bay</span><span class="chev"><i data-lucide="chevron-right"></i></span></div>
+    <div class="item"><span class="ico"><i data-lucide="warehouse"></i></span><div class="main"><div class="t">Đơn TX-48155</div><div class="s">5 sản phẩm · Jakarta → Hà Nội</div></div><span class="meta" style="color:var(--text-secondary)">Tại kho</span><span class="chev"><i data-lucide="chevron-right"></i></span></div>
+  </div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

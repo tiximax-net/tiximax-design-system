@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Badges & chips" subtitle="Status badges + filter chips" viewport="700x160" -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card);padding:24px;display:flex;flex-direction:column;gap:16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:var(--fw-bold);
+         padding:3px 9px;border-radius:var(--radius-pill);line-height:1.4}
+  .badge svg{width:13px;height:13px}
+  .b-gold{background:var(--gold-100);color:var(--gold-700)}
+  .b-navy{background:var(--navy-100);color:var(--navy-700)}
+  .b-green{background:var(--success-bg);color:var(--text-success)}
+  .b-red{background:var(--error-bg);color:var(--text-error)}
+  .b-solid{background:var(--brand-gold);color:var(--navy-900)}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:var(--fw-semibold);
+        padding:6px 12px;border-radius:var(--radius-pill);background:var(--surface-sunken);
+        color:var(--text-primary);border:1px solid var(--border-default)}
+  .chip svg{width:14px;height:14px;color:var(--text-tertiary);cursor:pointer}
+  .chip.active{background:var(--navy-800);color:#fff;border-color:var(--navy-800)}
+  .lbl{font-size:11px;color:var(--text-tertiary);font-weight:var(--fw-semibold);width:54px}
+</style>
+</head>
+<body>
+  <div class="row"><span class="lbl">Badges</span>
+    <span class="badge b-gold">Mới</span>
+    <span class="badge b-green"><i data-lucide="check"></i>Đã giao</span>
+    <span class="badge b-navy"><i data-lucide="warehouse"></i>Tại kho</span>
+    <span class="badge b-red"><i data-lucide="alert-triangle"></i>Trễ hẹn</span>
+    <span class="badge b-solid">VIP</span>
+  </div>
+  <div class="row"><span class="lbl">Chips</span>
+    <span class="chip active">Tất cả</span>
+    <span class="chip">Đang xử lý</span>
+    <span class="chip">Đang vận chuyển</span>
+    <span class="chip">Nhật Bản <i data-lucide="x"></i></span>
+    <span class="chip">Hàn Quốc <i data-lucide="x"></i></span>
+  </div>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

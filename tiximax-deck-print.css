@@ -1,0 +1,178 @@
+/* ============================================================
+   TIXIMAX — 会社案内 印刷版スキン (print-edition hero skin)
+   ------------------------------------------------------------
+   Load AFTER tiximax-deck.css.
+   Chỉ override 3 nhóm hero nền navy → nền sáng để in đỡ tốn mực:
+     .cover / .section (.section-l .section-r) / .closing
+   Content slides (slide-frame) giữ nguyên — vốn đã sáng.
+
+   Ngôn ngữ thị giác bản in (thống nhất cả 3 nhóm hero):
+     · Nền trắng (--card) + wash gold rất nhạt (rgba accent ≤ 0.12)
+       — giữ hơi ấm của bản navy mà gần như không tốn mực.
+     · Chữ đảo trắng → ink navy đậm (--ink / --ink-soft / --ink-faint).
+     · Accent GOLD giữ nguyên vai trò: rule bar + băng gold 8px
+       trên đỉnh trang (chữ ký riêng của các trang hero bản in).
+     · Chữ/label gold dùng --accent-ink (#C28E1F) — bản gold đọc
+       được trên nền sáng, cùng token với eyebrow ở slide nội dung.
+     · Số chương khổng lồ dùng --navy đặc — điểm neo thương hiệu,
+       in đen trắng vẫn ra xám đậm rõ ràng.
+     · Lotus watermark: gold nguyên bản, opacity nâng 0.1 → 0.3
+       (0.1 chỉ hợp nền tối; trên giấy trắng sẽ mất hút).
+   ============================================================ */
+
+/* ---- chữ ký chung: băng gold mảnh trên đỉnh mọi trang hero ---- */
+.cover::before,
+.section::before,
+.closing::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 8px;
+  background: var(--accent);
+  z-index: 2;
+}
+
+/* ============================================================
+   01 — COVER (表紙)
+   ============================================================ */
+.cover {
+  background:
+    radial-gradient(120% 90% at 88% 8%, rgba(244, 185, 49, 0.10), transparent 55%),
+    var(--card);
+  color: var(--ink);
+}
+/* lotus watermark: inline opacity 0.1 của base quá mờ trên nền sáng */
+.cover-deco img { opacity: 0.3 !important; }
+
+.cover-logo span { color: var(--ink); }
+.cover-logo .cover-brand-sub { color: var(--accent-ink); }
+/* seal trắng (inline) tan vào nền sáng → thêm vành mảnh */
+.cover-logo .seal { border: 1.5px solid var(--line-strong); }
+
+.cover-jp-vert { color: var(--ink-soft); }
+.cover-title   { color: var(--ink); }
+.cover-en      { color: var(--accent-ink); }
+.cover-bottom  { color: var(--ink-soft); }
+
+/* ============================================================
+   SECTION dividers (章扉 ×6)
+   ============================================================ */
+.section {
+  background:
+    radial-gradient(110% 80% at 12% 100%, rgba(244, 185, 49, 0.10), transparent 52%),
+    var(--card);
+  color: var(--ink);
+}
+.section-l { border-right-color: var(--line); }
+
+.brand-vert          { color: var(--ink-faint); }
+.section-l .num-sub  { color: var(--accent-ink); }
+.section-l .num      { color: var(--navy); }
+.section-r .ttl      { color: var(--ink); }
+.section-r .desc     { color: var(--ink-soft); }
+
+/* ============================================================
+   23 — CLOSING (ありがとうございました)
+   ============================================================ */
+.closing {
+  background:
+    radial-gradient(110% 80% at 50% 0%, rgba(244, 185, 49, 0.12), transparent 55%),
+    var(--card);
+  color: var(--ink);
+  isolation: isolate;
+}
+/* bookend với cover: lotus watermark góc phải-dưới, cùng cỡ/cùng độ mờ */
+.closing::after {
+  content: "";
+  position: absolute;
+  right: -60px; bottom: -60px;
+  width: 900px; height: 517px; /* tỉ lệ SVG 137.7 × 79.1 */
+  background: url("assets/Lotus Only.svg") no-repeat center / contain;
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+}
+.closing > * { position: relative; z-index: 1; }
+
+.closing .arigatou    { color: var(--ink); }
+.closing .en          { color: var(--accent-ink); }
+.closing .meta        { color: var(--ink-soft); }
+.closing .meta .brand { color: var(--ink); }
+
+/* ============================================================
+   22 — CONTACT SIDE PANEL (お問い合わせ／連絡先パネル)
+   ------------------------------------------------------------
+   .contact-side là mảng navy đặc còn lại trong slide nội dung
+   (nằm cạnh .contact-info vốn đã sáng từ trước). Đổi sang cùng
+   ngôn ngữ hero: nền sáng + wash gold, chữ đảo ink, viền+shadow
+   card để không "trôi" trên slide-frame trắng phía sau.
+   ============================================================ */
+.contact-side {
+  background:
+    radial-gradient(120% 80% at 85% 10%, rgba(244, 185, 49, 0.16), transparent 55%),
+    var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+/* seal trắng (inline) tan vào nền sáng → thêm vành mảnh, giống cover */
+.contact-side .seal-big { border: 1.5px solid var(--line-strong); }
+.contact-side .side-cta { color: var(--ink); }
+.contact-side .side-en  { color: var(--accent-ink); }
+/* qr-ph vốn đã là khối trắng độc lập (inline border:none) — thêm viền
+   mảnh để định biên trên nền sáng (trước đây nổi tự nhiên trên navy) */
+.contact-side .qr-ph { border: 1px solid var(--line) !important; }
+
+/* ============================================================
+   18 — 拠点マップ (map-canvas + inline SVG world map)
+   ------------------------------------------------------------
+   Bản đồ bake màu trực tiếp trong markup theo đúng thang navy-*
+   của token: ocean=navy-900, grid=navy-600, đất=navy-400,
+   viền đất=navy-200. Đảo ngược dọc CÙNG thang cho nền sáng:
+     ocean  navy-900 → navy-50  (biển nhạt, còn sắc, không trắng trơn)
+     grid   navy-600 → navy-300, opacity nhẹ hơn
+     đất    navy-400 → navy-200 (nhạt, nổi trên biển nhạt)
+     viền đất navy-200 → navy-500 (đậm, ôm biên rõ)
+   Marker/nhãn: pin+nhãn trắng đảo ink navy; PIN GOLD của
+   Operation Center (HQ) giữ nguyên làm điểm nhấn — chỉ đảo nhãn
+   text đi kèm. Marker 2027 (Đài Loan/Mỹ) dùng --accent-on-navy
+   (gold sáng cho nền tối) → đổi --accent-ink (gold đọc được trên
+   nền sáng, cùng token toàn hệ).
+   CSS luôn thắng presentation-attribute theo spec; !important
+   chỉ để phòng hờ vì đây là mảng rủi ro nhất (SVG bake nhiều màu).
+   ============================================================ */
+.map-canvas {
+  background: var(--navy-50) !important; /* thắng inline style="background:#0B172E" */
+}
+.map-canvas svg rect[fill="#0B172E"] { fill: var(--navy-50) !important; }
+
+/* lưới kinh/vĩ tuyến — mờ hơn, tông nhạt hơn cho nền sáng */
+.map-canvas svg g[stroke="#1F427A"] {
+  stroke: var(--navy-300) !important;
+  opacity: 0.35 !important;
+}
+
+/* đất liền: fill nhạt + viền đậm (nổi trên biển nhạt, ngược hẳn bản tối) */
+.map-canvas svg g[fill="#4D72AB"] {
+  fill: var(--navy-200) !important;
+  stroke: var(--navy-500) !important;
+  stroke-opacity: 0.9 !important;
+}
+
+/* marker glow ring (r20, trắng mờ) → quầng navy rất nhạt thay vì trắng-trên-trắng */
+.map-canvas svg circle[fill="#fff"][r="20"] { fill: var(--navy) !important; }
+/* marker dot đặc (r11, trắng) → chấm ink navy đậm */
+.map-canvas svg circle[fill="#fff"][r="11"] { fill: var(--navy) !important; }
+
+/* nhãn địa danh chính (.ml) trắng → ink; nhãn phụ mờ (.ms) → ink-faint */
+.map-canvas svg text[fill="#fff"]                    { fill: var(--ink) !important; }
+.map-canvas svg text[fill="rgba(255,255,255,0.85)"]  { fill: var(--ink-soft) !important; }
+.map-canvas svg text[fill="rgba(255,255,255,0.6)"]   { fill: var(--ink-faint) !important; }
+
+/* gold-on-navy (nhãn HQ "Operation Center" + marker/nhãn 2027) → gold đọc trên nền sáng */
+.map-canvas svg [fill="var(--accent-on-navy)"]   { fill: var(--accent-ink) !important; }
+.map-canvas svg [stroke="var(--accent-on-navy)"] { stroke: var(--accent-ink) !important; }
+
+/* PIN GOLD của HQ (Operation Center) — cx=99.5/cy=429.3, fill=var(--accent) hoặc
+   stroke=var(--accent) — KHÔNG đụng, giữ nguyên làm điểm nhấn thương hiệu duy nhất
+   trên bản đồ (không có selector nào ở trên khớp các thuộc tính này). */

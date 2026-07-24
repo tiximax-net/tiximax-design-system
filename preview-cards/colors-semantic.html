@@ -1,0 +1,29 @@
+<!-- @dsCard group="Colors" name="Semantic colors" subtitle="Success, Warning, Error, Info — with bg & border tokens" viewport="1100x220" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-card);padding:36px 40px}
+  .stitle{font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .item{border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden}
+  .bar{height:42px}
+  .body{display:flex;align-items:center;gap:12px;padding:14px 16px}
+  .dot{width:18px;height:18px;border-radius:50%}
+  .t{font-size:17px;font-weight:var(--fw-semibold);color:var(--text-primary)}
+  .h{font-size:14px;color:var(--text-tertiary)}
+</style>
+</head>
+<body>
+  <div class="stitle">Semantic</div>
+  <div class="grid">
+    <div class="item"><div class="bar" style="background:var(--success-bg);border-bottom:2px solid var(--success)"></div><div class="body"><span class="dot" style="background:var(--success)"></span><div><div class="t">Success</div><div class="h">#008148</div></div></div></div>
+    <div class="item"><div class="bar" style="background:var(--warning-bg);border-bottom:2px solid var(--warning)"></div><div class="body"><span class="dot" style="background:var(--warning)"></span><div><div class="t">Warning</div><div class="h">#F4B931</div></div></div></div>
+    <div class="item"><div class="bar" style="background:var(--error-bg);border-bottom:2px solid var(--error)"></div><div class="body"><span class="dot" style="background:var(--error)"></span><div><div class="t">Error</div><div class="h">#EB5635</div></div></div></div>
+    <div class="item"><div class="bar" style="background:var(--info-bg);border-bottom:2px solid var(--info)"></div><div class="body"><span class="dot" style="background:var(--info)"></span><div><div class="t">Info</div><div class="h">#006FBB</div></div></div></div>
+  </div>
+</body>
+</html>

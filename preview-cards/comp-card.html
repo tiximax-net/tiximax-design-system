@@ -1,0 +1,135 @@
+<!-- @dsCard group="Components" name="Card" subtitle="Service & Order cards" viewport="1000x400" -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-sans);background:var(--surface-page);padding:32px;display:flex;flex-direction:column;gap:28px}
+  .stitle{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px}
+  .row{display:flex;gap:18px;flex-wrap:wrap}
+
+  /* shared card base */
+  .card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);
+        box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column}
+
+  /* 1. Service card */
+  .c-service{width:260px}
+  .c-service .thumb{height:88px;background:linear-gradient(135deg,var(--navy-600),var(--navy-800));display:flex;align-items:center;justify-content:center}
+  .c-service .thumb svg{width:34px;height:34px;color:var(--brand-gold)}
+  .c-service .body{padding:16px;flex:1;display:flex;flex-direction:column}
+  .c-service .eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-brand)}
+  .c-service .t{font-size:17px;font-weight:700;color:var(--text-primary);margin:5px 0 4px}
+  .c-service .d{font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0 0 14px;flex:1}
+  .c-service .foot{display:flex;align-items:center;justify-content:space-between}
+  .c-service .price{font-size:18px;font-weight:800;color:var(--text-primary)}
+  .c-service .price span{font-size:12px;font-weight:400;color:var(--text-tertiary)}
+  .btn-gold{background:var(--brand-gold);color:var(--navy-900);border:none;border-radius:12px;padding:8px 14px;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer}
+
+  /* 2. Order card */
+  .c-order{width:320px;padding:18px}
+  .c-order .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .c-order .id{font-size:16px;font-weight:800;color:var(--text-primary)}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+  .b-gold{background:var(--gold-100);color:var(--gold-700)}
+  .b-green{background:var(--green-50);color:var(--green-600)}
+  .b-red{background:var(--red-50);color:var(--red-600)}
+  .c-order .info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .c-order .info-item{background:var(--surface-page);border-radius:8px;padding:10px 12px}
+  .c-order .info-label{font-size:11px;color:var(--text-tertiary)}
+  .c-order .info-value{font-size:14px;font-weight:700;color:var(--text-primary);margin-top:1px}
+  .c-order .bar{display:flex;gap:3px}
+  .c-order .bar-seg{flex:1;height:4px;border-radius:2px;background:var(--border-default)}
+  .c-order .bar-seg.done{background:var(--brand-gold)}
+  .c-order .bar-label{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--text-tertiary)}
+
+  /* 3. Stat card */
+  .c-stat{width:200px;padding:18px}
+  .c-stat .ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+  .c-stat .ico svg{width:20px;height:20px}
+  .c-stat .val{font-size:28px;font-weight:800;color:var(--text-primary);line-height:1}
+  .c-stat .lbl{font-size:13px;color:var(--text-tertiary);margin-top:4px}
+  .c-stat .delta{font-size:12px;font-weight:700;margin-top:8px;display:inline-flex;align-items:center;gap:3px}
+  .delta-up{color:var(--green-600)}
+  .delta-down{color:var(--red-600)}
+
+  /* 4. Profile card */
+  .c-profile{width:260px;text-align:center;padding:24px 18px 18px}
+  .c-profile .avatar{width:56px;height:56px;border-radius:50%;background:var(--gold-100);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px;font-weight:800;color:var(--gold-700)}
+  .c-profile .name{font-size:17px;font-weight:700;color:var(--text-primary)}
+  .c-profile .role{font-size:13px;color:var(--text-tertiary);margin-top:2px}
+  .c-profile .stats{display:flex;justify-content:center;gap:24px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle)}
+  .c-profile .stat-n{font-size:18px;font-weight:800;color:var(--text-primary)}
+  .c-profile .stat-l{font-size:11px;color:var(--text-tertiary)}
+  .btn-outline{background:transparent;color:var(--text-primary);border:1.5px solid var(--border-strong);border-radius:12px;padding:8px 16px;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;margin-top:14px}
+
+  /* 5. Pricing card */
+  .c-pricing{width:240px;padding:24px 18px 18px}
+  .c-pricing.featured{border:2px solid var(--brand-gold);box-shadow:var(--shadow-gold)}
+  .c-pricing .plan{font-size:14px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em}
+  .c-pricing .plan-price{font-size:32px;font-weight:800;color:var(--text-primary);margin:8px 0 2px;line-height:1}
+  .c-pricing .plan-price span{font-size:14px;font-weight:400;color:var(--text-tertiary)}
+  .c-pricing .plan-desc{font-size:13px;color:var(--text-tertiary);margin-bottom:16px;line-height:1.4}
+  .c-pricing ul{list-style:none;padding:0;margin:0 0 16px;display:flex;flex-direction:column;gap:8px}
+  .c-pricing li{font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:8px}
+  .c-pricing li svg{width:16px;height:16px;color:var(--green-600);flex:none}
+  .btn-full{width:100%;background:var(--brand-gold);color:var(--navy-900);border:none;border-radius:12px;padding:10px;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer}
+  .btn-full-outline{width:100%;background:transparent;color:var(--text-primary);border:1.5px solid var(--border-strong);border-radius:12px;padding:10px;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer}
+
+  /* 6. Notification card */
+  .c-notif{width:340px;padding:16px;display:flex;flex-direction:row;gap:12px}
+  .c-notif .n-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+  .c-notif .n-ico svg{width:18px;height:18px}
+  .c-notif .n-body{flex:1;min-width:0}
+  .c-notif .n-t{font-size:14px;font-weight:600;color:var(--text-primary)}
+  .c-notif .n-d{font-size:12.5px;color:var(--text-secondary);margin-top:2px;line-height:1.4}
+  .c-notif .n-time{font-size:11px;color:var(--text-tertiary);margin-top:6px}
+  .n-dot{width:8px;height:8px;border-radius:50%;background:var(--brand-gold);flex:none;margin-top:4px}
+</style>
+</head>
+<body>
+
+  <!-- Row 1: Service + Order -->
+  <div>
+    <div class="stitle">Service & Order</div>
+    <div class="row">
+      <div class="card c-service">
+        <div class="thumb"><i data-lucide="ship"></i></div>
+        <div class="body">
+          <div class="eyebrow">Đường biển</div>
+          <div class="t">Indonesia → VN</div>
+          <p class="d">Gom hàng tại kho Jakarta, vận chuyển về HN & HCM 12–18 ngày.</p>
+          <div class="foot"><div class="price">38.000đ<span>/kg</span></div><button class="btn-gold">Đặt ngay</button></div>
+        </div>
+      </div>
+      <div class="card c-service">
+        <div class="thumb" style="background:linear-gradient(135deg,var(--blue-500),var(--blue-700))"><i data-lucide="plane"></i></div>
+        <div class="body">
+          <div class="eyebrow">Đường bay</div>
+          <div class="t">Nhật Bản → VN</div>
+          <p class="d">Vận chuyển nhanh bằng đường hàng không, 5–7 ngày làm việc.</p>
+          <div class="foot"><div class="price">210.000đ<span>/kg</span></div><button class="btn-gold">Đặt ngay</button></div>
+        </div>
+      </div>
+      <div class="card c-order">
+        <div class="head">
+          <span class="id">TX-48210</span>
+          <span class="badge b-gold"><i data-lucide="ship" style="width:12px;height:12px"></i>Đang vận chuyển</span>
+        </div>
+        <div class="info">
+          <div class="info-item"><div class="info-label">Tuyến</div><div class="info-value">Tokyo → Hà Nội</div></div>
+          <div class="info-item"><div class="info-label">Cân nặng</div><div class="info-value">3.5 kg</div></div>
+          <div class="info-item"><div class="info-label">Tổng tiền</div><div class="info-value">2.480.000đ</div></div>
+          <div class="info-item"><div class="info-label">Ngày tạo</div><div class="info-value">31/05/2026</div></div>
+        </div>
+        <div class="bar"><div class="bar-seg done"></div><div class="bar-seg done"></div><div class="bar-seg done"></div><div class="bar-seg"></div><div class="bar-seg"></div></div>
+        <div class="bar-label"><span>Đặt hàng</span><span>Giao hàng</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

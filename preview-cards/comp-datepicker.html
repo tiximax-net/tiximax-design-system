@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<!-- @dsCard group="Components" name="Date picker" subtitle="Trigger field states · single calendar · date-range (two months)" viewport="1160x600" -->
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-body);background:var(--surface-page);padding:28px;display:flex;gap:28px;align-items:flex-start}
+
+  /* ---- trigger fields ---- */
+  .fields{display:flex;flex-direction:column;gap:16px;width:236px;flex:none}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field > label{font-size:12.5px;font-weight:600;color:var(--brand-black)}
+  .trig{display:flex;align-items:center;gap:9px;border:1.5px solid var(--border-default);border-radius:var(--radius-md);
+        padding:10px 12px;background:#fff;font-size:14px;color:var(--brand-black)}
+  .trig svg{width:17px;height:17px;color:var(--text-tertiary);flex:none}
+  .trig .val{flex:1}
+  .trig .ph{flex:1;color:var(--text-tertiary)}
+  .trig.focus{border-color:var(--brand-yellow);box-shadow:0 0 0 3px rgba(247,184,45,.30)}
+  .trig.disabled{background:var(--neutral-100);border-color:var(--border-default);color:var(--text-disabled)}
+  .trig.disabled svg{color:var(--text-disabled)}
+  .hint{font-size:11.5px;color:var(--text-tertiary)}
+
+  /* ---- calendar ---- */
+  .cal{background:#fff;border:1px solid var(--border-default);border-radius:var(--radius-lg);
+       box-shadow:var(--shadow-lg);padding:16px 16px 18px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cal-title{font-size:14.5px;font-weight:700;color:var(--brand-black)}
+  .nav{width:30px;height:30px;border-radius:var(--radius-md);border:1px solid var(--border-default);background:#fff;
+       display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--brand-black)}
+  .nav:hover{background:var(--neutral-100)}
+  .nav svg{width:16px;height:16px}
+  .dow,.days{display:grid;grid-template-columns:repeat(7,34px);gap:3px}
+  .dow span{height:26px;display:flex;align-items:center;justify-content:center;
+            font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--text-tertiary)}
+  .day{height:34px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);
+       font-size:13.5px;color:var(--brand-black);cursor:pointer;position:relative}
+  .day:hover{background:var(--neutral-100)}
+  .day.muted{color:var(--text-disabled);cursor:default}
+  .day.muted:hover{background:transparent}
+  .day.empty{cursor:default}
+  .day.empty:hover{background:transparent}
+  .day.today{font-weight:700;box-shadow:inset 0 0 0 1.5px var(--brand-yellow)}
+  .day.sel{background:var(--brand-yellow);color:var(--brand-black);font-weight:700}
+  .day.sel:hover{background:var(--brand-yellow)}
+  /* range */
+  .day.range{background:var(--yellow-100);border-radius:0}
+  .day.range:hover{background:var(--yellow-100)}
+  .day.range-start{background:var(--brand-yellow);color:var(--brand-black);font-weight:700;border-radius:var(--radius-md) 0 0 var(--radius-md)}
+  .day.range-end{background:var(--brand-yellow);color:var(--brand-black);font-weight:700;border-radius:0 var(--radius-md) var(--radius-md) 0}
+  .day.range-start:hover,.day.range-end:hover{background:var(--brand-yellow)}
+
+  .two{display:flex;gap:22px}
+  .col-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-tertiary);margin:0 0 12px}
+</style>
+</head>
+<body>
+
+  <!-- TRIGGER FIELD STATES -->
+  <div class="fields">
+    <p class="col-label">Trigger field</p>
+    <div class="field">
+      <label>Ngày nhận hàng</label>
+      <div class="trig"><i data-lucide="calendar"></i><span class="val">12/06/2026</span><i data-lucide="chevron-down"></i></div>
+      <span class="hint">Filled · selected date</span>
+    </div>
+    <div class="field">
+      <label>Ngày đặt</label>
+      <div class="trig"><i data-lucide="calendar"></i><span class="ph">dd/mm/yyyy</span></div>
+      <span class="hint">Empty · placeholder</span>
+    </div>
+    <div class="field">
+      <label>Hạn giao</label>
+      <div class="trig focus"><i data-lucide="calendar"></i><span class="val">26/06/2026</span></div>
+      <span class="hint">Focused · yellow ring</span>
+    </div>
+    <div class="field">
+      <label>Khoảng thời gian</label>
+      <div class="trig"><i data-lucide="calendar-range"></i><span class="val">24/06 – 02/07/2026</span></div>
+      <span class="hint">Date range</span>
+    </div>
+    <div class="field">
+      <label>Khóa</label>
+      <div class="trig disabled"><i data-lucide="lock"></i><span class="val">Không thể chọn</span></div>
+      <span class="hint">Disabled</span>
+    </div>
+  </div>
+
+  <!-- SINGLE CALENDAR -->
+  <div>
+    <p class="col-label">Single date</p>
+    <div class="cal">
+      <div class="cal-head">
+        <button class="nav"><i data-lucide="chevron-left"></i></button>
+        <span class="cal-title">Tháng 6, 2026</span>
+        <button class="nav"><i data-lucide="chevron-right"></i></button>
+      </div>
+      <div class="dow"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+      <div class="days">
+        <span class="day">1</span><span class="day">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span><span class="day">6</span><span class="day">7</span>
+        <span class="day">8</span><span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day sel">12</span><span class="day">13</span><span class="day">14</span>
+        <span class="day">15</span><span class="day">16</span><span class="day">17</span><span class="day">18</span><span class="day">19</span><span class="day">20</span><span class="day">21</span>
+        <span class="day">22</span><span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day today">26</span><span class="day">27</span><span class="day">28</span>
+        <span class="day">29</span><span class="day">30</span><span class="day muted">1</span><span class="day muted">2</span><span class="day muted">3</span><span class="day muted">4</span><span class="day muted">5</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RANGE CALENDAR (TWO MONTHS) -->
+  <div>
+    <p class="col-label">Date range · 24/06 – 02/07</p>
+    <div class="cal">
+      <div class="cal-head">
+        <button class="nav"><i data-lucide="chevron-left"></i></button>
+        <span class="cal-title">Tháng 6 – Tháng 7, 2026</span>
+        <button class="nav"><i data-lucide="chevron-right"></i></button>
+      </div>
+      <div class="two">
+        <!-- June -->
+        <div>
+          <div class="dow"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+          <div class="days">
+            <span class="day">1</span><span class="day">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span><span class="day">6</span><span class="day">7</span>
+            <span class="day">8</span><span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span><span class="day">13</span><span class="day">14</span>
+            <span class="day">15</span><span class="day">16</span><span class="day">17</span><span class="day">18</span><span class="day">19</span><span class="day">20</span><span class="day">21</span>
+            <span class="day">22</span><span class="day">23</span><span class="day range-start">24</span><span class="day range">25</span><span class="day range">26</span><span class="day range">27</span><span class="day range">28</span>
+            <span class="day range">29</span><span class="day range">30</span><span class="day empty"></span><span class="day empty"></span><span class="day empty"></span><span class="day empty"></span><span class="day empty"></span>
+          </div>
+        </div>
+        <!-- July -->
+        <div>
+          <div class="dow"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+          <div class="days">
+            <span class="day empty"></span><span class="day empty"></span><span class="day range">1</span><span class="day range-end">2</span><span class="day">3</span><span class="day">4</span><span class="day">5</span>
+            <span class="day">6</span><span class="day">7</span><span class="day">8</span><span class="day">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span>
+            <span class="day">13</span><span class="day">14</span><span class="day">15</span><span class="day">16</span><span class="day">17</span><span class="day">18</span><span class="day">19</span>
+            <span class="day">20</span><span class="day">21</span><span class="day">22</span><span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day">26</span>
+            <span class="day">27</span><span class="day">28</span><span class="day">29</span><span class="day">30</span><span class="day">31</span><span class="day empty"></span><span class="day empty"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
