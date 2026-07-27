@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiximax Express — 予約プロトタイプ（日本 → ベトナム）</title>
+<!-- DS favicon: white ground for dark tabs, navy ground for light tabs (see preview/brand-favicon.html) -->
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap">
+<style>
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--surface-sunken);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  :root {
+    --ease-ios: cubic-bezier(.32, .72, 0, 1);
+    --dur-push: 420ms;
+    --tabbar-h: 82px;
+    /* 日本語 UI — Noto Sans JP を本文・見出しの標準フォントに */
+    --font-body: 'Noto Sans JP', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-display: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+  }
+
+  /* ---------- Page chrome ---------- */
+  .page { max-width: 620px; margin: 0 auto; padding: var(--space-10) var(--space-8) var(--space-16); }
+  .page-head { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); }
+  .page-head__logo { height: 32px; }
+  [data-theme="dark"] .page-head__logo--light,
+  [data-theme="light"] .page-head__logo--dark { display: none; }
+  .page-head__rule { width: 1px; height: 22px; background: var(--border-strong); }
+  .page-head__title {
+    font-family: var(--font-display);
+    font-size: var(--fs-title); font-weight: var(--fw-bold);
+    color: var(--brand-primary);
+  }
+
+  .ghost-btn {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    height: 36px; padding: 0 var(--space-4);
+    background: var(--surface-card); color: var(--text-secondary);
+    border: 1px solid var(--border-default); border-radius: var(--radius-pill);
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold);
+    cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+  }
+  .ghost-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  .ghost-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .ghost-btn:disabled:hover { border-color: var(--border-default); color: var(--text-secondary); }
+  .ghost-btn[aria-pressed="true"] { background: var(--gold-50); border-color: var(--brand-gold); color: var(--gold-800); }
+  .page-head .ghost-btn:first-of-type { margin-left: auto; }
+
+  /* ---------- Prototype stage layout ---------- */
+  .proto { display: flex; justify-content: center; }
+  /* Thu nhỏ khung điện thoại ở chế độ thao tác cho vừa màn hình; càng màn thấp càng nhỏ */
+  .proto .device { zoom: .82; }
+  @media (max-height: 940px) { .proto .device { zoom: .72; } }
+  @media (max-height: 820px) { .proto .device { zoom: .64; } }
+  @media (max-height: 720px) { .proto .device { zoom: .56; } }
+
+  /* ---------- Gallery: xem tất cả màn hình như ảnh chụp điện thoại ---------- */
+  .gallery { display: none; }
+  body.gallery-on .proto { display: none; }
+  /* gallery cần tràn ra ngoài giới hạn max-width của .page để xếp nhiều cột */
+  body.gallery-on .page { max-width: none; }
+  body.gallery-on .gallery {
+    display: grid; grid-template-columns: repeat(3, max-content);
+    justify-content: center; align-items: start;
+    gap: var(--space-8) var(--space-6);
+    padding: var(--space-4) var(--space-6) var(--space-16);
+  }
+  @media (max-width: 980px) {
+    body.gallery-on .gallery { grid-template-columns: repeat(2, max-content); }
+  }
+  .gallery__item { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+  .gallery__cap { display: inline-flex; align-items: center; gap: var(--space-2);
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); }
+  .gallery__num { width: 22px; height: 22px; border-radius: var(--radius-pill); flex: none;
+    background: var(--brand-navy); color: var(--neutral-0);
+    font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    display: inline-flex; align-items: center; justify-content: center; }
+  .gallery .device { margin: 0; zoom: .66; }   /* thu nhỏ để xếp 2–3 khung / hàng */
+
+  /* ---------- iOS device frame ---------- */
+  .device {
+    width: 426px; height: 898px; padding: 12px; flex: none;
+    background: linear-gradient(160deg, var(--neutral-700), var(--neutral-950));
+    border-radius: 62px; box-shadow: var(--shadow-xl);
+    position: relative;
+  }
+  .device__screen {
+    width: 402px; height: 874px;
+    border-radius: 50px; overflow: hidden;
+    background: var(--surface-page);
+    position: relative;
+  }
+  .device__island {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 124px; height: 34px; border-radius: var(--radius-pill);
+    background: var(--neutral-950); z-index: 30;
+  }
+  .device__home {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 138px; height: 5px; border-radius: var(--radius-pill);
+    background: var(--text-primary); opacity: .28; z-index: 20;
+  }
+  .statusbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 58px; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px 0;
+    font-size: var(--fs-body-sm); font-weight: var(--fw-semibold);
+    color: var(--text-primary);
+    pointer-events: none;
+  }
+  .statusbar__icons { display: flex; align-items: center; gap: 6px; }
+  .statusbar__icons svg { display: block; fill: currentColor; }
+
+  /* ---------- Screen stack + push transition ---------- */
+  .stage { position: absolute; inset: 0; overflow: hidden; }
+  .screen {
+    position: absolute; inset: 0;
+    background: var(--surface-page);
+    transform: translateX(100%);
+    opacity: 0; pointer-events: none;
+    transition: transform var(--dur-push) var(--ease-ios), opacity var(--dur-push) var(--ease-ios);
+    will-change: transform;
+  }
+  .screen.is-behind { transform: translateX(-26%); opacity: 0; }   /* already visited — parked on the left */
+  .screen.is-current { transform: translateX(0); opacity: 1; pointer-events: auto; }
+  .screen.no-anim { transition: none; }
+
+  /* ---------- Screen canvas ---------- */
+  .scr {
+    height: 100%; overflow-y: auto; scrollbar-width: none;
+    display: flex; flex-direction: column; gap: var(--space-4);
+    /* đệm dưới chừa chỗ cho tab bar cố định */
+    padding: 68px var(--space-5) calc(var(--tabbar-h) + var(--space-4));
+  }
+  .scr::-webkit-scrollbar { display: none; }
+  .scr--flush { padding: 0 0 var(--tabbar-h); gap: 0; }
+  .scr--center { align-items: center; text-align: center; }
+  .spacer { flex: 1; }
+
+  /* ---------- Tap targets ---------- */
+  [data-goto], [data-back], [data-action], [data-pickaddr], [data-paddr] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .btn[data-goto]:active:not(.is-disabled) { transform: scale(.985); }
+
+  /* ---------- Icons ---------- */
+  .ic { flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ic--13 { width: 13px; height: 13px; }
+  .ic--14 { width: 14px; height: 14px; }
+  .ic--15 { width: 15px; height: 15px; }
+  .ic--16 { width: 16px; height: 16px; }
+  .ic--18 { width: 18px; height: 18px; }
+  .ic--20 { width: 20px; height: 20px; }
+  .ic--22 { width: 22px; height: 22px; }
+  .ic--24 { width: 24px; height: 24px; }
+  .ic--30 { width: 30px; height: 30px; }
+  .ic--bold { stroke-width: 2.5; }
+
+  /* ---------- App bar ---------- */
+  .appbar { display: flex; align-items: center; justify-content: space-between; }
+  .appbar__btn {
+    width: 40px; height: 40px; border-radius: var(--radius-pill); flex: none;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-primary); padding: 0; font: inherit; cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .appbar__btn:hover { background: var(--surface-sunken); border-color: var(--border-strong); }
+  .appbar__btn:disabled { opacity: .35; cursor: default; }
+  .appbar__mark { height: 22px; }
+  .appbar__spacer { width: 40px; }
+
+  /* ---------- Screen heading + step meter ---------- */
+  .scr-title {
+    font-family: var(--font-display); margin: 0;
+    font-size: 24px; font-weight: var(--fw-bold);
+    letter-spacing: -0.01em; color: var(--text-primary);
+  }
+  .scr-sub { font-size: var(--fs-caption); color: var(--text-secondary); margin: 2px 0 0; }
+
+  .meter { display: flex; gap: 6px; }
+  .meter__seg { flex: 1; height: 4px; border-radius: 2px; background: var(--neutral-200); overflow: hidden; }
+  .meter__seg--on { background: var(--brand-gold); transform-origin: left center; }
+  .is-current .meter__seg--fill { animation: meter-fill .5s var(--ease-ios) .12s backwards; }
+  @keyframes meter-fill { from { transform: scaleX(0); } }
+
+  /* ---------- Field group ---------- */
+  .group { display: flex; flex-direction: column; gap: var(--space-2); position: relative; }
+  .group__label {
+    font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary);
+  }
+  .group__label .opt { font-weight: var(--fw-regular); letter-spacing: 0; text-transform: none; color: var(--text-tertiary); }
+  .hint { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  .help { font-size: var(--fs-caption); color: var(--text-secondary); margin: -4px 0 0; }
+  /* Đơn giá theo cân nặng — chip nhỏ đặt cạnh nhãn có nhắc đến khối lượng */
+  .rate {
+    font-size: var(--fs-overline); font-weight: var(--fw-bold); white-space: nowrap;
+    color: var(--gold-800); background: var(--gold-50);
+    border: 1px solid var(--gold-200); border-radius: var(--radius-pill); padding: 2px 10px;
+  }
+  /* Bảng đơn giá /kg + tổng tạm tính — rõ ràng, dễ nhìn, cập nhật theo cân nặng */
+  .est {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+    background: var(--gold-50); border: 1px solid var(--gold-200);
+  }
+  .est__meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .est__rate { font-size: var(--fs-body); font-weight: var(--fw-bold); color: var(--gold-800); }
+  .est__base { font-size: var(--fs-overline); color: var(--text-secondary); }
+  .est__total {
+    font-family: var(--font-display); font-size: 24px; font-weight: var(--fw-bold);
+    color: var(--text-primary); white-space: nowrap; line-height: 1;
+  }
+
+  /* ---------- Real inputs ---------- */
+  .field {
+    display: flex; align-items: center; gap: var(--space-3);
+    min-height: 48px; padding: var(--space-2) var(--space-4);
+    background: var(--surface-card);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    font-size: 15px; color: var(--text-primary);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field:focus-within { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .field--area { align-items: flex-start; min-height: 68px; padding-top: var(--space-3); }
+  .field__body { flex: 1; min-width: 0; }
+  .field__sub { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  .field__unit { font-size: var(--fs-body-sm); color: var(--text-tertiary); }
+  .field__row { display: flex; gap: var(--space-3); }
+  .field__row > .field { flex: 1; min-width: 0; }
+
+  /* Ô nhập kèm nhãn riêng phía trên — mỗi input có label rõ ràng */
+  .field-set { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field__row > .field-set { flex: 1; }
+  .field-set__label {
+    font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-secondary);
+  }
+
+  /* Ô số điện thoại: nút chọn mã quốc gia + ô số, dropdown mã vùng bên dưới */
+  .phone { position: relative; display: flex; align-items: stretch; gap: var(--space-2); }
+  .phone__num { flex: 1; min-width: 0; }
+  .phone__cc {
+    flex: none; display: flex; align-items: center; gap: var(--space-2);
+    min-height: 48px; padding: 0 var(--space-3);
+    background: var(--surface-sunken); border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md); font: inherit; color: var(--text-primary); cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .phone__cc:hover { border-color: var(--border-focus); }
+  .phone__cc[aria-expanded="true"] { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .phone__code { font-size: 15px; font-weight: var(--fw-semibold); }
+  .phone__cc .ic { color: var(--text-tertiary); }
+  .picker--cc { left: 0; width: 216px; max-height: 232px; overflow-y: auto; scrollbar-width: none; }
+  .picker--cc::-webkit-scrollbar { display: none; }
+
+  .field input, .field textarea {
+    flex: 1; min-width: 0; width: 100%;
+    font: inherit; font-size: 15px; color: inherit;
+    background: none; border: 0; outline: none; padding: 0; margin: 0;
+    resize: none;
+  }
+  .field textarea { line-height: 1.45; }
+  .field input::placeholder, .field textarea::placeholder { color: var(--text-tertiary); }
+  .field input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  .field input::-webkit-outer-spin-button,
+  .field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  /* ---------- Sender / recipient blocks ---------- */
+  .party { display: flex; flex-direction: column; gap: var(--space-3); }
+  .party__h {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-size: var(--fs-caption); font-weight: var(--fw-bold); color: var(--text-primary);
+    padding-bottom: var(--space-2); border-bottom: 1px solid var(--border-subtle);
+  }
+  .party__dot { width: 8px; height: 8px; border-radius: var(--radius-pill); flex: none; }
+  .party__dot--from { background: var(--brand-gold); }
+  .party__dot--to { background: var(--brand-green); }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+  .card--pad { padding: var(--space-4); }
+  .card--gold { border-color: var(--gold-300); }
+
+  /* ---------- Route + country picker ---------- */
+  .route { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); position: relative; }
+  .route__side {
+    flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-1);
+    background: none; border: 0; padding: 0; font: inherit; text-align: left; cursor: pointer;
+    color: var(--text-primary); border-radius: var(--radius-sm);
+  }
+  .route__side--to { align-items: flex-end; text-align: right; }
+  .route__cap { font-size: 11px; font-weight: var(--fw-bold); letter-spacing: 0.1em; color: var(--text-tertiary); }
+  .route__val { display: flex; align-items: center; gap: var(--space-2); font-size: 15px; font-weight: var(--fw-semibold); }
+  .route__val .ic { color: var(--text-tertiary); transition: transform .2s; }
+  .route__side[aria-expanded="true"] .route__val .ic { transform: rotate(180deg); }
+  .route__swap {
+    width: 36px; height: 36px; border-radius: var(--radius-pill); flex: none; padding: 0;
+    background: var(--gold-50); border: 1px solid var(--gold-200); color: var(--gold-700);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: transform .35s var(--ease-ios);
+  }
+  .route__swap:hover { transform: rotate(180deg); }
+  .route__swap.is-spun { transform: rotate(360deg); }
+
+  .picker {
+    position: absolute; top: calc(100% + 6px); z-index: 15; width: 190px;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow: hidden;
+  }
+  .picker--from { left: var(--space-4); }
+  .picker--to { right: var(--space-4); }
+  .picker__item {
+    display: flex; align-items: center; gap: var(--space-3); width: 100%;
+    padding: var(--space-3) var(--space-4); background: none; border: 0;
+    font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    text-align: left; cursor: pointer;
+  }
+  .picker__item:hover { background: var(--gold-50); }
+  .picker__item[aria-selected="true"] { background: var(--surface-sunken); font-weight: var(--fw-semibold); }
+  .picker__item .ic { margin-left: auto; color: var(--brand-gold); }
+  .picker__city { font-size: var(--fs-overline); color: var(--text-tertiary); }
+
+  /* Country flags — real flag colours */
+  .flag { width: 22px; height: 16px; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-default); flex: none; position: relative; background: #FFFFFF; }
+  .flag i { display: block; position: absolute; inset: 0; }
+  .flag--id i:first-child { bottom: 50%; background: #E23A3A; }
+  .flag--id i:last-child { top: 50%; background: #FFFFFF; }
+  .flag--jp i { display: flex; align-items: center; justify-content: center; }
+  .flag--jp i::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #D22F2F; }
+  .flag--vn i { background: #DA251D; display: flex; align-items: center; justify-content: center; color: #FFCD00; font-size: 11px; line-height: 1; }
+  .flag--vn i::after { content: "★"; }
+  /* Cờ Việt Nam dùng SVG thật (assets/vietnam.svg) thay cho ★ vẽ bằng CSS */
+  .flag--vn img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .flag--ph i:first-child { bottom: 50%; background: #0038A8; }
+  .flag--ph i:last-child { top: 50%; background: #CE1126; }
+  .flag--ph::after {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 10px;
+    background: #FFFFFF; clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
+  /* ---------- Thẻ địa chỉ trên màn 1 ----------
+     Hai điểm nối bằng đường chấm; bấm một dòng → sang màn chọn địa chỉ. */
+  .addr-card { display: flex; flex-direction: column; padding: var(--space-2); }
+  .addr-row {
+    display: flex; align-items: flex-start; gap: var(--space-3); width: 100%; text-align: left;
+    padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm);
+    background: none; border: 0; font: inherit; color: var(--text-primary); cursor: pointer;
+    transition: background .15s;
+  }
+  .addr-row:hover { background: var(--surface-sunken); }
+  .addr-row__dot { width: 10px; height: 10px; border-radius: var(--radius-pill); flex: none; margin-top: 6px; }
+  .addr-row__dot--from { background: var(--brand-gold); box-shadow: 0 0 0 3px rgba(244, 185, 49, .18); }
+  .addr-row__dot--to { background: var(--brand-green); box-shadow: 0 0 0 3px var(--success-bg); }
+  .addr-row__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .addr-row__t { font-size: 15px; font-weight: var(--fw-semibold); line-height: var(--lh-normal); }
+  /* chưa chọn thì chữ mờ — đó là placeholder chứ không phải dữ liệu */
+  .addr-row.is-empty .addr-row__t { font-weight: var(--fw-regular); color: var(--text-tertiary); }
+  .addr-row__s {
+    font-size: var(--fs-overline); color: var(--text-tertiary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .addr-row__go { color: var(--text-tertiary); margin-top: 4px; }
+  /* đường chấm nối — canh theo tâm chấm tròn (8 đệm thẻ + 12 đệm dòng + 5) */
+  .addr-card__rail { height: 14px; margin-left: 24px; border-left: 2px dotted var(--border-strong); }
+
+  /* ---------- Địa chỉ + liên hệ gộp 1 card kiểu "chuyến đi" (gửi → nhận) ---------- */
+  .trip { border: 1.5px solid var(--border-default); border-radius: var(--radius-lg); background: var(--surface-card); padding: var(--space-4); }
+  .trip__pt { display: flex; gap: var(--space-3); }
+  .trip__rail { display: flex; flex-direction: column; align-items: center; padding-top: 3px; }
+  .trip__dot { width: 14px; height: 14px; border-radius: var(--radius-pill); flex: none; }
+  .trip__dot--from { background: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, .16); }
+  .trip__dot--to { background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(45deg); box-shadow: 0 0 0 4px rgba(220, 38, 38, .14); }
+  .trip__line { flex: 1; width: 0; border-left: 2px dotted var(--border-strong); margin: 6px 0; min-height: 18px; }
+  .trip__main { flex: 1; min-width: 0; padding-bottom: var(--space-4); }
+  .trip__pt:last-child .trip__main { padding-bottom: 0; }
+  .trip__toprow { display: flex; align-items: flex-start; gap: var(--space-3); }
+  .trip__sum { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-align: left; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+  .trip__sum-t { font-size: 15px; font-weight: var(--fw-semibold); color: var(--text-primary); line-height: var(--lh-normal); }
+  .trip__sum.is-empty .trip__sum-t { font-weight: var(--fw-regular); color: var(--text-tertiary); }
+  .trip__sum-m { font-size: 13px; color: var(--text-secondary); }
+  .trip__swap { flex: none; width: 34px; height: 34px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; justify-content: center; background: var(--surface-page); color: var(--brand-primary); border: 1px solid var(--border-default); cursor: pointer; }
+  .trip__swap:hover { border-color: var(--brand-gold); color: var(--text-brand); background: var(--gold-50); }
+  .trip__form { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
+  .trip__form[hidden], .trip__sum[hidden] { display: none !important; }
+  .trip__hd-t { font-size: 15px; font-weight: var(--fw-semibold); }
+  .route__arrow { color: var(--text-tertiary); display: inline-flex; }
+  .trip__form .addr-row { border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 12px 14px; align-items: center; }
+  .trip__form .addr-row:hover { border-color: var(--border-strong); background: var(--surface-sunken); }
+
+  /* ---------- Màn chọn địa chỉ ---------- */
+  .pick-head {
+    flex: none; display: flex; align-items: flex-start; gap: var(--space-3);
+    padding: 62px var(--space-4) var(--space-4);
+    background: var(--surface-card); border-bottom: 1px solid var(--border-default);
+  }
+  .pick-head__back {
+    background: none; border: 0; padding: 0; margin-top: 12px; cursor: pointer;
+    color: var(--text-primary); display: flex;
+  }
+  .pick-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .pick-field { display: flex; align-items: center; gap: var(--space-3); }
+  .pick-field__dot { width: 12px; height: 12px; border-radius: var(--radius-pill); flex: none; }
+  .pick-field__dot--from { background: var(--brand-gold); box-shadow: 0 0 0 3px rgba(244, 185, 49, .18); }
+  .pick-field__dot--to { background: var(--brand-green); box-shadow: 0 0 0 3px var(--success-bg); }
+  .pick-field__box {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-2);
+    min-height: 44px; padding: 0 var(--space-3);
+    background: var(--surface-card); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .pick-field.is-active .pick-field__box { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .pick-field__box input {
+    flex: 1; min-width: 0; font: inherit; font-size: 15px; color: inherit;
+    background: none; border: 0; outline: none; padding: 0; margin: 0;
+  }
+  .pick-field__box input::placeholder { color: var(--text-tertiary); }
+  .pick-field__cam { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text-tertiary); display: flex; }
+  .pick-field__cam:hover { color: var(--text-brand); }
+  /* canh theo tâm chấm 12px → 6px */
+  .pick-fields__rail { height: 14px; margin-left: 5px; border-left: 2px dotted var(--border-strong); }
+
+  /* Mã bưu điện — chỉ hiện khi đang chọn đầu giao; canh lề dưới ô địa chỉ To
+     (chấm 12px + gap var(--space-3) 12px = 24px) */
+  .pick-zip { display: flex; align-items: center; gap: var(--space-2); margin: var(--space-2) 0 0 24px; }
+  .pick-zip[hidden] { display: none; }
+  /* chỉ hiện ô địa chỉ của đúng bên (Gửi hoặc Nhận) đang chọn */
+  .pick-field[hidden] { display: none !important; }
+  .pick-zip__label { flex: none; font-size: var(--fs-overline); font-weight: var(--fw-semibold); color: var(--text-tertiary); }
+  .pick-zip__box {
+    flex: 1; min-width: 0; display: flex; align-items: center;
+    min-height: 38px; padding: 0 var(--space-3);
+    background: var(--surface-sunken); border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .pick-zip__box:focus-within { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .pick-zip__box input {
+    flex: 1; min-width: 0; font: inherit; font-size: 14px; letter-spacing: .02em; color: inherit;
+    background: none; border: 0; outline: none; padding: 0; margin: 0;
+  }
+  .pick-zip__box input::placeholder { color: var(--text-tertiary); letter-spacing: 0; }
+
+  .pick-tabs { flex: none; display: flex; gap: var(--space-2); padding: var(--space-4) var(--space-4) var(--space-3); }
+  .pick-tab {
+    height: 34px; padding: 0 var(--space-4); border-radius: var(--radius-pill);
+    background: var(--surface-sunken); border: 1px solid transparent;
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary);
+    cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+  }
+  .pick-tab:hover { color: var(--text-primary); }
+  .pick-tab[aria-pressed="true"] { background: var(--gold-50); border-color: var(--gold-200); color: var(--gold-800); }
+
+  /* danh sách tự cuộn; đệm dưới chừa chỗ cho nút nổi "Pick on map" */
+  .pick-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 0 var(--space-4) 72px; }
+  .pick-list::-webkit-scrollbar { display: none; }
+  .pick-item { display: flex; align-items: center; gap: var(--space-2); }
+  .pick-item + .pick-item { border-top: 1px solid var(--border-subtle); }
+  .pick-item__main {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-3); text-align: left;
+    padding: var(--space-3) 0; background: none; border: 0; font: inherit; color: var(--text-primary); cursor: pointer;
+  }
+  .pick-item__ic {
+    width: 34px; height: 34px; border-radius: var(--radius-pill); flex: none;
+    background: var(--surface-sunken); color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pick-item.is-saved .pick-item__ic { background: var(--gold-100); color: var(--gold-700); }
+  .pick-item__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .pick-item__t { font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); }
+  .pick-item__s { font-size: var(--fs-overline); color: var(--text-tertiary); line-height: var(--lh-normal); }
+  .pick-item__more {
+    flex: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: var(--radius-pill);
+    background: none; color: var(--text-tertiary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pick-item__more:hover { background: var(--surface-sunken); color: var(--text-primary); }
+  .pick-empty { padding: var(--space-8) var(--space-4); text-align: center; font-size: var(--fs-caption); color: var(--text-tertiary); line-height: var(--lh-relaxed); }
+
+  /* nút nổi ở đáy, nằm trên tab bar */
+  .pick-map {
+    position: absolute; left: 50%; transform: translateX(-50%); z-index: 12;
+    bottom: calc(var(--tabbar-h) + var(--space-3));
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    height: 44px; padding: 0 var(--space-5); border-radius: var(--radius-pill);
+    background: var(--surface-card); border: 1px solid var(--border-default); box-shadow: var(--shadow-lg);
+    font: inherit; font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); color: var(--text-primary);
+    cursor: pointer; white-space: nowrap;
+  }
+  .pick-map:hover { border-color: var(--brand-gold); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    height: 52px; border-radius: var(--radius-md); width: 100%; flex: none;
+    display: flex; align-items: center; justify-content: center; gap: var(--space-2);
+    font: inherit; font-size: var(--fs-body); font-weight: var(--fw-semibold); line-height: 1;
+    border: 0; cursor: pointer;
+    transition: transform .12s var(--ease-ios), filter .15s, opacity .15s;
+  }
+  .btn--primary { background: var(--brand-gold); color: var(--neutral-950); box-shadow: var(--shadow-gold); }
+  .btn--primary:hover:not(.is-disabled) { filter: brightness(1.04); }
+  /* --brand-primary = navy in light, lighter navy in dark (CONTRACT token) */
+  .btn--outline { background: var(--surface-card); color: var(--brand-primary); border: 1.5px solid var(--brand-primary); }
+  .btn.is-disabled { opacity: .45; box-shadow: none; cursor: not-allowed; }
+
+  .choices { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .choice {
+    display: flex; align-items: center; gap: var(--space-2);
+    height: 44px; padding: 0 var(--space-4); border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-strong); background: var(--surface-card);
+    font: inherit; font-size: var(--fs-body-sm); font-weight: var(--fw-medium); color: var(--text-secondary);
+    cursor: pointer; transition: border-color .15s, background .15s, color .15s;
+  }
+  .choice .ic--check { display: none; }
+  .choice[aria-pressed="true"] {
+    border-color: var(--brand-gold); background: var(--gold-50);
+    color: var(--gold-800); font-weight: var(--fw-semibold);
+  }
+  .choice[aria-pressed="true"] .ic--check { display: block; }
+
+  /* ---------- Photo upload ---------- */
+  .photos { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .photo-slot {
+    width: 108px; height: 108px; border-radius: var(--radius-lg); flex: none;
+    background: var(--surface-sunken); border: 1.5px dashed var(--border-strong);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    color: var(--text-tertiary); font: inherit; font-size: var(--fs-overline); font-weight: var(--fw-medium);
+    cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+  }
+  .photo-slot:hover { border-color: var(--brand-gold); color: var(--gold-700); background: var(--gold-50); }
+  .photo-thumb {
+    width: 108px; height: 108px; border-radius: var(--radius-lg); flex: none;
+    position: relative; overflow: hidden; border: 1px solid var(--border-default);
+    background: var(--surface-sunken);
+    animation: pop .35s var(--ease-ios);
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-thumb__x {
+    position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; padding: 0;
+    border-radius: var(--radius-pill); border: 0; cursor: pointer;
+    background: rgba(11, 15, 21, .62); color: var(--neutral-0);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .photo-thumb__x:hover { background: var(--brand-red); }
+
+  /* ---------- Navy route band ---------- */
+  .band { background: var(--surface-navy); border-radius: var(--radius-lg); padding: var(--space-5); }
+  .band__row { display: flex; align-items: center; gap: var(--space-3); }
+  .band__city { font-family: var(--font-display); font-size: 20px; font-weight: var(--fw-bold); color: var(--neutral-0); }
+  .band__code { font-family: var(--font-display); font-size: 17px; font-weight: var(--fw-bold); color: var(--neutral-0); }
+  .band__code--dim { color: var(--navy-300); }
+  .band__meta { font-size: 11px; color: var(--navy-200); white-space: nowrap; }
+  .band__mid { flex: .9; display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
+  .band__line { width: 100%; height: 2px; border-radius: 1px; background: linear-gradient(90deg, var(--brand-gold), var(--gold-300)); transform-origin: left center; }
+  .band__eta { font-size: 11px; font-weight: var(--fw-semibold); color: var(--gold-300); }
+  .plane { color: var(--brand-gold); }
+  .plane svg { display: block; fill: currentColor; }
+  .is-current .band__line { animation: meter-fill .7s var(--ease-ios) .15s backwards; }
+
+  .track { flex: 1; margin: 0 var(--space-4); position: relative; height: 22px; }
+  .track__rail, .track__done { position: absolute; top: 10px; left: 0; height: 2px; border-radius: 1px; }
+  .track__rail { right: 0; background: var(--navy-400); }
+  .track__done { width: 30%; background: var(--brand-gold); transform-origin: left center; }
+  .track__plane { position: absolute; left: 30%; top: 0; transform: translateX(-50%); }
+  .is-current .track__done { animation: meter-fill .9s var(--ease-ios) .2s backwards; }
+  .is-current .track__plane { animation: plane-fly .9s var(--ease-ios) .2s backwards; }
+  @keyframes plane-fly { from { left: 0; } }
+
+  /* ---------- Summary rows ---------- */
+  .rows { padding: 0 var(--space-4); }
+  .rows__item { display: flex; gap: var(--space-3); padding: var(--space-3) 0; }
+  .rows__item + .rows__item { border-top: 1px solid var(--border-subtle); }
+  .rows__item .ic { margin-top: 2px; }
+  .rows__t { font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); color: var(--text-primary); }
+  .rows__s { font-size: var(--fs-overline); color: var(--text-tertiary); }
+
+  .thumb-pair { display: flex; gap: 6px; }
+  .thumb {
+    width: 44px; height: 44px; border-radius: var(--radius-sm); flex: none; overflow: hidden;
+    background: var(--surface-sunken); border: 1px solid var(--border-default);
+    display: flex; align-items: center; justify-content: center; color: var(--text-tertiary);
+    font-size: var(--fs-overline); font-weight: var(--fw-semibold);
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    font-size: 11px; font-weight: var(--fw-semibold);
+    border-radius: var(--radius-pill); padding: 3px 10px;
+  }
+  .badge--gold { background: var(--gold-100); color: var(--gold-800); }
+  .badge--neutral { background: var(--surface-sunken); color: var(--text-secondary); }
+  .badge--status { background: var(--gold-100); color: var(--gold-800); border: 1px solid var(--gold-300); padding: 5px 12px; font-size: var(--fs-overline); font-weight: var(--fw-bold); }
+  /* Trạng thái theo chặng — success/info tự đảo theo light–dark nên dùng được cả hai */
+  .badge--status.badge--green { background: var(--success-bg); color: var(--text-success); border-color: var(--success-border); }
+  .badge--status.badge--blue { background: var(--info-bg); color: var(--text-info); border-color: var(--info-border); }
+  /* Header Tracking: status hiển thị trên mã tracking */
+  .tk-head { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+
+  .price-row { display: flex; align-items: baseline; justify-content: space-between; }
+  .price-row__label { font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-secondary); }
+  .price-row__value { font-family: var(--font-display); font-size: 26px; font-weight: var(--fw-bold); color: var(--text-primary); }
+
+  /* ---------- Chi tiết đơn hàng (Review) ---------- */
+  .od { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); }
+  .od__head { font-size: var(--fs-caption); font-weight: var(--fw-bold); color: var(--gold-700); letter-spacing: .02em; }
+  .od__count { font-weight: var(--fw-semibold); }
+  .od__items { display: flex; flex-direction: column; gap: var(--space-3); }
+  .od__item { display: flex; align-items: flex-start; gap: var(--space-3); }
+  .od__num {
+    width: 26px; height: 26px; flex: none; border-radius: var(--radius-pill);
+    background: var(--brand-navy); color: var(--neutral-0);
+    font-size: var(--fs-overline); font-weight: var(--fw-bold);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .od__item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .od__item-name { font-size: var(--fs-body-sm); font-weight: var(--fw-bold); color: var(--text-primary); }
+  .od__item-sub { font-size: var(--fs-overline); color: var(--text-tertiary); margin-top: 2px; }
+  .od__item-w { font-size: var(--fs-body-sm); font-weight: var(--fw-bold); color: var(--text-primary); white-space: nowrap; }
+  .od__row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .od__row--sum {
+    padding-top: var(--space-4); border-top: 1px solid var(--border-subtle);
+    font-size: var(--fs-body-sm); color: var(--text-secondary);
+  }
+  .od__w { font-weight: var(--fw-bold); color: var(--text-primary); }
+  .od__rate {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+    background: var(--gold-50); border: 1px solid var(--gold-200);
+  }
+  .od__rate-cap { font-size: var(--fs-overline); font-weight: var(--fw-bold); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); }
+  .od__rate-price { font-size: var(--fs-body-sm); color: var(--text-secondary); margin-top: 2px; }
+  .od__rate-price strong { font-family: var(--font-display); font-size: 22px; font-weight: var(--fw-bold); color: var(--gold-800); }
+  .od__rate-r { text-align: right; }
+  .od__rate-w { font-family: var(--font-display); font-size: 20px; font-weight: var(--fw-bold); color: var(--text-primary); line-height: 1.15; }
+  .od__rate-note { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  .od__break { display: flex; flex-direction: column; gap: var(--space-2); }
+  .od__bi { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); font-size: var(--fs-body-sm); }
+  .od__bi-l { color: var(--text-secondary); min-width: 0; }
+  .od__bi-r { color: var(--text-primary); font-weight: var(--fw-medium); white-space: nowrap; }
+  .od__row--total { padding-top: var(--space-4); border-top: 1px solid var(--border-default); }
+  .od__row--total span:first-child { font-size: var(--fs-body); font-weight: var(--fw-semibold); color: var(--text-secondary); }
+  .od__row--total span:last-child { font-family: var(--font-display); font-size: 26px; font-weight: var(--fw-bold); color: var(--text-primary); }
+  .od__foot { text-align: center; margin-top: calc(-1 * var(--space-2)); }
+
+  .alert {
+    display: flex; gap: var(--space-2); margin-top: var(--space-3);
+    padding: var(--space-3); border-radius: var(--radius-md);
+    background: var(--info-bg); border: 1px solid var(--info-border);
+  }
+  .alert .ic { color: var(--info); margin-top: 1px; }
+  .alert p { margin: 0; font-size: var(--fs-overline); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+  /* ---------- Confirmation ---------- */
+  .success-halo {
+    width: 88px; height: 88px; border-radius: var(--radius-pill); background: var(--gold-100);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .success-dot {
+    width: 64px; height: 64px; border-radius: var(--radius-pill);
+    background: var(--brand-gold); box-shadow: var(--shadow-gold); color: var(--neutral-950);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .is-current .success-halo { animation: pop .55s var(--ease-ios) .1s backwards; }
+  .is-current .success-dot .ic { animation: pop .45s var(--ease-ios) .32s backwards; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } }
+
+  .success-title { font-family: var(--font-display); font-size: 26px; font-weight: var(--fw-bold); color: var(--text-primary); margin: 0; }
+  .success-copy { font-size: var(--fs-body-sm); color: var(--text-secondary); margin: var(--space-2) 0 0; line-height: var(--lh-relaxed); max-width: 300px; }
+
+  .ticket {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: var(--surface-card); border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md); color: var(--text-tertiary);
+    font: inherit; cursor: pointer;
+  }
+  .ticket:hover { border-color: var(--brand-gold); }
+  .ticket__label { font-size: var(--fs-overline); }
+  .ticket__id { font-size: 15px; font-weight: var(--fw-bold); color: var(--brand-primary); letter-spacing: var(--ls-wide); }
+
+  .next { width: 100%; text-align: left; padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); }
+  .next__cap { font-size: 11px; font-weight: var(--fw-bold); letter-spacing: 0.1em; color: var(--text-tertiary); text-transform: uppercase; }
+  .next__row { display: flex; gap: var(--space-3); align-items: center; }
+  .next__ico {
+    width: 32px; height: 32px; border-radius: var(--radius-pill); flex: none;
+    background: var(--gold-50); border: 1px solid var(--gold-200); color: var(--gold-700);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .next__txt { font-size: var(--fs-caption); color: var(--text-primary); }
+
+  /* ---------- Tracking ---------- */
+  .split { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+  .money { display: flex; align-items: center; gap: var(--space-3); }
+  .money__col { flex: 1; }
+  .money__label { font-size: var(--fs-overline); color: var(--text-tertiary); }
+  .money__value { font-family: var(--font-display); font-size: 20px; font-weight: var(--fw-bold); color: var(--text-primary); }
+  .money__div { width: 1px; align-self: stretch; background: var(--border-subtle); }
+  .money__pending {
+    font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-warning);
+    display: flex; align-items: center; gap: 6px; margin-top: 3px;
+  }
+
+  .timeline { padding: var(--space-5) var(--space-4) 6px; }
+  .tl { display: flex; gap: var(--space-4); }
+  .tl__gutter { display: flex; flex-direction: column; align-items: center; width: 24px; flex: none; }
+  .tl__dot {
+    width: 24px; height: 24px; border-radius: var(--radius-pill);
+    border: 2px solid var(--neutral-300); background: var(--surface-card);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tl__dot--done { background: var(--brand-green); border-color: var(--brand-green); color: var(--neutral-0); }
+  .tl__dot--now { background: var(--brand-gold); border-color: var(--brand-gold); }
+  .tl__dot--now i { width: 8px; height: 8px; border-radius: 50%; background: var(--neutral-950); display: block; }
+  .is-current .tl__dot--now { animation: ping 2s ease-out .8s infinite; }
+  @keyframes ping {
+    0%   { box-shadow: 0 0 0 0 rgba(244, 185, 49, .55); }
+    70%  { box-shadow: 0 0 0 10px rgba(244, 185, 49, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(244, 185, 49, 0); }
+  }
+  .tl__line { width: 2px; flex: 1; min-height: 22px; background: var(--neutral-200); }
+  .tl__line--done { background: var(--brand-green); }
+  .tl__body { padding-bottom: var(--space-5); }
+  .tl__t { font-size: var(--fs-body-sm); font-weight: var(--fw-semibold); color: var(--text-primary); }
+  .tl__t--todo { color: var(--text-tertiary); }
+  .tl__s { font-size: var(--fs-overline); color: var(--text-tertiary); margin-top: 2px; }
+
+  /* ---------- Danh sách lô hàng (tab 配送一覧) ---------- */
+  .ships { display: flex; flex-direction: column; gap: var(--space-3); }
+  .ship {
+    display: flex; gap: var(--space-3); align-items: flex-start; width: 100%; text-align: left;
+    padding: var(--space-4); border-radius: var(--radius-lg);
+    background: var(--surface-card); border: 1px solid var(--border-default); box-shadow: var(--shadow-sm);
+    /* <button> mặc định color:buttontext — không kế thừa, dark mode sẽ ra chữ đen trên nền tối */
+    font: inherit; color: var(--text-primary); cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, transform .12s var(--ease-ios);
+  }
+  .ship:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+  .ship:active { transform: scale(.99); }
+  .ship__ic {
+    width: 34px; height: 34px; border-radius: var(--radius-sm); flex: none;
+    background: var(--gold-50); border: 1px solid var(--gold-200); color: var(--gold-700);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ship__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  /* Status lên trên, mã tracking to & rõ bên dưới (mã dài không còn bị bóp/wrap) */
+  .ship__top { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+  .ship__id { font-size: var(--fs-body); font-weight: var(--fw-bold); letter-spacing: var(--ls-wide); }
+  .ship__route { display: flex; align-items: center; gap: 6px; font-size: var(--fs-caption); font-weight: var(--fw-medium); color: var(--text-secondary); }
+  .ship__route .ic { color: var(--text-tertiary); }
+  .ship__what {
+    font-size: var(--fs-overline); color: var(--text-tertiary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ship__bar { height: 4px; border-radius: 2px; background: var(--neutral-200); overflow: hidden; }
+  .ship__bar i { display: block; height: 100%; border-radius: 2px; background: var(--brand-gold); }
+  .ship__bar i.is-done { background: var(--brand-green); }
+  .ship__meta { display: flex; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-overline); color: var(--text-tertiary); }
+  /* ---------- Bottom tab bar ----------
+     Nằm NGOÀI .stage nên không trượt theo animation đẩy màn: tab bar đứng yên,
+     chỉ nội dung phía trên đổi — đúng cách iOS làm. */
+  .tabbar {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 18;
+    display: flex; padding: var(--space-2) var(--space-2) 26px;
+    background: var(--surface-card); border-top: 1px solid var(--border-default);
+  }
+  .tabbar__btn {
+    flex: 1; min-width: 0; padding: 4px 2px; border: 0; background: none; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--text-tertiary); font: inherit; font-size: 10.5px; font-weight: var(--fw-semibold);
+    line-height: 1.2; border-radius: var(--radius-sm);
+    transition: color .15s;
+  }
+  .tabbar__btn:hover { color: var(--text-secondary); }
+  .tabbar__btn[aria-current="page"] { color: var(--text-brand); }
+  .tabbar__ico { position: relative; display: flex; }
+  /* chấm báo tin nhắn chưa đọc trên tab Chat */
+  .tabbar__dot {
+    position: absolute; top: -1px; right: -4px; width: 9px; height: 9px;
+    border-radius: var(--radius-pill); background: var(--brand-red);
+    border: 2px solid var(--surface-card);
+  }
+
+  .fab {
+    position: absolute; right: var(--space-5); bottom: calc(var(--tabbar-h) + var(--space-3)); z-index: 10;
+    width: 56px; height: 56px; border-radius: var(--radius-pill); padding: 0; border: 0; cursor: pointer;
+    background: var(--brand-gold); box-shadow: var(--shadow-gold); color: var(--neutral-950);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .18s var(--ease-ios);
+  }
+  .fab:hover { transform: scale(1.06); }
+  .is-current .fab { animation: pop .4s var(--ease-ios) .35s backwards; }
+
+  /* ---------- Chat ---------- */
+  .chat-head {
+    padding: 62px var(--space-4) var(--space-3);
+    background: var(--surface-card); border-bottom: 1px solid var(--border-default);
+    display: flex; align-items: center; gap: var(--space-3); position: relative;
+  }
+  .chat-head__back { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text-primary); display: flex; }
+  /* Avatar Chat = logo Symbol tròn (DS): navy trên nền sáng, tự đổi sang gold ở dark */
+  .chat-head__avatar {
+    width: 40px; height: 40px; border-radius: var(--radius-pill); flex: none; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chat-head__avatar img { width: 40px; height: 40px; display: block; }
+  [data-theme="dark"] .chat-head__sym--light,
+  [data-theme="light"] .chat-head__sym--dark { display: none; }
+  .chat-head__name { font-size: 15px; font-weight: var(--fw-bold); color: var(--text-primary); }
+  .chat-head__status { font-size: var(--fs-overline); color: var(--text-success); display: flex; align-items: center; gap: 5px; }
+  .chat-head__status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: block; }
+  .chat-head__more { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text-secondary); display: flex; }
+
+  /* dropdown menu — DS: 14px items, gold-50 hover background */
+  .menu {
+    position: absolute; right: var(--space-4); top: calc(100% - 4px); z-index: 25; width: 196px;
+    background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow: hidden;
+    animation: pop .18s var(--ease-ios);
+  }
+  .menu__item {
+    display: flex; align-items: center; gap: var(--space-3); width: 100%;
+    padding: var(--space-3) var(--space-4); background: none; border: 0;
+    font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    text-align: left; cursor: pointer;
+  }
+  .menu__item:hover { background: var(--gold-50); color: var(--gold-800); }
+  .menu__item + .menu__item { border-top: 1px solid var(--border-subtle); }
+
+  .chat-body { flex: 1; padding: var(--space-4); display: flex; flex-direction: column; gap: 6px; overflow-y: auto; scrollbar-width: none; }
+  .chat-body::-webkit-scrollbar { display: none; }
+
+  /* Bubble · meta · divider — follows the DS Chat component (preview/comp-chat.html) */
+  .divider {
+    display: flex; align-items: center; gap: 10px; margin: 2px 0; flex: none;
+    font-size: 11px; font-weight: var(--fw-semibold); color: var(--text-tertiary);
+  }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border-default); }
+  .row-in { display: flex; gap: 8px; align-items: flex-end; flex: none; animation: msg-in .42s var(--ease-ios); }
+  .row-out { display: flex; justify-content: flex-end; flex: none; animation: msg-in .42s var(--ease-ios); }
+  .cavatar {
+    width: 28px; height: 28px; flex: none; border-radius: var(--radius-pill);
+    background: var(--gold-100); color: var(--gold-700);
+    font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+  }
+  .msg { max-width: 82%; padding: 9px 13px; font-size: var(--fs-body-sm); line-height: 1.45; }
+  .msg p { margin: 0; }
+  .msg-in { background: var(--surface-card); border: 1px solid var(--border-subtle); color: var(--text-primary); border-radius: 16px 16px 16px 4px; }
+  .msg-out { background: var(--brand-gold); color: var(--neutral-950); border-radius: 16px 16px 4px 16px; }
+  .meta { display: flex; align-items: center; gap: 4px; flex: none; font-size: 11px; color: var(--text-tertiary); }
+  .meta-out { justify-content: flex-end; }
+  .meta .ic { width: 13px; height: 13px; }
+  .read { color: var(--brand-blue); }
+  @keyframes msg-in { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+  /* Order card inside the chat */
+  .order-card {
+    max-width: 82%; background: var(--surface-card); border: 1px solid var(--border-default);
+    border-radius: 16px 16px 16px 4px; overflow: hidden;
+  }
+  .oc-head {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: var(--fs-caption); font-weight: var(--fw-bold); color: var(--text-primary);
+  }
+  .oc-head .ic { width: 15px; height: 15px; color: var(--text-brand); }
+  .oc-badge {
+    margin-left: auto; font-size: 10.5px; font-weight: var(--fw-bold);
+    background: var(--gold-100); color: var(--gold-700);
+    border-radius: var(--radius-pill); padding: 2px 9px;
+  }
+  .oc-body { padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; }
+  .oc-l { color: var(--text-tertiary); }
+  .oc-v { font-weight: var(--fw-bold); color: var(--text-primary); }
+
+  .typing {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--surface-card); border: 1px solid var(--border-subtle);
+    border-radius: 16px 16px 16px 4px; padding: 12px 14px;
+  }
+  .typing i { width: 6px; height: 6px; border-radius: 50%; display: block; background: var(--text-tertiary); animation: blink 1.2s ease-in-out infinite; }
+  .typing i:nth-child(2) { animation-delay: .18s; }
+  .typing i:nth-child(3) { animation-delay: .36s; }
+  @keyframes blink { 0%, 60%, 100% { opacity: .35; } 30% { opacity: 1; } }
+
+  .qr { display: flex; gap: var(--space-2); flex-wrap: wrap; flex: none; padding: 0 var(--space-4) var(--space-3); }
+  .qr button {
+    font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-semibold); color: var(--text-brand);
+    border: 1.5px solid var(--gold-300); border-radius: var(--radius-pill);
+    padding: 7px 14px; min-height: 32px; background: var(--surface-card); cursor: pointer;
+  }
+  .qr button:hover { background: var(--gold-50); }
+
+  .composer {
+    /* không cần chừa home indicator nữa — tab bar bên dưới đã lo */
+    padding: var(--space-3) var(--space-4); flex: none;
+    background: var(--surface-card); border-top: 1px solid var(--border-default);
+    display: flex; align-items: center; gap: var(--space-3);
+  }
+  .composer__input {
+    flex: 1; min-width: 0; height: 42px; border-radius: var(--radius-pill);
+    background: var(--surface-sunken); border: 1px solid var(--border-default);
+    padding: 0 var(--space-4); font: inherit; font-size: var(--fs-body-sm); color: var(--text-primary);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .composer__input::placeholder { color: var(--text-tertiary); }
+  .composer__input:focus { border-color: var(--border-focus); box-shadow: var(--shadow-focus); }
+  .composer__send {
+    width: 42px; height: 42px; border-radius: var(--radius-pill); flex: none; padding: 0; border: 0; cursor: pointer;
+    background: var(--brand-gold); color: var(--neutral-950);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .composer__send:hover { filter: brightness(1.05); }
+
+  strong { font-weight: var(--fw-semibold); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     Icon sprite — Lucide outline 24×24, currentColor
+     ============================================================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+    <symbol id="i-check-check" viewBox="0 0 24 24"><path d="M18 6L7 17l-5-5"/><path d="M22 10l-7.5 7.5L13 16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-weight" viewBox="0 0 24 24"><path d="M3 6h18l-2 13H5L3 6z"/><path d="M8 6a4 4 0 0 1 8 0"/></symbol>
+    <symbol id="i-fragile" viewBox="0 0 24 24"><path d="M12 2l3 7h-6l3 7"/><path d="M12 16v3"/><path d="M8 22h8"/><path d="M12 19v3"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M6 11v2"/></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.29 7 12 12l8.71-5"/><path d="M12 22V12"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="i-more-vertical" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></symbol>
+    <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15"/><path d="M15 6v15"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <!-- Tiximax airplane mark (brand asset, path-inlined so it picks up currentColor) -->
+    <symbol id="i-plane" viewBox="0 0 512 512"><path d="M 153.50 462.63 C147.73,459.99 143.99,454.09 144.01,447.68 C144.02,445.66 155.95,418.17 176.87,372.00 L 209.71 299.50 L 191.11 298.88 C180.87,298.54 159.16,297.95 142.87,297.57 L 113.23 296.89 L 94.40 319.69 C73.44,345.07 71.23,347.41 66.08,349.71 C62.17,351.46 35.99,352.78 29.47,351.56 C22.62,350.27 16.00,342.14 16.00,335.01 C16.00,333.32 20.77,314.82 26.61,293.89 L 37.22 255.83 L 26.50 217.22 C18.48,188.30 15.92,177.66 16.30,174.83 C17.05,169.19 20.47,164.43 25.54,161.98 C29.63,160.00 31.27,159.85 45.28,160.16 C60.24,160.49 60.69,160.57 67.29,163.82 C73.77,167.01 74.76,168.04 93.26,190.68 L 112.50 214.23 L 140.91 213.62 C156.54,213.28 178.25,213.00 189.16,213.00 C203.66,213.00 209.00,212.68 209.00,211.83 C209.00,211.18 194.32,178.30 176.38,138.76 C145.63,71.00 143.78,66.60 144.27,62.32 C144.82,57.43 146.99,53.84 151.39,50.56 C153.96,48.64 155.51,48.50 173.82,48.50 C192.30,48.50 193.76,48.64 197.70,50.74 C202.89,53.52 201.04,51.35 272.50,138.35 L 331.50 210.19 L 341.50 209.62 C366.30,208.20 416.87,207.79 428.00,208.93 C461.62,212.35 484.29,223.48 492.59,240.65 C495.04,245.71 495.42,247.72 495.46,255.50 C495.50,263.54 495.17,265.20 492.40,271.05 C485.09,286.47 468.36,296.40 440.74,301.72 C432.79,303.25 426.13,303.48 393.00,303.37 C371.83,303.30 349.33,302.95 343.00,302.59 L 331.50 301.93 L 267.19 379.96 C215.51,442.66 201.95,458.53 198.19,460.75 C193.58,463.45 193.18,463.50 175.00,463.75 C161.00,463.94 155.77,463.67 153.50,462.63 Z"/></symbol>
+  </defs>
+</svg>
+
+<main class="page">
+
+  <header class="page-head">
+    <img class="page-head__logo page-head__logo--light" src="../../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
+    <img class="page-head__logo page-head__logo--dark" src="../../assets/tiximax-logo-white.svg" alt="TIXIMAX">
+    <span class="page-head__rule"></span>
+    <span class="page-head__title">Express — 予約プロトタイプ</span>
+    <button class="ghost-btn" id="themeToggle" type="button">
+      <svg class="ic ic--15" id="themeIcon"><use href="#i-moon"></use></svg>
+      <span id="themeLabel">ダーク</span>
+    </button>
+    <button class="ghost-btn" id="galleryToggle" type="button" aria-pressed="false">
+      <svg class="ic ic--15"><use href="#i-grid"></use></svg>
+      <span id="galleryLabel">全画面</span>
+    </button>
+  </header>
+  <div class="proto">
+
+    <!-- ══════════════════ DEVICE ══════════════════ -->
+    <div class="device">
+      <div class="device__island"></div>
+      <div class="device__screen">
+
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="statusbar__icons">
+            <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.7" y="5" width="3" height="6" rx="1"/><rect x="9.4" y="2.5" width="3" height="8.5" rx="1"/><rect x="14" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.2 5.6 8.6a3.4 3.4 0 0 1 4.8 0zM8 6.1c-1.6 0-3 .6-4.1 1.7L2.4 6.4A8 8 0 0 1 13.6 6.4l-1.5 1.4A5.7 5.7 0 0 0 8 6.1zM8 2.4c-2.6 0-5 1-6.8 2.7L0 3.7A11.6 11.6 0 0 1 16 3.7l-1.2 1.4A9.6 9.6 0 0 0 8 2.4z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="2"/><path d="M23 4.2v3.6a2 2 0 0 0 0-3.6z" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="stage" id="stage">
+
+          <!-- ══════════ 1 · Route & addresses ══════════ -->
+          <section class="screen is-current" id="s1">
+            <div class="scr">
+              <!-- Màn gốc: không có nút back (thay bằng spacer để logo cân giữa) -->
+              <div class="appbar">
+                <span class="appbar__spacer"></span>
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
+                <span class="appbar__spacer"></span>
+              </div>
+
+              <div>
+                <h1 class="scr-title">新規配送</h1>
+                <p class="scr-sub">ステップ 1 / 3 · ルートと住所</p>
+              </div>
+              <div class="meter">
+                <span class="meter__seg meter__seg--on meter__seg--fill"></span>
+                <span class="meter__seg"></span>
+                <span class="meter__seg"></span>
+              </div>
+
+              <!-- Route: pick countries with the picker -->
+              <div class="card route">
+                <button class="route__side" type="button" id="pickFrom" aria-expanded="false">
+                  <span class="route__cap">発送元</span>
+                  <span class="route__val" id="fromVal"></span>
+                </button>
+                <span class="route__arrow"><svg class="ic ic--16"><use href="#i-arrow-right"></use></svg></span>
+                <button class="route__side route__side--to" type="button" id="pickTo" aria-expanded="false">
+                  <span class="route__cap">お届け先</span>
+                  <span class="route__val" id="toVal"></span>
+                </button>
+                <div class="picker picker--from" id="pickerFrom" hidden></div>
+                <div class="picker picker--to" id="pickerTo" hidden></div>
+              </div>
+
+              <!-- ── Địa chỉ + liên hệ gộp 1 card kiểu chuyến đi (gửi → nhận) ── -->
+              <div class="group">
+                <span class="group__label">住所・連絡先</span>
+                <div class="trip">
+                  <!-- Điểm gửi (mặc định đã có sẵn) -->
+                  <div class="trip__pt">
+                    <div class="trip__rail"><span class="trip__dot trip__dot--from"></span><span class="trip__line"></span></div>
+                    <div class="trip__main">
+                      <div class="trip__toprow">
+                        <button class="trip__sum" type="button" id="sumPickup" data-editparty="pickup"></button>
+                        <button class="trip__swap" type="button" id="swapBtn" title="方向を入れ替え" aria-label="差出人と受取人を入れ替え">
+                          <svg class="ic ic--16"><use href="#i-swap"></use></svg>
+                        </button>
+                      </div>
+                      <div class="trip__form" id="formPickup" hidden>
+                        <button class="addr-row" type="button" data-pickaddr="pickup">
+                          <span class="addr-row__body">
+                            <span class="addr-row__t" id="cardPickup"></span>
+                            <span class="addr-row__s" id="cardPickupSub" hidden></span>
+                          </span>
+                          <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
+                        </button>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inName">差出人氏名</label>
+                          <div class="field"><input id="inName" type="text" placeholder="氏名"></div>
+                        </div>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inPhone">電話番号</label>
+                          <div class="phone">
+                            <button class="phone__cc" type="button" id="ccSender" aria-expanded="false" aria-label="国番号">
+                              <span id="ccSenderFlag"></span>
+                              <span class="phone__code" id="ccSenderCode"></span>
+                              <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
+                            </button>
+                            <div class="field phone__num"><input id="inPhone" type="tel" placeholder="携帯電話番号"></div>
+                            <div class="picker picker--cc" id="pickerCcSender" hidden></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Điểm nhận (cần điền) -->
+                  <div class="trip__pt">
+                    <div class="trip__rail"><span class="trip__dot trip__dot--to"></span></div>
+                    <div class="trip__main">
+                      <button class="trip__sum is-empty" type="button" id="sumDeliver" data-editparty="deliver"></button>
+                      <div class="trip__form" id="formDeliver" hidden>
+                        <button class="addr-row" type="button" data-pickaddr="deliver">
+                          <span class="addr-row__body">
+                            <span class="addr-row__t" id="cardDeliver"></span>
+                            <span class="addr-row__s" id="cardDeliverSub" hidden></span>
+                          </span>
+                          <svg class="ic ic--16 addr-row__go"><use href="#i-chevron-right"></use></svg>
+                        </button>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inRcvName">受取人氏名</label>
+                          <div class="field"><input id="inRcvName" type="text" placeholder="氏名"></div>
+                        </div>
+                        <div class="field-set">
+                          <label class="field-set__label" for="inRcvPhone">電話番号</label>
+                          <div class="phone">
+                            <button class="phone__cc" type="button" id="ccRcv" aria-expanded="false" aria-label="国番号">
+                              <span id="ccRcvFlag"></span>
+                              <span class="phone__code" id="ccRcvCode"></span>
+                              <svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>
+                            </button>
+                            <div class="field phone__num"><input id="inRcvPhone" type="tel" placeholder="携帯電話番号"></div>
+                            <div class="picker picker--cc" id="pickerCcRcv" hidden></div>
+                          </div>
+                        </div>
+                        <span class="hint" id="gate1" hidden>続行するにはお届け先の住所と連絡先を入力してください。</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" id="cta1" data-goto="1">
+                次へ <svg class="ic ic--18"><use href="#i-arrow-right"></use></svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- ══════════ 2 · Package details ══════════ -->
+          <section class="screen" id="s2">
+            <div class="scr">
+              <div class="appbar">
+                <button class="appbar__btn" type="button" data-back="0"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
+                <span class="appbar__spacer"></span>
+              </div>
+
+              <div>
+                <h1 class="scr-title">荷物の詳細</h1>
+                <p class="scr-sub">ステップ 2 / 3 · 何を送りますか？</p>
+              </div>
+              <div class="meter">
+                <span class="meter__seg meter__seg--on"></span>
+                <span class="meter__seg meter__seg--on meter__seg--fill"></span>
+                <span class="meter__seg"></span>
+              </div>
+
+              <!-- Real photo upload -->
+              <div class="group">
+                <div class="split">
+                  <span class="group__label">商品の写真</span>
+                  <span class="hint" id="photoCount">写真なし</span>
+                </div>
+                <p class="help">梱包前に商品を撮影してください。集荷時に確認いたします。</p>
+                <div class="photos" id="photoRow">
+                  <button class="photo-slot" type="button" id="addPhoto">
+                    <svg class="ic ic--24"><use href="#i-camera"></use></svg>
+                    写真を追加
+                  </button>
+                </div>
+                <input type="file" id="photoInput" accept="image/*" multiple hidden>
+              </div>
+
+              <div class="group">
+                <span class="group__label">内容物は？</span>
+                <label class="field field--area">
+                  <textarea id="inContents" rows="2" placeholder="商品を説明してください…"></textarea>
+                </label>
+              </div>
+
+              <div class="group">
+                <span class="group__label">推定重量 <span class="opt">（任意）</span></span>
+                <label class="field">
+                  <svg class="ic ic--18" style="color:var(--text-tertiary)"><use href="#i-weight"></use></svg>
+                  <input id="inWeight" type="number" min="0.1" step="0.1" placeholder="1.0">
+                  <span class="field__unit">kg</span>
+                </label>
+                <div class="est">
+                  <span class="est__meta">
+                    <span class="est__rate" id="estRate"></span>
+                    <span class="est__base" id="estBase"></span>
+                  </span>
+                  <span class="est__total" id="estTotal"></span>
+                </div>
+                <span class="hint">初回見積もり用です。集荷時に正確に計量します。</span>
+              </div>
+
+              <div class="group">
+                <span class="group__label">特別な取り扱い</span>
+                <div class="choices">
+                  <button class="choice" type="button" data-flag="fragile" aria-pressed="false">
+                    <svg class="ic ic--16"><use href="#i-fragile"></use></svg>
+                    壊れ物
+                    <svg class="ic ic--15 ic--bold ic--check"><use href="#i-check"></use></svg>
+                  </button>
+                  <button class="choice" type="button" data-flag="battery" aria-pressed="false">
+                    <svg class="ic ic--16"><use href="#i-battery"></use></svg>
+                    バッテリー含む
+                    <svg class="ic ic--15 ic--bold ic--check"><use href="#i-check"></use></svg>
+                  </button>
+                </div>
+                <span class="hint">該当するものをすべて選択してください。梱包・申告の方法が変わります。</span>
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" id="cta2" data-goto="2">
+                次へ <svg class="ic ic--18"><use href="#i-arrow-right"></use></svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- ══════════ 3 · Review & estimate ══════════ -->
+          <section class="screen" id="s3">
+            <div class="scr">
+              <div class="appbar">
+                <button class="appbar__btn" type="button" data-back="1"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
+                <span class="appbar__spacer"></span>
+              </div>
+
+              <div>
+                <h1 class="scr-title">予約内容の確認</h1>
+                <p class="scr-sub">ステップ 3 / 3 · 内容をご確認ください</p>
+              </div>
+              <div class="meter">
+                <span class="meter__seg meter__seg--on"></span>
+                <span class="meter__seg meter__seg--on"></span>
+                <span class="meter__seg meter__seg--on meter__seg--fill"></span>
+              </div>
+
+              <div class="band band__row">
+                <div style="flex:1">
+                  <div class="band__city" id="rvFromCity"></div>
+                  <div class="band__meta" id="rvFromMeta"></div>
+                </div>
+                <div class="band__mid">
+                  <span class="plane"><svg width="20" height="20" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
+                  <span class="band__line"></span>
+                  <span class="band__eta">5〜7日</span>
+                </div>
+                <div style="flex:1;text-align:right">
+                  <div class="band__city" id="rvToCity"></div>
+                  <div class="band__meta" id="rvToMeta"></div>
+                </div>
+              </div>
+
+              <div class="card rows">
+                <div class="rows__item">
+                  <svg class="ic ic--18" style="color:var(--gold-700)"><use href="#i-pin"></use></svg>
+                  <div>
+                    <div class="rows__t" id="rvPickup"></div>
+                    <div class="rows__s" id="rvContact"></div>
+                  </div>
+                </div>
+                <div class="rows__item">
+                  <svg class="ic ic--18" style="color:var(--text-success)"><use href="#i-pin"></use></svg>
+                  <div>
+                    <div class="rows__t" id="rvDeliver"></div>
+                    <div class="rows__s" id="rvDeliverSub"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chi tiết đơn hàng: món · tổng khối lượng · đơn giá · bảng giá · tổng -->
+              <div class="card od">
+                <div class="od__head">商品 <span class="od__count" id="rvCount"></span></div>
+                <div class="od__items" id="rvItems"></div>
+
+                <div class="od__row od__row--sum">
+                  <span>合計重量</span>
+                  <span class="od__w" id="rvTotalW"></span>
+                </div>
+
+                <div class="od__rate">
+                  <div>
+                    <div class="od__rate-cap">配送料金</div>
+                    <div class="od__rate-price"><strong id="rvRate"></strong> / kg</div>
+                  </div>
+                  <div class="od__rate-r">
+                    <div class="od__rate-w" id="rvRateW"></div>
+                    <div class="od__rate-note">推定重量</div>
+                  </div>
+                </div>
+
+                <div class="od__break" id="rvBreak"></div>
+
+                <div class="od__row od__row--total">
+                  <span>合計</span>
+                  <span id="rvPrice"></span>
+                </div>
+              </div>
+              <p class="hint od__foot">最終料金は集荷時に荷物を計量した後に確定します。</p>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" id="cta3" data-goto="3">
+                集荷を予約 <svg class="ic ic--18"><use href="#i-check"></use></svg>
+              </button>
+            </div>
+          </section>
+
+          <!-- ══════════ 4 · Confirmation ══════════ -->
+          <section class="screen" id="s4">
+            <div class="scr scr--center">
+              <div class="spacer" style="flex:.6"></div>
+              <div class="success-halo">
+                <span class="success-dot"><svg class="ic ic--30 ic--bold"><use href="#i-check"></use></svg></span>
+              </div>
+              <div>
+                <h1 class="success-title">予約を受け付けました！</h1>
+                <p class="success-copy">担当者がまもなくチャットで集荷時間と詳細を確認いたします。</p>
+              </div>
+
+              <button class="ticket" type="button" id="copyId" title="配送番号をコピー">
+                <span class="ticket__label" id="copyLabel">配送番号</span>
+                <span class="ticket__id" id="cfId"></span>
+                <svg class="ic ic--15"><use href="#i-copy"></use></svg>
+              </button>
+
+              <div class="card next">
+                <span class="next__cap">この後の流れ</span>
+                <div class="next__row">
+                  <span class="next__ico"><svg class="ic ic--15"><use href="#i-chat"></use></svg></span>
+                  <span class="next__txt"><strong>チャットで確認</strong> — 集荷時間やご質問について</span>
+                </div>
+                <div class="next__row">
+                  <span class="next__ico"><svg class="ic ic--15"><use href="#i-package"></use></svg></span>
+                  <span class="next__txt"><strong>集荷・計量</strong> — ご自宅で最終料金を確定</span>
+                </div>
+                <div class="next__row">
+                  <span class="next__ico plane"><svg width="16" height="16" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
+                  <span class="next__txt" id="cfShipTo"></span>
+                </div>
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn btn--primary" type="button" data-goto="5"><svg class="ic ic--18"><use href="#i-chat"></use></svg> チャットを開く</button>
+              <button class="btn btn--outline" type="button" data-goto="4">配送を追跡</button>
+            </div>
+          </section>
+
+          <!-- ══════════ 5 · Tracking ══════════ -->
+          <section class="screen" id="s5">
+            <div class="scr">
+              <div class="appbar">
+                <span class="appbar__spacer"></span>
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
+                <!-- Way back to the first Booking screen -->
+                <button class="appbar__btn" type="button" data-action="new" title="新規配送">
+                  <svg class="ic ic--18"><use href="#i-plus"></use></svg>
+                </button>
+              </div>
+
+              <div class="tk-head">
+                <span class="badge badge--status" id="tkStatus"></span>
+                <div>
+                  <h1 class="scr-title" id="tkId"></h1>
+                  <p class="scr-sub" id="tkSub"></p>
+                </div>
+              </div>
+
+              <div class="band">
+                <div class="band__row">
+                  <span class="band__code" id="tkFromCode"></span>
+                  <div class="track">
+                    <span class="track__rail"></span>
+                    <span class="track__done" id="tkTrackDone"></span>
+                    <span class="track__plane plane" id="tkTrackPlane"><svg width="20" height="20" viewBox="0 0 512 512"><use href="#i-plane"></use></svg></span>
+                  </div>
+                  <span class="band__code band__code--dim" id="tkToCode"></span>
+                </div>
+                <div class="split" style="margin-top:4px">
+                  <span class="band__meta" id="tkFromMeta"></span>
+                  <span class="band__meta" id="tkToMeta"></span>
+                </div>
+              </div>
+
+              <!-- Tiến trình vận chuyển (mốc hành trình) — giữ ngay sau tuyến như ban đầu -->
+              <div class="card timeline" id="tkTimeline"></div>
+
+              <!-- Chi tiết giá lô hàng: món · tổng KL · đơn giá · bảng giá · tổng -->
+              <div class="card od">
+                <div class="od__head">商品 <span class="od__count" id="tkCount"></span></div>
+                <div class="od__items" id="tkItems"></div>
+
+                <div class="od__row od__row--sum">
+                  <span>合計重量</span>
+                  <span class="od__w" id="tkTotalW"></span>
+                </div>
+
+                <div class="od__rate">
+                  <div>
+                    <div class="od__rate-cap">配送料金</div>
+                    <div class="od__rate-price"><strong id="tkRate"></strong> / kg</div>
+                  </div>
+                  <div class="od__rate-r">
+                    <div class="od__rate-w" id="tkRateW"></div>
+                    <div class="od__rate-note" id="tkRateNote"></div>
+                  </div>
+                </div>
+
+                <div class="od__break" id="tkBreak"></div>
+
+                <div class="od__row od__row--total">
+                  <span id="tkTotalLabel">Total</span>
+                  <span id="tkTotal"></span>
+                </div>
+              </div>
+              <p class="hint od__foot" id="tkFoot"></p>
+
+              <div class="spacer"></div>
+            </div>
+            <button class="fab" type="button" data-goto="5"><svg class="ic ic--24"><use href="#i-chat"></use></svg></button>
+          </section>
+
+          <!-- ══════════ 6 · Chat ══════════ -->
+          <section class="screen" id="s6">
+            <div class="scr scr--flush">
+              <div class="chat-head">
+                <button class="chat-head__back" type="button" data-back="4"><svg class="ic ic--20"><use href="#i-chevron-left"></use></svg></button>
+                <span class="chat-head__avatar">
+                  <img class="chat-head__sym chat-head__sym--light" src="../../assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+                  <img class="chat-head__sym chat-head__sym--dark" src="../../assets/tiximax-symbol-circle-gold.svg" alt="">
+                </span>
+                <div style="flex:1">
+                  <div class="chat-head__name">Tiximax Express</div>
+                  <div class="chat-head__status"><i></i>オンライン · 数分で返信</div>
+                </div>
+                <button class="chat-head__more" type="button" id="chatMenuBtn" aria-expanded="false">
+                  <svg class="ic ic--20"><use href="#i-more"></use></svg>
+                </button>
+                <!-- Way back to the first Booking screen -->
+                <div class="menu" id="chatMenu" hidden>
+                  <button class="menu__item" type="button" data-goto="4">
+                    <svg class="ic ic--16"><use href="#i-package"></use></svg> 配送を追跡
+                  </button>
+                  <button class="menu__item" type="button" data-action="new">
+                    <svg class="ic ic--16"><use href="#i-plus"></use></svg> 新規配送
+                  </button>
+                </div>
+              </div>
+
+              <div class="chat-body" id="chatBody"></div>
+
+              <div class="qr">
+                <button type="button" data-quick="集荷を午後に変更できますか？">集荷時間を変更</button>
+                <button type="button" data-goto="4">配送を追跡</button>
+              </div>
+
+              <form class="composer" id="composer">
+                <svg class="ic ic--22" style="color:var(--text-tertiary)"><use href="#i-plus"></use></svg>
+                <input class="composer__input" id="msgInput" type="text" placeholder="Tiximaxにメッセージ…" autocomplete="off">
+                <button class="composer__send" type="submit" title="送信"><svg class="ic ic--18"><use href="#i-send"></use></svg></button>
+              </form>
+            </div>
+          </section>
+
+          <!-- ══════════ 7 · 配送一覧 (tab) ══════════ -->
+          <section class="screen" id="s7">
+            <div class="scr">
+              <div class="appbar">
+                <span class="appbar__spacer"></span>
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
+                <button class="appbar__btn" type="button" data-action="new" title="新規配送">
+                  <svg class="ic ic--18"><use href="#i-plus"></use></svg>
+                </button>
+              </div>
+
+              <div>
+                <h1 class="scr-title">配送一覧</h1>
+                <p class="scr-sub" id="shSub"></p>
+              </div>
+
+              <div class="ships" id="shipList"></div>
+              <div class="spacer"></div>
+            </div>
+          </section>
+
+          <!-- ══════════ 8 · Address picker ══════════
+               Màn riêng, mở khi bấm một dòng trên thẻ địa chỉ ở màn 1.
+               Hai ô địa chỉ nối bằng đường chấm; ô đang chọn được viền sáng. -->
+          <section class="screen" id="s8">
+            <div class="scr scr--flush">
+              <div class="pick-head">
+                <button class="pick-head__back" type="button" data-back="0" title="戻る">
+                  <svg class="ic ic--20"><use href="#i-arrow-left"></use></svg>
+                </button>
+                <div class="pick-fields">
+                  <div class="pick-field" id="pickFieldFrom">
+                    <span class="pick-field__dot pick-field__dot--from"></span>
+                    <span class="pick-field__box">
+                      <input id="pickInFrom" type="text" autocomplete="off" aria-label="集荷先の住所">
+                    </span>
+                  </div>
+                  <span class="pick-fields__rail" aria-hidden="true"></span>
+                  <div class="pick-field" id="pickFieldTo">
+                    <span class="pick-field__dot pick-field__dot--to"></span>
+                    <span class="pick-field__box">
+                      <input id="pickInTo" type="text" autocomplete="off" aria-label="お届け先の住所">
+                      <button class="pick-field__cam" type="button" title="住所をスキャン">
+                        <svg class="ic ic--18"><use href="#i-camera"></use></svg>
+                      </button>
+                    </span>
+                  </div>
+                  <!-- Mã bưu điện: bắt buộc cho địa chỉ Nhật Bản (đầu gửi hoặc nhận) -->
+                  <div class="pick-zip" id="pickZip" hidden>
+                    <span class="pick-zip__label">郵便番号（必須）</span>
+                    <span class="pick-zip__box">
+                      <input id="pickInZip" type="text" inputmode="numeric" autocomplete="off"
+                             aria-label="日本の住所の郵便番号（必須）" placeholder="例：153-0063">
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pick-tabs">
+                <button class="pick-tab" type="button" data-ptab="recent" aria-pressed="true">最近</button>
+                <button class="pick-tab" type="button" data-ptab="suggested" aria-pressed="false">おすすめ</button>
+                <button class="pick-tab" type="button" data-ptab="saved" aria-pressed="false">保存済み</button>
+              </div>
+
+              <div class="pick-list" id="pickList"></div>
+            </div>
+            <button class="pick-map" type="button" id="pickMapBtn">
+              <svg class="ic ic--18"><use href="#i-map"></use></svg> 地図で選択
+            </button>
+          </section>
+
+        </div>
+
+        <!-- Tab bar: đặt ngoài .stage để đứng yên khi màn hình trượt -->
+        <nav class="tabbar" id="tabbar" aria-label="メイン">
+          <button class="tabbar__btn" type="button" data-tab="0" aria-current="page">
+            <span class="tabbar__ico"><svg class="ic ic--22"><use href="#i-plus"></use></svg></span>
+            新規予約
+          </button>
+          <button class="tabbar__btn" type="button" data-tab="1">
+            <span class="tabbar__ico"><svg class="ic ic--22"><use href="#i-package"></use></svg></span>
+            配送一覧
+          </button>
+          <button class="tabbar__btn" type="button" data-tab="2">
+            <span class="tabbar__ico">
+              <svg class="ic ic--22"><use href="#i-chat"></use></svg>
+              <i class="tabbar__dot" id="tabDot" hidden></i>
+            </span>
+            チャット
+          </button>
+        </nav>
+
+        <div class="device__home"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Gallery: tất cả màn hình dưới dạng ảnh chụp điện thoại (bật bằng nút 全画面) -->
+  <div class="gallery" id="gallery"></div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+     DATA
+     ============================================================ */
+  var COUNTRIES = {
+    ID: { name: 'インドネシア', city: 'ジャカルタ', code: 'CGK', dial: '+62' },
+    JP: { name: '日本',       city: '東京',   code: 'NRT', dial: '+81' },
+    VN: { name: 'ベトナム',     city: 'ハノイ',   code: 'HAN', dial: '+84' },
+    PH: { name: 'フィリピン', city: 'マニラ',  code: 'MNL', dial: '+63' }
+  };
+  var ORDER = ['ID', 'JP', 'VN', 'PH'];
+
+  /* Suggested address book, per country */
+  var BOOK = {
+    ID: [
+      ['Jl. Kemang Raya 48, Bangka', 'Mampang Prapatan, Jakarta Selatan 12730'],
+      ['Jl. Kemang Raya 42A', 'Bangka, Jakarta Selatan 12730'],
+      ['Jl. Kemang Raya No.5, Kemang Village', 'Jakarta Selatan 12150'],
+      ['Jl. Senopati 64', 'Kebayoran Baru, Jakarta Selatan 12110'],
+      ['Jl. Panglima Polim IX 12', 'Melawai, Jakarta Selatan 12160']
+    ],
+    JP: [
+      ['東京都目黒区目黒2-11-3', 'グランドメゾン目黒 〒153-0063'],
+      ['東京都渋谷区渋谷1-5-8', 'シブヤスクエアビル 〒150-0002'],
+      ['東京都中央区日本橋3-2-1', '日本橋タワー 〒103-0027'],
+      ['大阪府大阪市中央区心斎橋4-12-7', '心斎橋パークサイド 〒542-0085']
+    ],
+    VN: [
+      ['25 Ly Thuong Kiet, Hoan Kiem', 'Hanoi 100000, ベトナム'],
+      ['128 Nguyen Trai, Thanh Xuan', 'Hanoi 100000, ベトナム'],
+      ['72 Le Thanh Ton, District 1', 'Ho Chi Minh City 700000, ベトナム'],
+      ['15 Tran Phu, Hai Chau', 'Da Nang 550000, ベトナム']
+    ],
+    PH: [
+      ['118 Legazpi St, Legazpi Village', 'Makati, Metro Manila 1229'],
+      ['45 Bonifacio Global City, Taguig', 'Metro Manila 1634'],
+      ['210 Ortigas Ave, Pasig', 'Metro Manila 1605']
+    ]
+  };
+
+  /* Initial state: empty form, the user types everything.
+     from/to are just the route picker defaults, not pre-filled data. */
+  var EMPTY = {
+    from: 'JP', to: 'VN',
+    // Tất cả để trống — khách tự nhập từ đầu
+    pickup: '', pickupSub: '', pickupZip: '',
+    deliver: '', deliverSub: '', deliverZip: '',
+    name: '', phone: '', phoneCC: 'JP',      // sender (phoneCC = mã vùng SĐT)
+    rcvName: '', rcvPhone: '', rcvPhoneCC: 'VN',   // recipient
+    contents: '', weight: '',
+    fragile: false, battery: false, photos: [], id: '', bookedAt: null,
+    booked: false,                       // đã bấm "Book pickup" chưa
+    saved: [],                           // địa chỉ đã lưu ở màn chọn địa chỉ
+    unread: false                        // chấm đỏ trên tab Chat
+  };
+
+  /* Order of the 8 screens inside the device frame */
+  var SCREEN_IDS = ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'];
+
+  /* Hành trình 6 mốc. `stage` = số mốc đã xong, mốc thứ `stage` là mốc đang chạy. */
+  var LEGS = 6;
+
+  /* Vài lô hàng cũ để tab 配送一覧 không trống khi chưa đặt đơn nào */
+  var SAMPLES = [
+    { id: 'TXM-306482124815', from: 'JP', to: 'VN', stage: 6, weight: 1.4, contents: '化粧品セット 3点', daysAgo: 21 },
+    { id: 'TXM-517093824773', from: 'JP', to: 'VN', stage: 4, weight: 2.6, contents: '陶器の茶器セット', daysAgo: 6 }
+  ];
+  SAMPLES.forEach(function (s) {
+    s.bookedAt = new Date(Date.now() - s.daysAgo * 864e5).toISOString();
+  });
+
+  var state = clone(EMPTY);
+
+  /* ============================================================
+     UTILITIES
+     ============================================================ */
+  function $(id) { return document.getElementById(id); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function flagHTML(cc) {
+    /* Cờ Việt Nam: dùng ảnh SVG thật; các nước khác vẫn vẽ bằng CSS */
+    if (cc === 'VN') return '<span class="flag flag--vn"><img src="../../assets/vietnam.svg" alt=""></span>';
+    var inner = (cc === 'ID' || cc === 'PH') ? '<i></i><i></i>' : '<i></i>';
+    return '<span class="flag flag--' + cc.toLowerCase() + '">' + inner + '</span>';
+  }
+  /* Giá ước tính: phí cơ bản + đơn giá/kg + phụ phí hàng dễ vỡ / pin */
+  var BASE_FEE = 2000, RATE_PER_KG = 1200, FRAGILE_FEE = 500, BATTERY_FEE = 800;
+  function priceParts(w, fragile, battery) {
+    var kg = parseFloat(w) || 1;
+    var parts = {
+      kg: kg, base: BASE_FEE, shipping: Math.round(RATE_PER_KG * kg),
+      fragile: fragile ? FRAGILE_FEE : 0, battery: battery ? BATTERY_FEE : 0
+    };
+    parts.total = parts.base + parts.shipping + parts.fragile + parts.battery;
+    return parts;
+  }
+  function priceOf(w, fragile, battery) { return priceParts(w, fragile, battery).total; }
+  function price() { return priceOf(state.weight, state.fragile, state.battery); }
+  function yen(n) { return '¥' + n.toLocaleString('en-US'); }
+  function ratePerKg() { return yen(RATE_PER_KG) + ' / kg'; }   // đơn giá theo cân nặng
+  function weightLabel(w) { return (parseFloat(w) || 1).toFixed(1).replace(/\.0$/, '') + ' kg'; }
+  function kg1(w) { return (parseFloat(w) || 1).toFixed(1) + ' kg'; }   // luôn 1 số lẻ (bảng chi tiết)
+  function hhmm(d) { return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  function timeNow() { return hhmm(new Date()); }
+  function dateLabel(d) { return d.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' }); }
+
+  /* ---------- Lô hàng: đơn đang đặt + các đơn mẫu ---------- */
+  /* Đơn vừa đặt luôn dừng ở mốc "Pickup scheduled" (2 mốc đầu đã xong) */
+  function activeShipment() {
+    return {
+      id: state.id, from: state.from, to: state.to, stage: 2,
+      weight: state.weight, contents: state.contents || 'お客様の荷物',
+      fragile: state.fragile, battery: state.battery,
+      bookedAt: state.bookedAt, isActive: true
+    };
+  }
+  function shipments() {
+    /* Dựa vào state.booked chứ không phải state.id: mở tab Chat cũng sinh mã
+       vận đơn, nhưng đơn đó chưa được đặt nên không được lên danh sách. */
+    return (state.booked ? [activeShipment()] : []).concat(SAMPLES);
+  }
+  function shipmentById(id) {
+    return shipments().filter(function (s) { return s.id === id; })[0] || null;
+  }
+  /* Nhãn + màu badge theo chặng */
+  function statusOf(stage) {
+    if (stage >= LEGS) return ['配達完了', 'green'];
+    if (stage >= 4) return ['輸送中', 'blue'];
+    if (stage >= 3) return ['集荷済み', 'blue'];
+    if (stage >= 2) return ['集荷予定', ''];
+    return ['確認済み', ''];
+  }
+
+  /* ============================================================
+     SCREEN 1 — route, addresses, contacts
+     ============================================================ */
+  function renderRoute() {
+    $('fromVal').innerHTML = flagHTML(state.from) + '<span>' + esc(COUNTRIES[state.from].name) + '</span>' +
+      '<svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>';
+    $('toVal').innerHTML = flagHTML(state.to) + '<span>' + esc(COUNTRIES[state.to].name) + '</span>' +
+      '<svg class="ic ic--14"><use href="#i-chevron-down"></use></svg>';
+  }
+
+  /* ---------- Card chuyến đi: gửi (mặc định đã có) → nhận (cần điền) ---------- */
+  var editingParty = { pickup: true, deliver: false };   // mặc định mở sẵn form người gửi
+  function partyDone(key) {
+    var isP = key === 'pickup';
+    // Địa chỉ Nhật Bản (gửi hay nhận) bắt buộc có mã bưu điện
+    var country = isP ? state.from : state.to;
+    var zipOk = country !== 'JP' || !!(isP ? state.pickupZip : state.deliverZip).trim();
+    return isP
+      ? !!(state.pickup.trim() && state.name.trim() && state.phone.trim()) && zipOk
+      : !!(state.deliver.trim() && state.rcvName.trim() && state.rcvPhone.trim()) && zipOk;
+  }
+  function tripSummary(key) {
+    var isP = key === 'pickup';
+    var name = isP ? state.name : state.rcvName;
+    var dial = COUNTRIES[isP ? state.phoneCC : state.rcvPhoneCC].dial;
+    var phone = isP ? state.phone : state.rcvPhone;
+    var addr = isP ? state.pickup : state.deliver;
+    var sub = withZip(isP ? state.pickupSub : state.deliverSub, isP ? state.pickupZip : state.deliverZip);
+    var sumEl = $(isP ? 'sumPickup' : 'sumDeliver');
+    if (partyDone(key)) {
+      sumEl.classList.remove('is-empty');
+      sumEl.innerHTML = '<span class="trip__sum-t">' + esc(addr) + '</span>' +
+        '<span class="trip__sum-m">' + esc(name) + ' · ' + esc(dial + ' ' + phone) +
+        (sub ? ' · ' + esc(sub) : '') + '</span>';
+    } else {
+      sumEl.classList.add('is-empty');
+      sumEl.innerHTML = '<span class="trip__sum-t">' +
+        (isP ? '集荷情報を追加' : 'お届け先は？') + '</span>';
+    }
+  }
+  function renderTrip() {
+    ['pickup', 'deliver'].forEach(function (key) {
+      var isP = key === 'pickup';
+      var open = editingParty[key];      // đang sửa → mở form; ngược lại hiện tóm tắt
+      $(isP ? 'formPickup' : 'formDeliver').hidden = !open;
+      $(isP ? 'sumPickup' : 'sumDeliver').hidden = open;
+      if (!open) tripSummary(key);
+    });
+  }
+
+  function buildPicker(el, which) {
+    el.innerHTML = ORDER.map(function (cc) {
+      var sel = state[which] === cc;
+      return '<button class="picker__item" type="button" data-cc="' + cc + '" aria-selected="' + sel + '">' +
+        flagHTML(cc) +
+        '<span><span>' + esc(COUNTRIES[cc].name) + '</span><br><span class="picker__city">' + esc(COUNTRIES[cc].city) + ' · ' + COUNTRIES[cc].code + '</span></span>' +
+        (sel ? '<svg class="ic ic--16"><use href="#i-check"></use></svg>' : '') +
+        '</button>';
+    }).join('');
+    el.querySelectorAll('.picker__item').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var cc = b.dataset.cc, other = which === 'from' ? 'to' : 'from';
+        if (state[other] === cc) state[other] = state[which];   // don't allow the same country twice
+        state[which] = cc;
+        closePickers();
+        renderRoute();
+        renderAddrCard();
+        gate();
+      });
+    });
+  }
+  function closePickers() {
+    $('pickerFrom').hidden = true; $('pickerTo').hidden = true;
+    $('pickFrom').setAttribute('aria-expanded', 'false');
+    $('pickTo').setAttribute('aria-expanded', 'false');
+  }
+  function togglePicker(which) {
+    var el = which === 'from' ? $('pickerFrom') : $('pickerTo');
+    var btn = which === 'from' ? $('pickFrom') : $('pickTo');
+    var open = el.hidden;
+    closePickers();
+    if (open) { buildPicker(el, which); el.hidden = false; btn.setAttribute('aria-expanded', 'true'); }
+  }
+  $('pickFrom').addEventListener('click', function (e) { e.stopPropagation(); togglePicker('from'); });
+  $('pickTo').addEventListener('click', function (e) { e.stopPropagation(); togglePicker('to'); });
+
+  /* ---------- Mã quốc gia cho số điện thoại (sender + recipient) ---------- */
+  var CC_SEL = [
+    { btn: 'ccSender', menu: 'pickerCcSender', flag: 'ccSenderFlag', code: 'ccSenderCode', key: 'phoneCC' },
+    { btn: 'ccRcv',    menu: 'pickerCcRcv',    flag: 'ccRcvFlag',    code: 'ccRcvCode',    key: 'rcvPhoneCC' }
+  ];
+  function renderPhoneCC() {
+    CC_SEL.forEach(function (c) {
+      $(c.flag).innerHTML = flagHTML(state[c.key]);
+      $(c.code).textContent = COUNTRIES[state[c.key]].dial;
+    });
+  }
+  function buildCcPicker(sel) {
+    var el = $(sel.menu);
+    el.innerHTML = ORDER.map(function (cc) {
+      var on = state[sel.key] === cc;
+      return '<button class="picker__item" type="button" data-cc="' + cc + '" aria-selected="' + on + '">' +
+        flagHTML(cc) +
+        '<span><span>' + esc(COUNTRIES[cc].name) + '</span><br><span class="picker__city">' + COUNTRIES[cc].dial + '</span></span>' +
+        (on ? '<svg class="ic ic--16"><use href="#i-check"></use></svg>' : '') +
+        '</button>';
+    }).join('');
+    el.querySelectorAll('.picker__item').forEach(function (b) {
+      b.addEventListener('click', function () { state[sel.key] = b.dataset.cc; closeCcPickers(); renderPhoneCC(); });
+    });
+  }
+  function closeCcPickers() {
+    CC_SEL.forEach(function (c) { $(c.menu).hidden = true; $(c.btn).setAttribute('aria-expanded', 'false'); });
+  }
+  function toggleCcPicker(sel) {
+    var el = $(sel.menu), open = el.hidden;
+    closeCcPickers(); closePickers();
+    if (open) { buildCcPicker(sel); el.hidden = false; $(sel.btn).setAttribute('aria-expanded', 'true'); }
+  }
+  CC_SEL.forEach(function (sel) {
+    $(sel.btn).addEventListener('click', function (e) { e.stopPropagation(); toggleCcPicker(sel); });
+  });
+
+  document.addEventListener('click', function () { closePickers(); closeCcPickers(); closeChatMenu(); });
+
+  $('swapBtn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    // Đổi chiều: hoán đổi quốc gia + địa chỉ + liên hệ giữa hai bên
+    var f = state.from; state.from = state.to; state.to = f;
+    var p = state.pickup, ps = state.pickupSub, pz = state.pickupZip;
+    state.pickup = state.deliver; state.pickupSub = state.deliverSub; state.pickupZip = state.deliverZip;
+    state.deliver = p; state.deliverSub = ps; state.deliverZip = pz;
+    var nm = state.name, ph = state.phone, cc = state.phoneCC;
+    state.name = state.rcvName; state.phone = state.rcvPhone; state.phoneCC = state.rcvPhoneCC;
+    state.rcvName = nm; state.rcvPhone = ph; state.rcvPhoneCC = cc;
+    var ep = editingParty.pickup; editingParty.pickup = editingParty.deliver; editingParty.deliver = ep;
+    this.classList.add('is-spun');
+    var btn = this;
+    setTimeout(function () { btn.classList.remove('is-spun'); }, 360);
+    renderRoute(); syncInputs(); gate();
+  });
+
+  /* Bấm vào tóm tắt điểm gửi/nhận → mở form sửa */
+  $('s1').addEventListener('click', function (e) {
+    var ed = e.target.closest('[data-editparty]');
+    if (!ed) return;
+    var key = ed.dataset.editparty;
+    editingParty[key] = true;
+    renderTrip();
+    var f = $(key === 'pickup' ? 'inName' : 'inRcvName');
+    if (f) f.focus();
+  });
+  /* Rời khỏi form mà đã đủ (hoặc còn trống hẳn) → thu gọn thành tóm tắt */
+  $('s1').addEventListener('focusout', function (e) {
+    var form = e.target.closest('.trip__form');
+    if (!form) return;
+    var key = form.id === 'formPickup' ? 'pickup' : 'deliver';
+    setTimeout(function () {
+      if (form.contains(document.activeElement)) return;
+      var isP = key === 'pickup';
+      var empty = isP
+        ? !(state.pickup.trim() || state.name.trim() || state.phone.trim())
+        : !(state.deliver.trim() || state.rcvName.trim() || state.rcvPhone.trim());
+      if (partyDone(key) || empty) { editingParty[key] = false; renderTrip(); }
+    }, 80);
+  });
+
+  /* Địa chỉ không còn gõ trực tiếp ở màn 1 — xem "SCREEN 8" bên dưới. */
+
+  /* ============================================================
+     SCREEN 1 — thẻ địa chỉ (chỉ hiển thị; chọn ở màn 8)
+     ============================================================ */
+  var ADDR_ROWS = [
+    { key: 'pickup', id: 'cardPickup', empty: '集荷先はどちらですか？' },
+    { key: 'deliver', id: 'cardDeliver', empty: 'お届け先はどちらですか？' }
+  ];
+
+  /* Mã bưu điện: bắt token kiểu 12730 / 153-0063 / 100000 / 1229 trong dòng phụ */
+  var ZIP_RE = /\d{3}-\d{4}|\d{4,6}/;
+  function extractZip(sub) { var m = (sub || '').match(ZIP_RE); return m ? m[0] : ''; }
+  /* Ghép mã bưu điện khách đã chọn/sửa vào dòng phụ để hiển thị nhất quán */
+  function withZip(sub, zip) {
+    if (!zip) return sub;
+    if (!sub) return '郵便番号 ' + zip;
+    return ZIP_RE.test(sub) ? sub.replace(ZIP_RE, zip) : sub + ' ' + zip;
+  }
+
+  function renderAddrCard() {
+    ADDR_ROWS.forEach(function (r) {
+      var val = state[r.key].trim();
+      var sub = withZip(state[r.key + 'Sub'], state[r.key + 'Zip']);
+      var t = $(r.id), subEl = $(r.id + 'Sub');
+      t.textContent = val || r.empty;
+      t.closest('.addr-row').classList.toggle('is-empty', !val);
+      subEl.textContent = sub;
+      subEl.hidden = !sub;
+    });
+  }
+
+  /* ============================================================
+     SCREEN 8 — Address picker
+     Một màn riêng cho cả hai đầu địa chỉ: ô đang chọn được viền sáng,
+     bấm ô kia là chuyển sang chọn cho đầu đó.
+     ============================================================ */
+  var pickField = 'pickup';            // đầu đang chọn: 'pickup' | 'deliver'
+  var pickTab = 'recent';
+  var PICK_ICON = { recent: '#i-clock', suggested: '#i-pin', saved: '#i-bookmark' };
+
+  /* Khoảng cách chỉ để lấp bố cục. Thang cố định theo vị trí trong sổ địa chỉ —
+     cố ý không tăng dần để tab "Suggested" (gần nhất trước) khác thứ tự "Recent". */
+  var DIST = [2.6, 0.4, 8.7, 1.1, 5.2, 12.3, 3.4, 6.8];
+  function pickCountry() { return pickField === 'pickup' ? state.from : state.to; }
+  function pickValue() { return pickField === 'pickup' ? state.pickup : state.deliver; }
+
+  function pickPool() {
+    var all = (BOOK[pickCountry()] || []).map(function (r, i) {
+      return { t: r[0], s: r[1], d: DIST[i % DIST.length] };
+    });
+    if (pickTab === 'saved') {
+      return all.filter(function (r) { return state.saved.indexOf(r.t) >= 0; });
+    }
+    if (pickTab === 'suggested') {          // gợi ý = gần nhất trước
+      return all.slice().sort(function (a, b) { return a.d - b.d; });
+    }
+    return all;                              // vừa dùng gần đây
+  }
+
+  function renderPickList() {
+    var q = pickValue().trim().toLowerCase();
+    var rows = pickPool().filter(function (r) {
+      return !q || (r.t + ' ' + r.s).toLowerCase().indexOf(q) >= 0;
+    });
+    if (!rows.length) {
+      $('pickList').innerHTML = '<p class="pick-empty">' + (pickTab === 'saved'
+        ? '保存された住所はまだありません — 住所の⋮をタップして保存できます。'
+        : '「' + esc(pickValue().trim()) + '」に一致する住所がありません。') + '</p>';
+      return;
+    }
+    $('pickList').innerHTML = rows.map(function (r) {
+      var saved = state.saved.indexOf(r.t) >= 0;
+      return '<div class="pick-item' + (saved ? ' is-saved' : '') + '">' +
+        '<button class="pick-item__main" type="button" data-paddr="' + esc(r.t) + '">' +
+          '<span class="pick-item__ic"><svg class="ic ic--16"><use href="' +
+            (saved ? '#i-bookmark' : PICK_ICON[pickTab]) + '"></use></svg></span>' +
+          '<span class="pick-item__body">' +
+            '<span class="pick-item__t">' + esc(r.t) + '</span>' +
+            '<span class="pick-item__s">' + r.d.toFixed(1) + ' km · ' + esc(r.s) + '</span>' +
+          '</span>' +
+        '</button>' +
+        '<button class="pick-item__more" type="button" data-psave="' + esc(r.t) + '" title="' +
+          (saved ? '保存から削除' : 'この住所を保存') + '">' +
+          '<svg class="ic ic--18"><use href="#i-more-vertical"></use></svg></button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function syncPickFields() {
+    var isFrom = pickField === 'pickup';
+    // Chỉ hiển thị ô địa chỉ của đúng bên đang chọn (Gửi hoặc Nhận)
+    $('pickFieldFrom').hidden = !isFrom;
+    $('pickFieldTo').hidden = isFrom;
+    var rail = $('s8').querySelector('.pick-fields__rail');
+    if (rail) rail.hidden = true;        // chỉ còn một ô nên bỏ đường nối
+    $('pickFieldFrom').classList.toggle('is-active', isFrom);
+    $('pickFieldTo').classList.toggle('is-active', !isFrom);
+    $('pickZip').hidden = pickCountry() !== 'JP';   // mã bưu điện chỉ cho địa chỉ Nhật Bản
+  }
+
+  function renderPicker() {
+    $('pickInFrom').value = state.pickup;
+    $('pickInTo').value = state.deliver;
+    $('pickInZip').value = pickField === 'pickup' ? state.pickupZip : state.deliverZip;
+    $('pickInFrom').placeholder = COUNTRIES[state.from].name + 'での集荷先';
+    $('pickInTo').placeholder = COUNTRIES[state.to].name + 'でのお届け先';
+    syncPickFields();
+    renderPickList();
+    /* đợi hết animation đẩy màn rồi mới đặt con trỏ, không thì trang bị giật */
+    var input = $(pickField === 'pickup' ? 'pickInFrom' : 'pickInTo');
+    setTimeout(function () { input.focus(); }, 460);
+  }
+
+  /* Chọn xong: đầu kia còn trống thì ở lại chọn tiếp, không thì quay về màn 1.
+     Riêng đầu giao: tự điền mã bưu điện từ gợi ý rồi ở lại để khách kiểm/sửa. */
+  function choosePick(title) {
+    var row = (BOOK[pickCountry()] || []).filter(function (r) { return r[0] === title; })[0];
+    if (!row) return;
+    if (pickField === 'pickup') {
+      state.pickup = row[0]; state.pickupSub = row[1];
+      state.pickupZip = state.from === 'JP' ? extractZip(row[1]) : '';
+      editingParty.pickup = true;   // giữ form Gửi mở để nhập tên & SĐT
+      renderAddrCard(); gate();
+      goBack(0);                     // chọn xong cho bên Gửi → quay lại màn 1
+      setTimeout(function () { var f = $('inName'); if (f) f.focus(); }, 480);
+      return;
+    }
+    state.deliver = row[0]; state.deliverSub = row[1];
+    state.deliverZip = state.to === 'JP' ? extractZip(row[1]) : '';
+    editingParty.deliver = true;   // mở form nhập thông tin người nhận
+    renderAddrCard(); gate();
+    /* bên Nhận: chọn địa chỉ xong → quay về màn 1 nhập tên & SĐT người nhận */
+    goBack(0);
+    setTimeout(function () { var f = $('inRcvName'); if (f) f.focus(); }, 480);
+  }
+
+  function toggleSaved(title) {
+    var at = state.saved.indexOf(title);
+    if (at >= 0) state.saved.splice(at, 1); else state.saved.push(title);
+    renderPickList();
+  }
+
+  [['pickInFrom', 'pickup'], ['pickInTo', 'deliver']].forEach(function (pair) {
+    var input = $(pair[0]), key = pair[1];
+    input.addEventListener('focus', function () {
+      if (pickField === key) return;
+      pickField = key; syncPickFields(); renderPickList();
+    });
+    input.addEventListener('input', function () {
+      state[key] = this.value;
+      state[key + 'Sub'] = '';            // gõ tay thì chưa có dòng phụ
+      renderPickList(); renderAddrCard(); gate();
+    });
+  });
+
+  /* Khách sửa/điền mã bưu điện đầu giao */
+  $('pickInZip').addEventListener('input', function () {
+    var clean = this.value.replace(/[^\d-]/g, '');
+    if (this.value !== clean) this.value = clean;
+    if (pickField === 'pickup') state.pickupZip = clean; else state.deliverZip = clean;
+    renderAddrCard(); gate();
+  });
+
+  document.querySelectorAll('.pick-tab').forEach(function (b) {
+    b.addEventListener('click', function () {
+      pickTab = b.dataset.ptab;
+      document.querySelectorAll('.pick-tab').forEach(function (x) {
+        x.setAttribute('aria-pressed', String(x.dataset.ptab === pickTab));
+      });
+      renderPickList();
+    });
+  });
+
+  /* Bản thật sẽ mở bản đồ; ở prototype thì ghim luôn địa chỉ gần nhất */
+  $('pickMapBtn').addEventListener('click', function () {
+    var nearest = (BOOK[pickCountry()] || []).map(function (r, i) {
+      return { t: r[0], d: DIST[i % DIST.length] };
+    }).sort(function (a, b) { return a.d - b.d; })[0];
+    if (nearest) choosePick(nearest.t);
+  });
+
+  var CONTACT_FIELDS = { inName: 'name', inPhone: 'phone', inRcvName: 'rcvName', inRcvPhone: 'rcvPhone' };
+  Object.keys(CONTACT_FIELDS).forEach(function (id) {
+    $(id).addEventListener('input', function () {
+      state[CONTACT_FIELDS[id]] = this.value; gate();
+    });
+  });
+
+  /* ============================================================
+     SCREEN 2 — photos, description, weight, chips
+     ============================================================ */
+  $('addPhoto').addEventListener('click', function () { $('photoInput').click(); });
+  $('photoInput').addEventListener('change', function () {
+    [].slice.call(this.files).forEach(function (f) {
+      if (state.photos.length >= 4) return;              // cap at 4 photos so the row still fits
+      state.photos.push({ url: URL.createObjectURL(f), name: f.name });
+    });
+    this.value = '';
+    renderPhotos();
+  });
+  function renderPhotos() {
+    var row = $('photoRow');
+    row.querySelectorAll('.photo-thumb').forEach(function (n) { n.remove(); });
+    var slot = $('addPhoto');
+    state.photos.forEach(function (p, i) {
+      var d = document.createElement('div');
+      d.className = 'photo-thumb';
+      d.innerHTML = '<img src="' + esc(p.url) + '" alt="' + esc(p.name) + '">' +
+        '<button class="photo-thumb__x" type="button" title="写真を削除"><svg class="ic ic--13"><use href="#i-x"></use></svg></button>';
+      d.querySelector('button').addEventListener('click', function () {
+        URL.revokeObjectURL(state.photos[i].url);
+        state.photos.splice(i, 1);
+        renderPhotos();
+      });
+      row.insertBefore(d, slot);
+    });
+    slot.hidden = state.photos.length >= 4;
+    var n = state.photos.length;
+    $('photoCount').textContent = n === 0 ? '写真なし' : n + '枚の写真';
+  }
+
+  $('inContents').addEventListener('input', function () { state.contents = this.value; gate(); });
+  /* Bảng đơn giá + tổng tạm tính; cập nhật ngay khi đổi cân nặng */
+  function renderEst() {
+    $('estRate').textContent = ratePerKg();
+    $('estBase').textContent = '+ ' + yen(BASE_FEE) + ' 基本料金';
+    $('estTotal').textContent = '≈ ' + yen(price());
+  }
+  $('inWeight').addEventListener('input', function () { state.weight = this.value; renderEst(); });
+  document.querySelectorAll('.choice').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.dataset.flag;
+      state[k] = !state[k];
+      b.setAttribute('aria-pressed', String(state[k]));
+      renderEst();   // phụ phí đổi → cập nhật tổng tạm tính
+    });
+  });
+
+  /* ---------- Conditions that unlock the Continue button ---------- */
+  function gate() {
+    // Cả hai đầu phải đủ thông tin; địa chỉ Nhật Bản còn phải có mã bưu điện (partyDone lo)
+    var ok1 = partyDone('pickup') && partyDone('deliver');
+    $('cta1').classList.toggle('is-disabled', !ok1);
+    $('gate1').hidden = !!ok1;
+    renderTrip();
+    var ok2 = state.contents.trim();
+    $('cta2').classList.toggle('is-disabled', !ok2);
+  }
+
+  /* ---------- Push state back into the inputs (reset / demo / swap) ---------- */
+  function syncInputs() {
+    $('inName').value = state.name;
+    $('inPhone').value = state.phone;
+    $('inRcvName').value = state.rcvName;
+    $('inRcvPhone').value = state.rcvPhone;
+    $('inContents').value = state.contents;
+    $('inWeight').value = state.weight;
+    document.querySelectorAll('.choice').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(!!state[b.dataset.flag]));
+    });
+    renderRoute(); renderPhoneCC(); renderAddrCard(); renderPhotos(); gate();
+  }
+
+  /* ============================================================
+     SCREEN 3 — Review
+     ============================================================ */
+  function renderReview() {
+    var F = COUNTRIES[state.from], T = COUNTRIES[state.to];
+    $('rvFromCity').textContent = F.city;
+    $('rvFromMeta').textContent = F.name + ' · 集荷';
+    $('rvToCity').textContent = T.city;
+    $('rvToMeta').textContent = T.name + ' · ドア配達';
+    var pSub = withZip(state.pickupSub, state.pickupZip);
+    $('rvPickup').textContent = state.pickup + (pSub ? ', ' + pSub : '');
+    var sPhone = state.phone ? COUNTRIES[state.phoneCC].dial + ' ' + state.phone : '';
+    $('rvContact').textContent = [state.name, sPhone].filter(Boolean).join(' · ');
+    var dSub = withZip(state.deliverSub, state.deliverZip);
+    $('rvDeliver').textContent = state.deliver + (dSub ? ', ' + dSub : '');
+    var rPhone = state.rcvPhone ? COUNTRIES[state.rcvPhoneCC].dial + ' ' + state.rcvPhone : '';
+    $('rvDeliverSub').textContent = [state.rcvName, rPhone].filter(Boolean).join(' · ') || (T.name + ' · ドア配達');
+    /* ----- Chi tiết đơn hàng: 1 kiện hàng, kèm số ảnh & cờ đặc biệt ----- */
+    var np = state.photos.length;
+    var subBits = [];
+    if (np) subBits.push(np + '枚の写真');
+    if (state.fragile) subBits.push('壊れ物');
+    if (state.battery) subBits.push('バッテリー');
+    $('rvCount').textContent = '（1点）';
+    $('rvItems').innerHTML =
+      '<div class="od__item">' +
+        '<span class="od__num">1</span>' +
+        '<div class="od__item-body">' +
+          '<div class="od__item-name">' + esc(state.contents || 'お客様の荷物') + '</div>' +
+          (subBits.length ? '<div class="od__item-sub">' + esc(subBits.join(' · ')) + '</div>' : '') +
+        '</div>' +
+        '<span class="od__item-w">' + kg1(state.weight) + '</span>' +
+      '</div>';
+    $('rvTotalW').textContent = kg1(state.weight);
+    $('rvRate').textContent = yen(RATE_PER_KG);
+    $('rvRateW').textContent = kg1(state.weight);
+
+    /* ----- Bảng giá: phí cơ bản · cước theo cân · phụ phí · tổng ----- */
+    var p = priceParts(state.weight, state.fragile, state.battery);
+    var lines = [
+      ['国際集荷 基本料金', p.base],
+      ['配送 · ' + kg1(state.weight) + ' × ' + yen(RATE_PER_KG) + '/kg', p.shipping]
+    ];
+    if (p.fragile) lines.push(['壊れ物取り扱い × 1', p.fragile]);
+    if (p.battery) lines.push(['バッテリー取り扱い × 1', p.battery]);
+    $('rvBreak').innerHTML = lines.map(function (l) {
+      return '<div class="od__bi"><span class="od__bi-l">' + esc(l[0]) + '</span>' +
+        '<span class="od__bi-r">' + esc(yen(l[1])) + '</span></div>';
+    }).join('');
+    $('rvPrice').textContent = yen(p.total);
+  }
+
+  /* ============================================================
+     SCREENS 4 · 5 — Confirmation & Tracking
+     ============================================================ */
+  function ensureBooking() {
+    if (!state.id) {
+      state.id = 'TXM-' + String(Math.floor(Math.random() * 9e11) + 1e11);   // 12 chữ số
+      state.bookedAt = new Date().toISOString();
+    }
+  }
+  function renderConfirm() {
+    ensureBooking();
+    state.booked = true;
+    state.unread = true;                       // đội ngũ nhắn lại → chấm đỏ trên tab Chat
+    $('cfId').textContent = state.id;
+    $('cfShipTo').innerHTML = '<strong>' + esc(COUNTRIES[state.to].name) + 'へ配送</strong> — ドアツードアで追跡、5〜7日';
+  }
+
+  /* Lô hàng đang mở ở màn Tracking — null nghĩa là đơn vừa đặt */
+  var viewing = null;
+  function trackTarget() { return viewing || (state.booked ? activeShipment() : SAMPLES[0]); }
+
+  /* 6 mốc hành trình của một lô hàng */
+  function legsOf(sh) {
+    var F = COUNTRIES[sh.from], T = COUNTRIES[sh.to];
+    var d = new Date(sh.bookedAt);
+    return [
+      ['予約受付', 'リクエスト送信 · ' + dateLabel(d) + ' ' + hhmm(d)],
+      ['チャットで確認', '集荷内容を合意しました'],
+      /* Mốc đã qua thì không nói "Tomorrow" nữa */
+      ['集荷予定', sh.stage > 2
+        ? '予定通り集荷しました'
+        : '明日 9:00〜12:00 · ドライバーがお電話します'],
+      ['集荷・計量', sh.stage > 3
+        ? weightLabel(sh.weight) + ' を ' + ratePerKg() + ' で計量 · 最終料金確定'
+        : 'ご自宅で最終料金を確定'],
+      [T.name + 'へ輸送', F.city + ' → ' + T.city + ' · 5〜7日'],
+      ['配達完了', '受取人が受領しました']
+    ];
+  }
+  function timelineHTML(sh) {
+    var legs = legsOf(sh);
+    return legs.map(function (leg, i) {
+      var done = i < sh.stage, now = i === sh.stage, last = i === legs.length - 1;
+      var dot = done
+        ? '<span class="tl__dot tl__dot--done"><svg class="ic ic--14" style="stroke-width:3"><use href="#i-check"></use></svg></span>'
+        : (now ? '<span class="tl__dot tl__dot--now"><i></i></span>' : '<span class="tl__dot"></span>');
+      return '<div class="tl"><div class="tl__gutter">' + dot +
+        (last ? '' : '<span class="tl__line' + (done ? ' tl__line--done' : '') + '"></span>') +
+        '</div><div class="tl__body">' +
+        '<div class="tl__t' + (done || now ? '' : ' tl__t--todo') + '">' + esc(leg[0]) + '</div>' +
+        '<div class="tl__s">' + esc(leg[1]) + '</div></div></div>';
+    }).join('');
+  }
+
+  function renderTracking() {
+    var sh = trackTarget();
+    var F = COUNTRIES[sh.from], T = COUNTRIES[sh.to];
+    var d = new Date(sh.bookedAt);
+    var st = statusOf(sh.stage), delivered = sh.stage >= LEGS;
+
+    $('tkId').textContent = sh.id;
+    $('tkSub').textContent = F.city + ' → ' + T.city + ' · ' + dateLabel(d) + '予約';
+    $('tkStatus').className = 'badge badge--status' + (st[1] ? ' badge--' + st[1] : '');
+    $('tkStatus').textContent = st[0];
+    $('tkFromCode').textContent = F.code;
+    $('tkToCode').textContent = T.code;
+    $('tkFromMeta').textContent = F.city + ', ' + F.name;
+    var eta = new Date(d.getTime() + 6 * 864e5);
+    $('tkToMeta').textContent = T.city + ', ' + T.name +
+      (delivered ? ' · 配達済み ' : ' · 到着予定 ') + dateLabel(eta);
+
+    /* Máy bay chạy dọc theo chặng đã đi */
+    var pct = Math.max(8, Math.round(sh.stage / LEGS * 100));
+    $('tkTrackDone').style.width = pct + '%';
+    $('tkTrackPlane').style.left = pct + '%';
+
+    /* ----- Chi tiết giá lô hàng đang xem (đã cân → giá chốt; chưa cân → tạm tính) ----- */
+    var weighed = sh.stage > 3;                 // đã cân ở mốc "Picked up & weighed"
+    var p = priceParts(sh.weight, sh.fragile, sh.battery);
+    var subBits = [];
+    if (sh.photos && sh.photos.length) subBits.push(sh.photos.length + '枚の写真');
+    if (sh.fragile) subBits.push('壊れ物');
+    if (sh.battery) subBits.push('バッテリー');
+    $('tkCount').textContent = '（1点）';
+    $('tkItems').innerHTML =
+      '<div class="od__item"><span class="od__num">1</span>' +
+        '<div class="od__item-body"><div class="od__item-name">' + esc(sh.contents) + '</div>' +
+          (subBits.length ? '<div class="od__item-sub">' + esc(subBits.join(' · ')) + '</div>' : '') +
+        '</div><span class="od__item-w">' + kg1(sh.weight) + '</span></div>';
+    $('tkTotalW').textContent = kg1(sh.weight);
+    $('tkRate').textContent = yen(RATE_PER_KG);
+    $('tkRateW').textContent = kg1(sh.weight);
+    $('tkRateNote').textContent = weighed ? '実重量' : '推定重量';
+
+    var lines = [
+      ['国際集荷 基本料金', p.base],
+      ['配送 · ' + kg1(sh.weight) + ' × ' + yen(RATE_PER_KG) + '/kg', p.shipping]
+    ];
+    if (p.fragile) lines.push(['壊れ物取り扱い × 1', p.fragile]);
+    if (p.battery) lines.push(['バッテリー取り扱い × 1', p.battery]);
+    $('tkBreak').innerHTML = lines.map(function (l) {
+      return '<div class="od__bi"><span class="od__bi-l">' + esc(l[0]) + '</span>' +
+        '<span class="od__bi-r">' + esc(yen(l[1])) + '</span></div>';
+    }).join('');
+    $('tkTotalLabel').textContent = weighed ? '最終料金' : '見積合計';
+    $('tkTotal').textContent = yen(p.total);
+    $('tkFoot').textContent = weighed
+      ? '最終料金 · 集荷時に' + kg1(sh.weight) + 'を計量。'
+      : '最終料金は集荷時に荷物を計量した後に確定します。';
+
+    $('tkTimeline').innerHTML = timelineHTML(sh);
+  }
+
+  /* ============================================================
+     SCREEN 7 — 配送一覧 (tab)
+     ============================================================ */
+  function renderShipments() {
+    var list = shipments();
+    $('shSub').textContent = list.length + '件の配送 · タップして追跡';
+    $('shipList').innerHTML = list.map(function (sh) {
+      var F = COUNTRIES[sh.from], T = COUNTRIES[sh.to];
+      var st = statusOf(sh.stage), delivered = sh.stage >= LEGS;
+      var pct = Math.max(8, Math.round(sh.stage / LEGS * 100));
+      return '<button class="ship" type="button" data-ship="' + esc(sh.id) + '">' +
+        '<span class="ship__ic"><svg class="ic ic--18"><use href="#i-package"></use></svg></span>' +
+        '<span class="ship__body">' +
+          '<span class="ship__top">' +
+            '<span class="badge badge--status' + (st[1] ? ' badge--' + st[1] : '') + '">' + esc(st[0]) + '</span>' +
+            '<span class="ship__id">' + esc(sh.id) + '</span></span>' +
+          '<span class="ship__route"><span>' + esc(F.city) + '</span>' +
+            '<svg class="ic ic--14"><use href="#i-arrow-right"></use></svg>' +
+            '<span>' + esc(T.city) + '</span></span>' +
+          '<span class="ship__what">' + esc(sh.contents) + '</span>' +
+          '<span class="ship__bar"><i class="' + (delivered ? 'is-done' : '') + '" style="width:' + pct + '%"></i></span>' +
+          '<span class="ship__meta"><span>' + esc(dateLabel(new Date(sh.bookedAt))) + '予約</span>' +
+            '<span>' + esc(yen(priceOf(sh.weight, sh.fragile, sh.battery))) + '</span></span>' +
+        '</span></button>';
+    }).join('');
+  }
+
+  /* Copy the shipment ID */
+  $('copyId').addEventListener('click', function () {
+    var done = function () {
+      $('copyLabel').textContent = 'コピーしました！';
+      setTimeout(function () { $('copyLabel').textContent = '配送番号'; }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(state.id).then(done, done);
+    } else { done(); }
+  });
+
+  /* ============================================================
+     SCREEN 6 — Chat with real message sending
+     ============================================================ */
+  var REPLIES = [
+    '承知しました、ありがとうございます！集荷スケジュールを更新し、まもなくご連絡します。',
+    'ありがとうございます！ドライバーが到着15分前にお電話します。',
+    '予約に追加しました。他にお手伝いできることはありますか？'
+  ];
+  var replyIdx = 0, chatSeeded = false;
+
+  /* Mirrors the DS Chat component structure: row + bubble, with the meta line kept separate */
+  function el(cls, html) {
+    var d = document.createElement('div');
+    d.className = cls;
+    if (html != null) d.innerHTML = html;
+    return d;
+  }
+  function bubble(side, html) {
+    var avatar = side === 'in' ? '<span class="cavatar">TX</span>' : '';
+    return el('row-' + side, avatar + '<div class="msg msg-' + side + '"><p>' + html + '</p></div>');
+  }
+  /* status: 'sent' → single tick · 'read' → double blue tick */
+  function meta(side, text, status) {
+    var tick = '';
+    if (side === 'out') {
+      var read = status === 'read';
+      tick = '<svg class="ic' + (read ? ' read' : '') + '"><use href="' + (read ? '#i-check-check' : '#i-check') + '"></use></svg>';
+    }
+    var m = el('meta' + (side === 'out' ? ' meta-out' : ''), '<span>' + esc(text) + '</span>' + tick);
+    if (side === 'in') m.style.paddingLeft = '36px';
+    return m;
+  }
+  function orderCard() {
+    return el('row-in',
+      '<span style="width:28px;flex:none"></span>' +
+      '<div class="order-card">' +
+        '<div class="oc-head"><svg class="ic"><use href="#i-package"></use></svg>' + esc(state.id) +
+        '<span class="oc-badge">集荷予定</span></div>' +
+        '<div class="oc-body">' +
+          '<div><div class="oc-l">ルート</div><div class="oc-v">' +
+            esc(COUNTRIES[state.from].city) + ' → ' + esc(COUNTRIES[state.to].city) + '</div></div>' +
+          '<div><div class="oc-l">集荷</div><div class="oc-v">明日 9:00〜12:00</div></div>' +
+        '</div>' +
+      '</div>');
+  }
+  function chatScroll() { var b = $('chatBody'); b.scrollTop = b.scrollHeight; }
+
+  function seedChat() {
+    ensureBooking();
+    var body = $('chatBody');
+    body.innerHTML = '';
+    body.appendChild(el('divider', 'Today'));
+
+    /* Keep proper-name capitalisation — no lowercasing, no truncation */
+    var what = state.contents || 'お客様の荷物';
+    var tags = state.fragile ? '、壊れ物' : '';
+    body.appendChild(bubble('in',
+      esc(state.name || 'お客様') + '様、こんにちは！ご予約 <strong>' + esc(state.id) +
+      '</strong>（' + esc(what) + esc(tags) + '）を受け付けました。<strong>明日 9:00〜12:00</strong> に集荷してもよろしいですか？'));
+    body.appendChild(orderCard());
+    body.appendChild(meta('in', 'Rina · Tiximax · 14:06'));
+
+    body.appendChild(bubble('out', 'はい、9〜12時で大丈夫です！到着時にお電話ください。門は普段閉まっています。'));
+    body.appendChild(meta('out', '14:09', 'read'));
+
+    body.appendChild(bubble('in',
+      '集荷が確定しました。ドライバーがご自宅で荷物を計量し、引き取り前に最終料金を確定します。' +
+      (state.fragile ? ' 壊れ物のため、追加の緩衝材をご用意します。' : '')));
+    body.appendChild(meta('in', 'Rina · Tiximax · 14:10'));
+
+    chatSeeded = true;
+    chatScroll();
+  }
+
+  function sendMessage(text) {
+    if (!text.trim()) return;
+    var body = $('chatBody');
+    body.appendChild(bubble('out', esc(text)));
+    var sentMeta = meta('out', timeNow(), 'sent');
+    body.appendChild(sentMeta);
+    chatScroll();
+
+    var typing = el('row-in', '<span class="cavatar">TX</span><div class="typing"><i></i><i></i><i></i></div>');
+    setTimeout(function () { body.appendChild(typing); chatScroll(); }, 400);
+    setTimeout(function () {
+      typing.remove();
+      /* The message is read once Tiximax replies → swap the single tick for a double blue tick */
+      sentMeta.replaceWith(meta('out', timeNow(), 'read'));
+      body.appendChild(bubble('in', esc(REPLIES[replyIdx % REPLIES.length])));
+      body.appendChild(meta('in', 'Rina · Tiximax · ' + timeNow()));
+      replyIdx++;
+      chatScroll();
+    }, 1700);
+  }
+
+  $('composer').addEventListener('submit', function (e) {
+    e.preventDefault();
+    sendMessage($('msgInput').value);
+    $('msgInput').value = '';
+  });
+  document.querySelectorAll('[data-quick]').forEach(function (b) {
+    b.addEventListener('click', function () { sendMessage(b.dataset.quick); });
+  });
+
+  /* The ⋯ menu inside the chat */
+  function closeChatMenu() { $('chatMenu').hidden = true; $('chatMenuBtn').setAttribute('aria-expanded', 'false'); }
+  $('chatMenuBtn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = $('chatMenu').hidden;
+    closeChatMenu();
+    if (open) { $('chatMenu').hidden = false; this.setAttribute('aria-expanded', 'true'); }
+  });
+
+  /* ============================================================
+     NAVIGATION + TRANSITIONS
+     ============================================================ */
+  var screens = SCREEN_IDS.map(function (id) { return $(id); });
+  var stage = $('stage');
+  var cur = 0, busy = false;
+  /* Navigation history: back returns to the EXACT screen you came from,
+     no hard-coded target — entering Chat from Tracking goes back to Tracking.
+     CONFIRM is the point of no return: once the booking is placed, nothing
+     goes back to Confirmation or to the form flow ahead of it. */
+  var CONFIRM = 3;
+  var hist = [];
+
+  var RENDER = {
+    2: renderReview,
+    3: renderConfirm,
+    4: renderTracking,
+    5: function () { state.unread = false; if (!chatSeeded) seedChat(); },   // mở Chat = đã đọc
+    6: renderShipments,
+    7: renderPicker
+  };
+
+  /* Mỗi màn thuộc về tab nào — dùng để tô sáng tab đang mở.
+     Wizard (0–3) thuộc New booking, Tracking (4) là màn con của 配送一覧. */
+  var TAB_OF = [0, 0, 0, 0, 1, 2, 1, 0];
+  var TAB_TARGET = [0, 6, 5];            // New booking · 配送一覧 · Chat
+  var tabs = [].slice.call(document.querySelectorAll('.tabbar__btn'));
+
+  function syncTabs() {
+    var active = TAB_OF[cur];
+    tabs.forEach(function (b, i) {
+      if (i === active) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    $('tabDot').hidden = !state.unread;
+  }
+
+  tabs.forEach(function (b, i) {
+    b.addEventListener('click', function () {
+      if (i === 0) { newShipment(); return; }   // tab New booking → luôn clear, tạo đơn mới
+      var target = TAB_TARGET[i];
+      if (target === cur) return;
+      if (target === 6) viewing = null;    // vào lại danh sách thì bỏ lô đang xem
+      hist = [];                           // tab là màn gốc — không mang lịch sử của tab cũ theo
+      go(target, true);
+    });
+  });
+
+  /* viaBack = true → don't append to the history (we're going backwards) */
+  function go(next, viaBack) {
+    if (busy || next === cur || next < 0 || next >= screens.length) return;
+    if (viaBack && next === CONFIRM) return;   // hard stop: never go back to Confirmation
+    busy = true;
+    if (!viaBack) {
+      if (cur === CONFIRM) hist.length = 0;   // leaving Confirmation → clear the form-flow history
+      else hist.push(cur);
+      if (hist.length > 50) hist.shift();
+    }
+    if (RENDER[next]) RENDER[next]();
+
+    // Only the 2 screens taking part in the transition animate; the rest jump into place
+    screens.forEach(function (el, i) { el.classList.toggle('no-anim', i !== cur && i !== next); });
+    void stage.offsetWidth;                       // force a reflow so no-anim takes effect
+
+    screens.forEach(function (el, i) {
+      el.classList.remove('is-current', 'is-behind');
+      if (i === next) el.classList.add('is-current');
+      else if (i < next) el.classList.add('is-behind');   // already visited → sits on the left
+    });
+    var sc = screens[next].querySelector('.scr');
+    if (sc) sc.scrollTop = 0;
+
+    cur = next;
+    syncTabs();
+    setTimeout(function () {
+      screens.forEach(function (el) { el.classList.remove('no-anim'); });
+      busy = false;
+    }, 440);
+  }
+
+  /* Go back through the history; with no history, fall back to the screen named in data-back */
+  function goBack(fallback) {
+    var prev = null;
+    while (hist.length) {
+      var p = hist.pop();
+      if (p !== CONFIRM) { prev = p; break; }
+    }
+    if (prev == null) prev = fallback;
+    if (prev != null && !Number.isNaN(prev) && prev !== CONFIRM) go(prev, true);
+  }
+
+  /* Actions inside the device */
+  stage.addEventListener('click', function (e) {
+    var act = e.target.closest('[data-action]');
+    if (act) { doAction(act.dataset.action); return; }
+    var back = e.target.closest('[data-back]');
+    if (back) { goBack(Number.parseInt(back.dataset.back, 10)); return; }
+    /* Một hàng trong 配送一覧 → mở đúng lô đó ở màn Tracking */
+    var ship = e.target.closest('[data-ship]');
+    if (ship) { viewing = shipmentById(ship.dataset.ship); go(4); return; }
+    /* Thẻ địa chỉ ở màn 1 → sang màn chọn địa chỉ */
+    var openPick = e.target.closest('[data-pickaddr]');
+    if (openPick) { pickField = openPick.dataset.pickaddr; go(7); return; }
+    var save = e.target.closest('[data-psave]');
+    if (save) { toggleSaved(save.dataset.psave); return; }
+    var addr = e.target.closest('[data-paddr]');
+    if (addr) { choosePick(addr.dataset.paddr); return; }
+    var hit = e.target.closest('[data-goto]');
+    if (!hit || hit.classList.contains('is-disabled')) return;
+    var target = Number.parseInt(hit.dataset.goto, 10);
+    if (target === 4) viewing = null;          // mọi lối khác vào Tracking = đơn vừa đặt
+    go(target);
+  });
+
+  function doAction(name) {
+    if (name === 'new') newShipment();
+  }
+
+  /* Back to the first Booking screen — the + button on Tracking and the ⋯ menu in Chat */
+  function newShipment() {
+    state.photos.forEach(function (p) { URL.revokeObjectURL(p.url); });
+    state = clone(EMPTY);
+    editingParty = { pickup: true, deliver: false };   // đơn mới: mở sẵn form người gửi
+    chatSeeded = false; replyIdx = 0;
+    hist = []; viewing = null;
+    syncInputs(); closeChatMenu();
+    go(0);
+    syncTabs();                  // go() bỏ qua khi đã đứng ở màn 0
+  }
+  /* ---------- Keyboard (disabled while typing in an input) ---------- */
+  document.addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if (e.key === 'ArrowRight') go(cur + 1);
+    else if (e.key === 'ArrowLeft' && cur - 1 !== CONFIRM) go(cur - 1);
+    else if (e.key === 'Escape') { closePickers(); closeChatMenu(); }
+  });
+
+  /* ---------- Theme ---------- */
+  var root = document.documentElement, tBtn = $('themeToggle'),
+      tIcon = $('themeIcon').querySelector('use'), tLbl = $('themeLabel');
+  tBtn.addEventListener('click', function () {
+    var dark = root.dataset.theme === 'dark';
+    root.dataset.theme = dark ? 'light' : 'dark';
+    tIcon.setAttribute('href', dark ? '#i-moon' : '#i-sun');
+    tLbl.textContent = dark ? 'ダーク' : 'ライト';
+  });
+
+  /* ============================================================
+     GALLERY — xem tất cả màn hình dưới dạng ảnh chụp điện thoại
+     Dựng state mẫu để mọi màn có nội dung, rồi clone device cho từng
+     màn theo thứ tự mong muốn (住所の選択 xếp ngay sau ルート・住所).
+     Màn 1 cố tình để trống địa chỉ NHẬN (vừa chọn xong địa chỉ GỬI).
+     Sau đó khôi phục state thật để app đang chạy không bị ảnh hưởng.
+     ============================================================ */
+  function buildGallery() {
+    var host = $('gallery');
+    host.innerHTML = '';
+
+    /* --- lưu lại toàn bộ trạng thái thật --- */
+    var snap = clone(state), snapEditing = clone(editingParty);
+    var snapViewing = viewing, snapPickField = pickField;
+
+    /* Clone device đang sống, chỉ hiện màn `si`, gắn số thứ tự + nhãn */
+    function pushCard(si, num, label) {
+      var item = document.createElement('div');
+      item.className = 'gallery__item';
+      item.innerHTML = '<span class="gallery__cap"><span class="gallery__num">' +
+        num + '</span>' + esc(label) + '</span>';
+      var dev = document.querySelector('.proto .device').cloneNode(true);
+      dev.querySelectorAll('.screen').forEach(function (s, idx) {
+        s.classList.remove('is-current', 'is-behind');
+        s.classList.add('no-anim');
+        if (idx === si) { s.classList.add('is-current'); s.style.display = ''; }
+        else s.style.display = 'none';
+        var sc = s.querySelector('.scr'); if (sc) sc.scrollTop = 0;
+      });
+      dev.querySelectorAll('.tabbar__btn').forEach(function (b, ti) {
+        if (ti === TAB_OF[si]) b.setAttribute('aria-current', 'page');
+        else b.removeAttribute('aria-current');
+      });
+      dev.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
+      item.appendChild(dev);
+      host.appendChild(item);
+    }
+
+    /* --- Màn 1: đã chọn địa chỉ GỬI, địa chỉ NHẬN còn trống --- */
+    state = clone(EMPTY);
+    state.from = 'JP'; state.to = 'VN';
+    state.pickup = '東京都目黒区目黒2-11-3'; state.pickupSub = 'グランドメゾン目黒 〒153-0063'; state.pickupZip = '153-0063';
+    state.name = '田中 太郎'; state.phone = '90 1234 5678'; state.phoneCC = 'JP';
+    editingParty = { pickup: false, deliver: false };
+    chatSeeded = false; viewing = null;
+    renderEst(); syncInputs();
+    pushCard(0, 1, 'ルート・住所');
+
+    /* --- Các màn còn lại: chuyến 日本 → ベトナム đã đặt, đầy đủ dữ liệu --- */
+    state.deliver = '25 Ly Thuong Kiet, Hoan Kiem'; state.deliverSub = 'Hanoi 100000, ベトナム'; state.deliverZip = '100000';
+    state.rcvName = 'グエン・ヴァン・アン'; state.rcvPhone = '90 123 4567'; state.rcvPhoneCC = 'VN';
+    state.contents = '陶器の茶器セット'; state.weight = '2.6'; state.fragile = true;
+    ensureBooking();
+    renderEst(); syncInputs();
+    pickField = 'deliver';   // màn chọn địa chỉ đang chọn đầu Nhận (ベトナム)
+    renderReview(); renderConfirm(); renderTracking(); renderShipments(); renderPicker();
+    seedChat();
+
+    pushCard(7, 2, '住所の選択');    // s8 — chọn địa chỉ
+    pushCard(1, 3, '荷物の詳細');    // s2
+    pushCard(2, 4, '予約内容の確認'); // s3
+    pushCard(3, 5, '予約完了');      // s4
+    pushCard(4, 6, '配送追跡');      // s5
+    pushCard(5, 7, 'チャット');      // s6
+    pushCard(6, 8, '配送一覧');      // s7
+
+    /* --- khôi phục trạng thái thật --- */
+    state = snap; editingParty = snapEditing; viewing = snapViewing; pickField = snapPickField;
+    chatSeeded = false; $('chatBody').innerHTML = '';
+    renderEst(); syncInputs(); syncTabs();
+    if (RENDER[cur]) RENDER[cur]();
+  }
+
+  var gBtn = $('galleryToggle'), gLbl = $('galleryLabel');
+  gBtn.addEventListener('click', function () {
+    var on = gBtn.getAttribute('aria-pressed') === 'true';
+    if (!on) buildGallery();     // dựng lại mỗi lần mở để lấy dữ liệu mới nhất
+    gBtn.setAttribute('aria-pressed', String(!on));
+    document.body.classList.toggle('gallery-on', !on);
+    gLbl.textContent = on ? '全画面' : '閉じる';
+  });
+
+  /* ---------- Boot ---------- */
+  renderEst();   // đơn giá /kg + tổng tạm tính
+  syncInputs();
+  syncTabs();
+})();
+</script>
+</body>
+</html>

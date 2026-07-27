@@ -70,8 +70,6 @@
   }
   .shell__btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
   .shell__btn[aria-pressed="true"] { background: var(--gold-50); border-color: var(--brand-gold); color: var(--gold-800); }
-  /* Hotspots chỉ có nghĩa với prototype điện thoại */
-  [data-mode="web"] #hotspotToggle { display: none; }
 
   /* ---------- Hai chế độ ---------- */
   .mode { display: none; }
@@ -155,24 +153,13 @@
   #mMobile .scr--flush { padding: 0 0 var(--tabbar-h); gap: 0; }
   #mMobile .scr--center { align-items: center; text-align: center; }
   #mMobile .spacer { flex: 1; }
-  /* ---------- Hotspots ---------- */
+  /* ---------- Tap targets ---------- */
   #mMobile [data-goto],
   #mMobile [data-back],
   #mMobile [data-action],
   #mMobile [data-pickaddr],
   #mMobile [data-paddr] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   #mMobile .btn[data-goto]:active:not(.is-disabled) { transform: scale(.985); }
-  #mMobile .show-hotspots [data-goto],
-  #mMobile .show-hotspots [data-back],
-  #mMobile .show-hotspots [data-action],
-  #mMobile .show-hotspots [data-pickaddr],
-  #mMobile .show-hotspots [data-paddr] {
-      outline: 2px dashed var(--brand-gold); outline-offset: 3px; border-radius: var(--radius-md);
-    }
-  #mMobile .show-hotspots input,
-  #mMobile .show-hotspots textarea {
-      outline: 2px dashed var(--brand-blue); outline-offset: 3px;
-    }
   /* ---------- Icons ---------- */
   #mMobile .ic { flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   #mMobile .ic--13 { width: 13px; height: 13px; }
@@ -1488,9 +1475,6 @@
       </button>
     </div>
 
-    <button class="shell__btn" id="hotspotToggle" type="button" aria-pressed="false">
-      <svg class="shell__ic"><use href="#i-target"></use></svg> Hotspots
-    </button>
     <button class="shell__btn" id="themeToggle" type="button" title="Đổi sáng / tối">
       <svg class="shell__ic" id="themeIcon"><use href="#i-moon"></use></svg>
       <span id="themeLabel">Dark</span>
@@ -3114,7 +3098,7 @@
     if (prev != null && !Number.isNaN(prev) && prev !== CONFIRM) go(prev, true);
   }
 
-  /* Hotspots + actions inside the device */
+  /* Actions inside the device */
   stage.addEventListener('click', function (e) {
     var act = e.target.closest('[data-action]');
     if (act) { doAction(act.dataset.action); return; }
@@ -3160,14 +3144,6 @@
     if (e.key === 'ArrowRight') go(cur + 1);
     else if (e.key === 'ArrowLeft' && cur - 1 !== CONFIRM) go(cur - 1);
     else if (e.key === 'Escape') { closePickers(); closeChatMenu(); }
-  });
-
-  /* ---------- Hotspots + theme ---------- */
-  var hs = $('hotspotToggle');
-  hs.addEventListener('click', function () {
-    var on = hs.getAttribute('aria-pressed') === 'true';
-    hs.setAttribute('aria-pressed', String(!on));
-    document.querySelector('#mMobile .page').classList.toggle('show-hotspots', !on);
   });
 
   /* ---------- Boot ---------- */

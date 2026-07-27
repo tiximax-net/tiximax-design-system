@@ -116,16 +116,9 @@
   .scr--center { align-items: center; text-align: center; }
   .spacer { flex: 1; }
 
-  /* ---------- Hotspots ---------- */
+  /* ---------- Tap targets ---------- */
   [data-goto], [data-back], [data-action], [data-pickaddr], [data-paddr] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .btn[data-goto]:active:not(.is-disabled) { transform: scale(.985); }
-  .show-hotspots [data-goto], .show-hotspots [data-back], .show-hotspots [data-action],
-  .show-hotspots [data-pickaddr], .show-hotspots [data-paddr] {
-    outline: 2px dashed var(--brand-gold); outline-offset: 3px; border-radius: var(--radius-md);
-  }
-  .show-hotspots input, .show-hotspots textarea {
-    outline: 2px dashed var(--brand-blue); outline-offset: 3px;
-  }
 
   /* ---------- Icons ---------- */
   .ic { flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -959,9 +952,6 @@
     <img class="page-head__logo page-head__logo--dark" src="../assets/tiximax-logo-white.svg" alt="TIXIMAX">
     <span class="page-head__rule"></span>
     <span class="page-head__title">Express — booking prototype</span>
-    <button class="ghost-btn" id="hotspotToggle" type="button" aria-pressed="false">
-      <svg class="ic ic--15"><use href="#i-target"></use></svg> Hotspots
-    </button>
     <button class="ghost-btn" id="themeToggle" type="button">
       <svg class="ic ic--15" id="themeIcon"><use href="#i-moon"></use></svg>
       <span id="themeLabel">Dark</span>
@@ -2501,7 +2491,7 @@
     if (prev != null && !Number.isNaN(prev) && prev !== CONFIRM) go(prev, true);
   }
 
-  /* Hotspots + actions inside the device */
+  /* Actions inside the device */
   stage.addEventListener('click', function (e) {
     var act = e.target.closest('[data-action]');
     if (act) { doAction(act.dataset.action); return; }
@@ -2548,14 +2538,7 @@
     else if (e.key === 'Escape') { closePickers(); closeChatMenu(); }
   });
 
-  /* ---------- Hotspots + theme ---------- */
-  var hs = $('hotspotToggle');
-  hs.addEventListener('click', function () {
-    var on = hs.getAttribute('aria-pressed') === 'true';
-    hs.setAttribute('aria-pressed', String(!on));
-    document.body.classList.toggle('show-hotspots', !on);
-  });
-
+  /* ---------- Theme ---------- */
   var root = document.documentElement, tBtn = $('themeToggle'),
       tIcon = $('themeIcon').querySelector('use'), tLbl = $('themeLabel');
   tBtn.addEventListener('click', function () {

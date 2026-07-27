@@ -1,0 +1,11 @@
+{
+  "name": "@tiximax/express-booking",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Booking / Order: order lifecycle, wizard state, validation, status",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  }
+}

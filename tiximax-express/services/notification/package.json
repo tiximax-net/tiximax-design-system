@@ -1,0 +1,11 @@
+{
+  "name": "@tiximax/express-notification",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Notification: push/email/SMS for status & chat",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@tiximax/express-tracking",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tracking: milestones, stage updates, actual weight, ETA",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  }
+}

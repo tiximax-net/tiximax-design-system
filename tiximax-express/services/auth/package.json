@@ -1,0 +1,11 @@
+{
+  "name": "@tiximax/express-auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Auth & Profile: register/login (OTP/email), profile, saved addresses",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  }
+}

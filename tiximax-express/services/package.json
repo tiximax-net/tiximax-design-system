@@ -1,0 +1,26 @@
+{
+  "name": "@tiximax/express-services",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TIXIMAX Express backend — domain services skeleton (docs §3.5). No business logic yet.",
+  "workspaces": [
+    "gateway",
+    "auth",
+    "booking",
+    "pricing",
+    "tracking",
+    "chat",
+    "media",
+    "notification",
+    "ops"
+  ],
+  "scripts": {
+    "dev:gateway": "npm run dev --workspace gateway",
+    "typecheck": "tsc -b --pretty"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  }
+}

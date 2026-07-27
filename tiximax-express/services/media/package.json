@@ -1,0 +1,11 @@
+{
+  "name": "@tiximax/express-media",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Media / Upload: receive & compress package photos, chat attachments",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  }
+}

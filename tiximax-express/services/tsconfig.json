@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./gateway" },
+    { "path": "./auth" },
+    { "path": "./booking" },
+    { "path": "./pricing" },
+    { "path": "./tracking" },
+    { "path": "./chat" },
+    { "path": "./media" },
+    { "path": "./notification" },
+    { "path": "./ops" }
+  ]
+}

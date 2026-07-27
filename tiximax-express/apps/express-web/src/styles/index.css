@@ -1,0 +1,118 @@
+/* TIXIMAX Express web — app shell styles.
+   Uses design-system tokens from colors_and_type.css (imported first in main.tsx).
+   Feature-specific styling is added alongside each feature later. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: var(--fs-body, 16px);
+  color: var(--text-primary);
+  background: var(--surface-page);
+}
+
+.app-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-page);
+  color: var(--text-primary);
+}
+
+/* ---- Top nav (FR-7.2) ---- */
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6, 24px);
+  padding: var(--space-4, 16px) var(--space-6, 24px);
+  background: var(--surface-navy);
+  color: var(--text-inverse);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.app-nav__brand {
+  font-family: var(--font-display, sans-serif);
+  font-weight: var(--fw-bold, 700);
+  font-size: var(--fs-title, 20px);
+  color: var(--text-inverse);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.app-nav__brand span {
+  color: var(--brand-gold);
+}
+
+.app-nav__links {
+  display: flex;
+  gap: var(--space-2, 8px);
+  margin-left: var(--space-4, 16px);
+}
+
+.app-nav__link {
+  padding: var(--space-2, 8px) var(--space-3, 12px);
+  border-radius: var(--radius-pill, 999px);
+  color: var(--text-inverse);
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.app-nav__link.is-active {
+  background: var(--brand-gold);
+  color: var(--brand-navy);
+  opacity: 1;
+}
+
+.app-nav__theme {
+  margin-left: auto;
+  padding: var(--space-2, 8px) var(--space-4, 16px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill, 999px);
+  background: transparent;
+  color: var(--text-inverse);
+  cursor: pointer;
+}
+
+.app-nav__theme:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* ---- Main + placeholder pages ---- */
+.app-main {
+  flex: 1;
+  padding: var(--space-6, 24px);
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.page__title {
+  font-family: var(--font-display, sans-serif);
+  font-size: var(--fs-h2, 28px);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2, 8px);
+}
+
+.page__req {
+  color: var(--text-muted);
+  font-size: var(--fs-body-sm, 14px);
+  margin: 0 0 var(--space-4, 16px);
+}
+
+.page__todo {
+  padding: var(--space-4, 16px);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--surface-card);
+  color: var(--text-secondary);
+}

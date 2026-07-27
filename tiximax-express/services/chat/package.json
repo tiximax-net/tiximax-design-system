@@ -1,0 +1,11 @@
+{
+  "name": "@tiximax/express-chat",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chat: realtime messages, quick-replies, attachments, order cards, unread badge",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  }
+}

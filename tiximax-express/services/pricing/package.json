@@ -1,0 +1,11 @@
+{
+  "name": "@tiximax/express-pricing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pricing / Quote: estimate & final price; fee tables, surcharges, FX",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -b"
+  }
+}
