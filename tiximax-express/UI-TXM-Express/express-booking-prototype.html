@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tiximax Express — Booking Prototype</title>
 <!-- DS favicon: white ground for dark tabs, navy ground for light tabs (see preview/brand-favicon.html) -->
-<link rel="icon" type="image/svg+xml" href="../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="stylesheet" href="../../colors_and_type.css">
 <style>
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -303,7 +303,7 @@
   .picker__city { font-size: var(--fs-overline); color: var(--text-tertiary); }
 
   /* Country flags — real flag colours */
-  .flag { width: 22px; height: 16px; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-default); flex: none; position: relative; background: #FFFFFF; }
+  .flag { width: 22px; height: 16px; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-default); flex: none; display: inline-block; vertical-align: middle; position: relative; background: #FFFFFF; }
   .flag i { display: block; position: absolute; inset: 0; }
   .flag--id i:first-child { bottom: 50%; background: #E23A3A; }
   .flag--id i:last-child { top: 50%; background: #FFFFFF; }
@@ -948,8 +948,8 @@
 <main class="page">
 
   <header class="page-head">
-    <img class="page-head__logo page-head__logo--light" src="../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
-    <img class="page-head__logo page-head__logo--dark" src="../assets/tiximax-logo-white.svg" alt="TIXIMAX">
+    <img class="page-head__logo page-head__logo--light" src="../../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
+    <img class="page-head__logo page-head__logo--dark" src="../../assets/tiximax-logo-white.svg" alt="TIXIMAX">
     <span class="page-head__rule"></span>
     <span class="page-head__title">Express — booking prototype</span>
     <button class="ghost-btn" id="themeToggle" type="button">
@@ -981,7 +981,7 @@
               <!-- Màn gốc: không có nút back (thay bằng spacer để logo cân giữa) -->
               <div class="appbar">
                 <span class="appbar__spacer"></span>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <span class="appbar__spacer"></span>
               </div>
 
@@ -1099,7 +1099,7 @@
             <div class="scr">
               <div class="appbar">
                 <button class="appbar__btn" type="button" data-back="0"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <span class="appbar__spacer"></span>
               </div>
 
@@ -1182,7 +1182,7 @@
             <div class="scr">
               <div class="appbar">
                 <button class="appbar__btn" type="button" data-back="1"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <span class="appbar__spacer"></span>
               </div>
 
@@ -1311,7 +1311,7 @@
             <div class="scr">
               <div class="appbar">
                 <span class="appbar__spacer"></span>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <!-- Way back to the first Booking screen -->
                 <button class="appbar__btn" type="button" data-action="new" title="New shipment">
                   <svg class="ic ic--18"><use href="#i-plus"></use></svg>
@@ -1386,8 +1386,8 @@
               <div class="chat-head">
                 <button class="chat-head__back" type="button" data-back="4"><svg class="ic ic--20"><use href="#i-chevron-left"></use></svg></button>
                 <span class="chat-head__avatar">
-                  <img class="chat-head__sym chat-head__sym--light" src="../assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
-                  <img class="chat-head__sym chat-head__sym--dark" src="../assets/tiximax-symbol-circle-gold.svg" alt="">
+                  <img class="chat-head__sym chat-head__sym--light" src="../../assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+                  <img class="chat-head__sym chat-head__sym--dark" src="../../assets/tiximax-symbol-circle-gold.svg" alt="">
                 </span>
                 <div style="flex:1">
                   <div class="chat-head__name">Tiximax Express</div>
@@ -1427,7 +1427,7 @@
             <div class="scr">
               <div class="appbar">
                 <span class="appbar__spacer"></span>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <button class="appbar__btn" type="button" data-action="new" title="New shipment">
                   <svg class="ic ic--18"><use href="#i-plus"></use></svg>
                 </button>

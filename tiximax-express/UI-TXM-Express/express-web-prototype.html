@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tiximax Express — Web app</title>
 <!-- Favicon chuẩn DS: nền trắng cho tab tối, nền navy cho tab sáng (xem preview/brand-favicon.html) -->
-<link rel="icon" type="image/svg+xml" href="../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="stylesheet" href="../../colors_and_type.css">
 <style>
   /* ============================================================
      TIXIMAX EXPRESS — web app (desktop)
@@ -564,8 +564,8 @@
 <header class="app-head">
   <div class="app-head__inner">
     <div class="brand" id="brandHome">
-      <img class="brand__logo--light" src="../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
-      <img class="brand__logo--dark" src="../assets/tiximax-logo-white.svg" alt="TIXIMAX">
+      <img class="brand__logo--light" src="../../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
+      <img class="brand__logo--dark" src="../../assets/tiximax-logo-white.svg" alt="TIXIMAX">
       <span class="brand__tag">Express</span>
     </div>
     <nav class="nav">
@@ -1041,7 +1041,7 @@
 
     var stages = STAGES.map(function (label, i) {
       var done = i <= active.stage, cur = i === active.stage + 1;
-      var inner = done ? icon('check', 12) : (cur ? '<img src="../assets/airplane.svg" alt="">' : '');
+      var inner = done ? icon('check', 12) : (cur ? '<img src="../../assets/airplane.svg" alt="">' : '');
       return '<div class="tl"><div class="tl__gut">' +
         '<span class="tl__dot' + (done ? ' is-done' : '') + (cur ? ' is-cur' : '') + '">' + inner + '</span>' +
         (i < STAGES.length - 1 ? '<span class="tl__line' + (done ? ' is-done' : '') + '"></span>' : '') + '</div>' +
@@ -1129,8 +1129,8 @@
     return '<div class="chat">' +
       '<div class="chat__head">' +
         '<span class="chat__avatar">' +
-          '<img class="chat__avatar--light" src="../assets/tiximax-symbol-circle-navy.svg" alt="TIXIMAX Support">' +
-          '<img class="chat__avatar--dark" src="../assets/tiximax-symbol-circle-gold.svg" alt="TIXIMAX Support">' +
+          '<img class="chat__avatar--light" src="../../assets/tiximax-symbol-circle-navy.svg" alt="TIXIMAX Support">' +
+          '<img class="chat__avatar--dark" src="../../assets/tiximax-symbol-circle-gold.svg" alt="TIXIMAX Support">' +
           '<i></i></span>' +
         '<div style="flex:1;min-width:0"><div class="chat__name">TIXIMAX Support</div>' +
         '<div class="chat__status"><i></i>Online · replies in minutes</div></div></div>' +

@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tiximax Express — Prototype (Mobile + Website)</title>
 <!-- Favicon chuẩn DS: nền trắng cho tab tối, nền navy cho tab sáng -->
-<link rel="icon" type="image/svg+xml" href="../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
-<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon-light.svg" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="stylesheet" href="../../colors_and_type.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -332,7 +332,7 @@
   #mMobile .picker__item .ic { margin-left: auto; color: var(--brand-gold); }
   #mMobile .picker__city { font-size: var(--fs-overline); color: var(--text-tertiary); }
   /* Country flags — real flag colours */
-  #mMobile .flag { width: 22px; height: 16px; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-default); flex: none; position: relative; background: #FFFFFF; }
+  #mMobile .flag { width: 22px; height: 16px; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-default); flex: none; display: inline-block; vertical-align: middle; position: relative; background: #FFFFFF; }
   #mMobile .flag i { display: block; position: absolute; inset: 0; }
   #mMobile .flag--id i:first-child { bottom: 50%; background: #E23A3A; }
   #mMobile .flag--id i:last-child { top: 50%; background: #FFFFFF; }
@@ -1462,7 +1462,7 @@
 
 <header class="shell">
   <div class="shell__inner">
-    <img class="shell__mark" src="../assets/tiximax-mark.svg" alt="TIXIMAX">
+    <img class="shell__mark" src="../../assets/tiximax-mark.svg" alt="TIXIMAX">
     <span class="shell__rule"></span>
     <span class="shell__title">Express — prototype</span>
 
@@ -1514,7 +1514,7 @@
               <!-- Màn gốc: không có nút back (thay bằng spacer để logo cân giữa) -->
               <div class="appbar">
                 <span class="appbar__spacer"></span>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <span class="appbar__spacer"></span>
               </div>
 
@@ -1632,7 +1632,7 @@
             <div class="scr">
               <div class="appbar">
                 <button class="appbar__btn" type="button" data-back="0"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <span class="appbar__spacer"></span>
               </div>
 
@@ -1715,7 +1715,7 @@
             <div class="scr">
               <div class="appbar">
                 <button class="appbar__btn" type="button" data-back="1"><svg class="ic ic--18"><use href="#i-chevron-left"></use></svg></button>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <span class="appbar__spacer"></span>
               </div>
 
@@ -1844,7 +1844,7 @@
             <div class="scr">
               <div class="appbar">
                 <span class="appbar__spacer"></span>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <!-- Way back to the first Booking screen -->
                 <button class="appbar__btn" type="button" data-action="new" title="New shipment">
                   <svg class="ic ic--18"><use href="#i-plus"></use></svg>
@@ -1919,8 +1919,8 @@
               <div class="chat-head">
                 <button class="chat-head__back" type="button" data-back="4"><svg class="ic ic--20"><use href="#i-chevron-left"></use></svg></button>
                 <span class="chat-head__avatar">
-                  <img class="chat-head__sym chat-head__sym--light" src="../assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
-                  <img class="chat-head__sym chat-head__sym--dark" src="../assets/tiximax-symbol-circle-gold.svg" alt="">
+                  <img class="chat-head__sym chat-head__sym--light" src="../../assets/tiximax-symbol-circle-navy.svg" alt="Tiximax">
+                  <img class="chat-head__sym chat-head__sym--dark" src="../../assets/tiximax-symbol-circle-gold.svg" alt="">
                 </span>
                 <div style="flex:1">
                   <div class="chat-head__name">Tiximax Express</div>
@@ -1960,7 +1960,7 @@
             <div class="scr">
               <div class="appbar">
                 <span class="appbar__spacer"></span>
-                <img class="appbar__mark" src="../assets/tiximax-mark.svg" alt="">
+                <img class="appbar__mark" src="../../assets/tiximax-mark.svg" alt="">
                 <button class="appbar__btn" type="button" data-action="new" title="New shipment">
                   <svg class="ic ic--18"><use href="#i-plus"></use></svg>
                 </button>
@@ -2063,8 +2063,8 @@
 <header class="app-head">
   <div class="app-head__inner">
     <div class="brand" id="brandHome">
-      <img class="brand__logo--light" src="../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
-      <img class="brand__logo--dark" src="../assets/tiximax-logo-white.svg" alt="TIXIMAX">
+      <img class="brand__logo--light" src="../../assets/tiximax-logo-navy.svg" alt="TIXIMAX">
+      <img class="brand__logo--dark" src="../../assets/tiximax-logo-white.svg" alt="TIXIMAX">
       <span class="brand__tag">Express</span>
     </div>
     <nav class="nav">
@@ -3606,7 +3606,7 @@
 
     var stages = STAGES.map(function (label, i) {
       var done = i <= active.stage, cur = i === active.stage + 1;
-      var inner = done ? icon('check', 12) : (cur ? '<img src="../assets/airplane.svg" alt="">' : '');
+      var inner = done ? icon('check', 12) : (cur ? '<img src="../../assets/airplane.svg" alt="">' : '');
       return '<div class="tl"><div class="tl__gut">' +
         '<span class="tl__dot' + (done ? ' is-done' : '') + (cur ? ' is-cur' : '') + '">' + inner + '</span>' +
         (i < STAGES.length - 1 ? '<span class="tl__line' + (done ? ' is-done' : '') + '"></span>' : '') + '</div>' +
@@ -3694,8 +3694,8 @@
     return '<div class="chat">' +
       '<div class="chat__head">' +
         '<span class="chat__avatar">' +
-          '<img class="chat__avatar--light" src="../assets/tiximax-symbol-circle-navy.svg" alt="TIXIMAX Support">' +
-          '<img class="chat__avatar--dark" src="../assets/tiximax-symbol-circle-gold.svg" alt="TIXIMAX Support">' +
+          '<img class="chat__avatar--light" src="../../assets/tiximax-symbol-circle-navy.svg" alt="TIXIMAX Support">' +
+          '<img class="chat__avatar--dark" src="../../assets/tiximax-symbol-circle-gold.svg" alt="TIXIMAX Support">' +
           '<i></i></span>' +
         '<div style="flex:1;min-width:0"><div class="chat__name">TIXIMAX Support</div>' +
         '<div class="chat__status"><i></i>Online · replies in minutes</div></div></div>' +
