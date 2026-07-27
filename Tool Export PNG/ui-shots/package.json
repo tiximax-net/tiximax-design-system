@@ -1,0 +1,18 @@
+{
+  "name": "ui-shots",
+  "version": "1.0.0",
+  "description": "Nút Export screen cho mọi prototype UI — xuất PNG (có khung device) hoặc ZIP, pixel-perfect qua Chrome nền. 0 dependency.",
+  "type": "module",
+  "bin": {
+    "ui-shots": "cli.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "cli.mjs",
+    "engine.mjs",
+    "widget.js",
+    "README.md"
+  ]
+}
