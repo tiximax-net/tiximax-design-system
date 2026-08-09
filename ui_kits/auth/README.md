@@ -5,9 +5,18 @@ High-fidelity recreation of the TIXIMAX **central SSO hosted-login portal** ("C�
 > ⚠️ Brand-consistent interpretation, not a pixel copy of a live product. Wire the forms to your real OIDC/auth backend before production use.
 
 ## Run
-Open `index.html` — **zero build**. It loads `../../colors_and_type.css` + `auth.css`, real brand assets from `../../assets/`, and React / Babel-standalone / Lucide + Google Fonts from CDN. The source is **TypeScript** (`.ts` / `.tsx`); Babel-standalone strips the types in-browser (`data-presets="react,typescript"`), so no compile step is needed to view it. Starts on the **Sign in** view.
+**Zero build — but it must be served over HTTP, not opened as a `file://` path.** From the repo root:
 
-Type-checking: `tsconfig.json` + `types.d.ts` give real `tsc --noEmit` coverage with no `@types` dependency (React/ReactDOM/Lucide are declared as ambient CDN globals). The files are global scripts (no `import`/`export`) so the browser can run them directly and they share helpers via `window`.
+```
+npx serve .          # or: python -m http.server 8000
+# then open http://localhost:3000/ui_kits/auth/index.html
+```
+
+> ⚠️ Double-clicking `index.html` gives a **blank page**. Babel-standalone loads the three source files via XHR, and Chrome treats `file://` as a null origin, so every `src=` fetch is blocked by CORS (`Cross origin requests are only supported for protocol schemes: … http, https`). Same applies to `ui_kits/website/` and `ui_kits/portal/`.
+
+It loads `../../colors_and_type.css` + `auth.css`, real brand assets from `../../assets/`, and React / Babel-standalone / Lucide + Google Fonts from CDN. The source is **TypeScript** (`.ts` / `.tsx`); Babel-standalone strips the types in-browser (`data-presets="react,typescript"`), so no compile step is needed to view it. Starts on the **Sign in** view.
+
+Type-checking: `npm ci` at the repo root, then `npx tsc --noEmit -p ui_kits/auth/tsconfig.json`. `tsconfig.json` + `types.d.ts` give real coverage with no `@types` dependency (React/ReactDOM/Lucide are declared as ambient CDN globals). The files are global scripts (no `import`/`export`) so the browser can run them directly and they share helpers via `window`.
 
 ## Layout
 Two-pane split (single pane below 880px, brand aside hidden):
