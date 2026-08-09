@@ -15,7 +15,7 @@ If the user invokes this skill without any other guidance, ask them what they wa
 - `fonts/` — self-hosted families: Montserrat, Inter, Noto Sans JP, Be Vietnam Pro, Source Sans 3.
 - `assets/` — logo lockups for TIXIMAX / Indonesia / Philippines (color/black/white), spark mark, favicons, `airplane.svg`.
 - `preview/` — design system reference cards (Brand, Colors, Type, Spacing/Radius/Shadow, 19 components), each shown Light + Dark.
-- `ui_kits/website/`, `ui_kits/portal/`, and `ui_kits/auth/` — React recreations + runnable `index.html`. `website`/`portal` are JSX; `auth/` is the SSO hosted-login portal in **TypeScript** (`.ts`/`.tsx`, zero-build via Babel-standalone) — login/register/forgot/OTP, brand aside with logo + watermark + airplane journey, VI/EN/JP, light/dark.
+- `ui_kits/website/`, `ui_kits/portal/`, and `ui_kits/auth/` — React recreations + runnable `index.html` (**serve over HTTP**, e.g. `npx serve .`; on `file://` Babel-standalone's XHR is CORS-blocked and the page renders blank). `website`/`portal` are JSX; `auth/` is the SSO hosted-login portal in **TypeScript** (`.ts`/`.tsx`, zero-build via Babel-standalone) — login/register/forgot/OTP, brand aside with logo + watermark + airplane journey, VI/EN/JP, light/dark.
 
 ## Brand at a glance
 - **Surfaces:** white-forward — pure white cards `#FFFFFF` on cool off-white `#F5F7FA`. Navy is an accent band, not the dominant surface.

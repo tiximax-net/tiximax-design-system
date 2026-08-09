@@ -5,7 +5,7 @@
 ### Browse the system
 - **Design-system browser** — open **`index.html`** (sidebar + viewer, 30 cards: Brand, Colors, Type, Spacing, 19 Components, Templates). **Multi-language VI / 日本語 / EN** + **light/dark** toggle in the header; **click-to-copy hex** on the Colors pages. Component/specimen pages live in `preview/` and load into the viewer. *(`preview/All Components.html` is the earlier single-language browser.)*
 - **Individual components** — `preview/comp-*.html` (token-driven; each loads `colors_and_type.css`).
-- **UI kits** — `ui_kits/website/index.html` (marketing site) and `ui_kits/portal/index.html` (customer app).
+- **UI kits** — `ui_kits/website/index.html` (marketing site), `ui_kits/portal/index.html` (customer app), `ui_kits/auth/index.html` (SSO hosted-login). ⚠️ **Serve these over HTTP** — all three load their component files with `<script type="text/babel" src="…">`, and Babel-standalone fetches them by XHR, which `file://` blocks as a null origin (blank page, CORS errors in console). From the repo root: `npx serve .` (or any static server), then open `http://localhost:3000/ui_kits/<kit>/index.html`. The design-system browser above works fine straight from `file://`.
 - **Deck & document pipeline** — `slides-preview.html`, `documents-preview.html`; PDF export via the group `html-to-pdf` tool + `export.json`.
 
 ### Foundations at a glance
