@@ -103,6 +103,7 @@ The TIXIMAX look is **gold-on-navy, clean and corporate-warm** — a premium log
 | `preview/` | Design System tab cards (colors, type, spacing, shadow, components). |
 | `ui_kits/website/` | Marketing website UI kit (React/JSX components + `index.html`). |
 | `ui_kits/portal/` | Customer order & tracking portal UI kit. |
+| `ui_kits/auth/` | SSO hosted-login portal UI kit ("Cổng SSO Tiximax") — login/register/forgot/OTP, brand aside with logo + watermark + airplane journey, VI/EN/JP, light/dark. **TypeScript** (`.ts`/`.tsx`, zero-build via Babel-standalone). |
 
 ### Quick start
 ```html

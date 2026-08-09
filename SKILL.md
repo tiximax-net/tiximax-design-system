@@ -1,6 +1,6 @@
 ---
 name: tiximax-design
-description: Use this skill to generate well-branded interfaces and assets for TIXIMAX (Vietnamese international buy-on-behalf & shipping logistics brand), either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping.
+description: Use this skill to generate well-branded interfaces and assets for TIXIMAX (Vietnamese international buy-on-behalf & shipping logistics brand, with TIXIMAX Indonesia & Philippines storefronts), either for production or throwaway prototypes/mocks/etc. Contains essential design guidelines, colors, type, fonts, assets, and UI kit components for prototyping.
 user-invocable: true
 ---
 
@@ -9,14 +9,18 @@ If creating visual artifacts (slides, mocks, throwaway prototypes, etc), copy as
 If the user invokes this skill without any other guidance, ask them what they want to build or design, ask some questions, and act as an expert designer who outputs HTML artifacts _or_ production code, depending on the need.
 
 ## What's here
-- `README.md` — brand context, voice & tone, visual foundations, iconography, manifest.
-- `colors_and_type.css` — all design tokens (color ramps, semantic colors, type scale + classes, radius, spacing, shadow). Import in every artifact.
-- `fonts/` — Source Sans 3 family.
-- `assets/` — logo variants (light/white/navy).
-- `preview/` — design system reference cards.
-- `ui_kits/website/` and `ui_kits/portal/` — React/JSX component recreations + runnable `index.html`.
+- `README.md` — brand context, voice & tone, visual foundations, iconography, component inventory, manifest.
+- `DESIGN_SYSTEM.md` / `design.md` — full token + component spec (Vietnamese).
+- `colors_and_type.css` — all design tokens (color ramps, semantic + text colors, type scale + classes, radius, spacing, shadow) **plus dark-theme overrides**. Import in every artifact.
+- `fonts/` — self-hosted families: Montserrat, Inter, Noto Sans JP, Be Vietnam Pro, Source Sans 3.
+- `assets/` — logo lockups for TIXIMAX / Indonesia / Philippines (color/black/white), spark mark, favicons, `airplane.svg`.
+- `preview/` — design system reference cards (Brand, Colors, Type, Spacing/Radius/Shadow, 19 components), each shown Light + Dark.
+- `ui_kits/website/`, `ui_kits/portal/`, and `ui_kits/auth/` — React recreations + runnable `index.html`. `website`/`portal` are JSX; `auth/` is the SSO hosted-login portal in **TypeScript** (`.ts`/`.tsx`, zero-build via Babel-standalone) — login/register/forgot/OTP, brand aside with logo + watermark + airplane journey, VI/EN/JP, light/dark.
 
 ## Brand at a glance
-- Colors: gold `#F4B931`, navy `#264F91`, red-orange `#EB5635`, blue `#006FBB`, green `#008148`; signature spark yellow `#F7B82D`.
-- Type: Source Sans 3 (heavy headings) + Inter (body).
-- Feel: premium, trustworthy logistics. Gold-on-navy. Soft navy-tinted shadows, medium radii, Lucide outline icons. Copy is Vietnamese, reassuring and concrete (real numbers). No emoji.
+- **Surfaces:** white-forward — pure white cards `#FFFFFF` on cool off-white `#F5F7FA`. Navy is an accent band, not the dominant surface.
+- **Colors:** gold `#F4B931` (primary/CTA), yellow `#F7B82D` (highlight), navy `#264F91`, blue `#006FBB` (info/links), green `#008148` (success), red `#EB5635` (energy/error). Each has a full 50→900 ramp.
+- **Light + dark:** fully dual-mode — add `class="dark"` / `[data-theme="dark"]` on any container to flip all tokens.
+- **Type:** Montserrat (headings), Inter (body/UI/sans/display), Noto Sans JP (Japanese). Copy primarily Vietnamese; Japanese supported. **Responsive:** `--fs-*` tokens auto-scale at Tablet (≤1024px) and Mobile (≤767px) — no manual media queries needed.
+- **Feel:** premium, trustworthy logistics. Soft navy-tinted shadows, gold CTA glow, medium radii, Lucide outline icons, airplane order-tracking motif. Reassuring, concrete copy (real numbers). No emoji.
+- **19 components:** Alerts, Anchor, Avatar, Badges, Breadcrumb, Buttons, Card, Collapse, Controls, Datepicker, Drawer, Dropdown, Inputs, List, Menu, Modal, Popup, Progress, Table.
